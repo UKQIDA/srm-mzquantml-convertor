@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  *
@@ -23,16 +24,16 @@ public class SrmReader implements Closeable {
 
     private BufferedReader br;
     /*
-     * PeptideSequence
-     * ProteinName
-     * ReplicateName
+     * PeptideSequence (== peptide)
+     * ProteinName (== protein)
+     * ReplicateName (== assay / raw file)
      * PrecursorMz
      * PrecursorCharge
      * ProductMz
      * ProductCharge
      * FragmentIon
      * RetentionTime
-     * Area
+     * Area (== Q3 m/z)
      * Background
      * PeakRank
      *
@@ -50,19 +51,33 @@ public class SrmReader implements Closeable {
     private int AreaPos = 0;
     private int BackgroundPos = 0;
     private int PeakRankPos = 0;
-    //hashmap variables
-    private HashMap<String, String> PeptideSequenceMap = new HashMap();
-    private HashMap<String, String> ProteinNameMap = new HashMap();
-    private HashMap<String, String> ReplicateNameMap = new HashMap();
-    private HashMap<String, String> PrecursorMzMap = new HashMap();
-    private HashMap<String, String> PrecursorChargeMap = new HashMap();
-    private HashMap<String, String> ProductMzMap = new HashMap();
-    private HashMap<String, String> ProductChargeMap = new HashMap();
-    private HashMap<String, String> FragmentIonMap = new HashMap();
-    private HashMap<String, String> RetentionTimeMap = new HashMap();
-    private HashMap<String, String> AreaMap = new HashMap();
-    private HashMap<String, String> BackgroundMap = new HashMap();
-    private HashMap<String, String> PeakRankMap = new HashMap();
+    //ArrayList variables
+    private ArrayList<String> assayList;
+    private ArrayList<String> proteinList;
+    private ArrayList<String> peptideList;
+    //hashmap one to one variables
+    private LinkedHashMap<String, String> PeptideSequenceMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> ProteinNameMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> ReplicateNameMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> PrecursorMzMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> PrecursorChargeMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> ProductMzMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> ProductChargeMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> FragmentIonMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> RetentionTimeMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> AreaMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> BackgroundMap = new LinkedHashMap();
+    private LinkedHashMap<String, String> PeakRankMap = new LinkedHashMap();
+    //derived hashmap one to many variables
+    private LinkedHashMap<String, ArrayList<String>> proteinIdMap;
+    private LinkedHashMap<String, ArrayList<String>> peptideIdMap;
+    private LinkedHashMap<String, ArrayList<String>> assayIdMap;
+    private LinkedHashMap<String, ArrayList<String>> proteinToPeptideMap;
+    private LinkedHashMap<String, ArrayList<String>> peptideToProteinMap;
+    private LinkedHashMap<String, ArrayList<String>> proteinToAssayMap;
+    private LinkedHashMap<String, ArrayList<String>> assayToProteinMap;
+    private LinkedHashMap<String, ArrayList<String>> peptideToAssayMap;
+    private LinkedHashMap<String, ArrayList<String>> assayToPeptideMap;
 
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
@@ -136,41 +151,274 @@ public class SrmReader implements Closeable {
         }
 
         reader.close();
+
+        //create assayIdMap
+        createAssayIdMap();
+
+        //create proteinIdMap
+        createProteinIdMap();
+
+        //create peptideIdMap
+        createPeptideIdMap();
     }
 
     //public methods
     public ArrayList<String> getAssayList() {
-        ArrayList<String> assayList = new ArrayList();
-        for (String assay : ReplicateNameMap.values()) {
-            if (!assayList.contains(assay)) {
-                assayList.add(assay);
-            }
-        }
-        return assayList;
+        return new ArrayList(assayIdMap.keySet());
     }
 
     public ArrayList<String> getProteinList() {
-        ArrayList<String> proteinList = new ArrayList();
-        for (String protein : ProteinNameMap.values()) {
-            if (!proteinList.contains(protein)) {
-                proteinList.add(protein);
-            }
-        }
-        return proteinList;
+        return new ArrayList(proteinIdMap.keySet());
     }
 
     public ArrayList<String> getPeptideList() {
-        ArrayList<String> peptideList = new ArrayList();
-        for (String peptide : PeptideSequenceMap.values()) {
-            if (!peptideList.contains(peptide)) {
-                peptideList.add(peptide);
-            }
-        }
-        return peptideList;
+        return new ArrayList(peptideIdMap.keySet());
     }
-    
+
+    public LinkedHashMap<String, String> getPeptideMap() {
+        return PeptideSequenceMap;
+    }
+
+    public LinkedHashMap<String, String> getProteinMap() {
+        return ProteinNameMap;
+    }
+
+    public LinkedHashMap<String, String> getAssayMap() {
+        return ReplicateNameMap;
+    }
+
+    public LinkedHashMap<String, String> getPrecursorMzMap() {
+        return PrecursorMzMap;
+    }
+
+    public LinkedHashMap<String, String> getPrecursorChargeMap() {
+        return PrecursorChargeMap;
+    }
+
+    public LinkedHashMap<String, String> getProductMzMap() {
+        return ProductMzMap;
+    }
+
+    public LinkedHashMap<String, String> getProductChargeMap() {
+        return ProductChargeMap;
+    }
+
+    public LinkedHashMap<String, String> getFragmentIonMap() {
+        return FragmentIonMap;
+    }
+
+    public LinkedHashMap<String, String> getRetentionTimeMap() {
+        return RetentionTimeMap;
+    }
+
+    public LinkedHashMap<String, String> getAreaMap() {
+        return AreaMap;
+    }
+
+    public LinkedHashMap<String, String> getBackgroundMap() {
+        return BackgroundMap;
+    }
+
+    public LinkedHashMap<String, String> getPeakRankMap() {
+        return PeakRankMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getAssayIdMap() {
+        return assayIdMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getProteinIdMap() {
+        return proteinIdMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getPeptideIdMap() {
+        return peptideIdMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getAssayToPeptideMap() {
+        createAssayToPeptideMap();
+        return assayToPeptideMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getPeptideToAssayMap() {
+        createPeptideToAssayMap();
+        return peptideToAssayMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getAssayToProteinMap() {
+        createAssayToProteinMap();
+        return assayToProteinMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getProteinToAssayMap() {
+        createProteinToAssayMap();
+        return proteinToAssayMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getPeptideToProteinMap() {
+        createPeptideToProteinMap();
+        return peptideToProteinMap;
+    }
+
+    public LinkedHashMap<String, ArrayList<String>> getProteinToPeptideMap() {
+        createProteinToPeptideMap();
+        return proteinToPeptideMap;
+    }
     //private method
-    
+
+    private void createAssayIdMap() {
+        assayIdMap = new LinkedHashMap();
+        ArrayList<String> assayList = new ArrayList();
+        for (String id : ReplicateNameMap.keySet()) {
+            String assay = ReplicateNameMap.get(id);
+            ArrayList<String> idList = assayIdMap.get(assay);
+            if (idList == null) {
+                idList = new ArrayList();
+                assayIdMap.put(assay, idList);
+            }
+            idList.add(id);
+        }
+    }
+
+    private void createProteinIdMap() {
+        proteinIdMap = new LinkedHashMap();
+        ArrayList<String> proteinList = new ArrayList();
+        for (String id : ProteinNameMap.keySet()) {
+            String protein = ProteinNameMap.get(id);
+            ArrayList<String> idList = proteinIdMap.get(protein);
+            if (idList == null) {
+                idList = new ArrayList();
+                proteinIdMap.put(protein, idList);
+            }
+            idList.add(id);
+        }
+    }
+
+    private void createPeptideIdMap() {
+        peptideIdMap = new LinkedHashMap();
+        ArrayList<String> peptideList = new ArrayList();
+        for (String id : PeptideSequenceMap.keySet()) {
+            String peptide = PeptideSequenceMap.get(id);
+            ArrayList<String> idList = peptideIdMap.get(peptide);
+            if (idList == null) {
+                idList = new ArrayList();
+                peptideIdMap.put(peptide, idList);
+            }
+            idList.add(id);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> proteinToPeptideMap
+     * @key = protein name
+     * @value = list of peptide sequence
+     */
+    private void createProteinToPeptideMap() {
+        proteinToPeptideMap = new LinkedHashMap();
+        for (String protein : proteinIdMap.keySet()) {
+            ArrayList<String> idList = proteinIdMap.get(protein);
+
+            // get peptideList from PeptideSequenceMap based on idList
+            ArrayList<String> peptideList = getListFromId(idList, PeptideSequenceMap);
+
+            proteinToPeptideMap.put(protein, peptideList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> peptideToProteinMap
+     * @key = peptide sequence
+     * @value = list of protein name
+     */
+    private void createPeptideToProteinMap() {
+        peptideToProteinMap = new LinkedHashMap();
+        for (String peptide : peptideIdMap.keySet()) {
+            ArrayList<String> idList = peptideIdMap.get(peptide);
+
+            // get proteinList from ProteinNameMap based on idList
+            ArrayList<String> proteinList = getListFromId(idList, ProteinNameMap);
+
+            peptideToProteinMap.put(peptide, proteinList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> peptideToAssayMap
+     * @key = peptide sequence
+     * @value = list of assay name
+     */
+    private void createPeptideToAssayMap() {
+        peptideToAssayMap = new LinkedHashMap();
+        for (String peptide : peptideIdMap.keySet()) {
+            ArrayList<String> idList = peptideIdMap.get(peptide);
+
+            // get assayList from ReplicateNameMap based on idList
+            ArrayList<String> assayList = getListFromId(idList, ReplicateNameMap);
+
+            peptideToAssayMap.put(peptide, assayList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> assayToPeptideMap
+     * @key = assay name
+     * @value = list of peptide sequence
+     */
+    private void createAssayToPeptideMap() {
+        assayToPeptideMap = new LinkedHashMap();
+        for (String assay : assayIdMap.keySet()) {
+            ArrayList<String> idList = assayIdMap.get(assay);
+
+            // get peptideList from PeptideSequenceMap based on idList
+            ArrayList<String> peptideList = getListFromId(idList, PeptideSequenceMap);
+
+            assayToPeptideMap.put(assay, peptideList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> proteinToAssayMap
+     * @key = peptide sequence
+     * @value = list of assay name
+     */
+    private void createProteinToAssayMap() {
+        proteinToAssayMap = new LinkedHashMap();
+        for (String protein : proteinIdMap.keySet()) {
+            ArrayList<String> idList = proteinIdMap.get(protein);
+
+            // get assayList from ProteinNameMap based on idList
+            ArrayList<String> assayList = getListFromId(idList, ProteinNameMap);
+
+            peptideToAssayMap.put(protein, assayList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> assayToProteinMap
+     * @key = assay name
+     * @value = list of protein name
+     */
+    private void createAssayToProteinMap() {
+        assayToProteinMap = new LinkedHashMap();
+        for (String assay : assayIdMap.keySet()) {
+            ArrayList<String> idList = assayIdMap.get(assay);
+
+            // get proteinList from ProteinNameMap based on idList
+            ArrayList<String> proteinList = getListFromId(idList, ProteinNameMap);
+
+            assayToProteinMap.put(assay, proteinList);
+        }
+    }
+
+    private ArrayList<String> getListFromId(ArrayList<String> idList,
+                                            HashMap<String, String> aMap) {
+        ArrayList<String> resList = new ArrayList();
+        for (String id : idList) {
+            resList.add(aMap.get(id));
+        }
+        return resList;
+
+    }
 
     @Override
     public void close()
