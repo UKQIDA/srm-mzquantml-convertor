@@ -1,0 +1,119 @@
+<MzQuantML id="SRM-1232013" version="1.0.0" creationDate="2013-03-12T14:39:41.630Z" xsi:schemaLocation="http://psidev.info/psi/pi/mzQuantML/1.0.0 ../../../schema/mzQuantML_1_0_0.xsd" xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <CvList>
+        <Cv id="PSI-MS" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" version="2.25.0" fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies"/>
+        <Cv id="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" fullName="Unimod"/>
+        <Cv id="PSI-MOD" uri="http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo" fullName="Proteomics Standards Initiative Protein Modifications Vocabularies"/>
+    </CvList>
+    <AuditCollection>
+        <Person firstName="Andy" lastName="Jones" id="PERS_ARJ">
+            <Affiliation organization_ref="ORG_UOL"/>
+        </Person>
+        <Person firstName="Da" lastName="Qi" id="PERS_DQ">
+            <Affiliation organization_ref="ORG_UOL"/>
+        </Person>
+        <Organization name="University of Liverpool" id="ORG_UOL"/>
+    </AuditCollection>
+    <AnalysisSummary>
+        <cvParam accession="MS:1001838" cvRef="PSI-MS" name="SRM quantitation analysis"/>
+        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM raw feature quantitation"/>
+        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM peptide level quantitation"/>
+        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM protein level quantitation"/>
+        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="false" name="SRM proteingroup level quantitation"/>
+    </AnalysisSummary>
+    <InputFiles>
+        <RawFilesGroup id="rg_0">
+            <RawFile location="../msmsdata/2013feb05_Waters_QC_FL_1.raw" name="2013feb05_Waters_QC_FL_1.raw" id="raw_0"/>
+        </RawFilesGroup>
+        <SearchDatabase location="sgd_orfs_plus_ups_prots.fasta" id="SD1">
+            <DatabaseName>
+                <userParam name="sgd_orfs_plus_ups_prots.fasta"/>
+            </DatabaseName>
+        </SearchDatabase>
+    </InputFiles>
+    <SoftwareList>
+        <Software version="1.4" id="Skyline">
+            <cvParam accession="MS:1000922" cvRef="PSI-MS" name="Skyline"/>
+        </Software>
+    </SoftwareList>
+    <DataProcessingList>
+        <DataProcessing order="1" software_ref="Skyline" id="feature_quantification">
+            <ProcessingMethod order="1">
+                <cvParam accession="MS:1001861" cvRef="PSI-MS" name="quantification data processing"/>
+            </ProcessingMethod>
+        </DataProcessing>
+    </DataProcessingList>
+    <AssayList id="AssayList_1">
+        <Assay rawFilesGroup_ref="rg_0" name="2013feb05_Waters_QC_FL_1" id="ass_0">
+            <Label>
+                <Modification>
+                    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+                </Modification>
+            </Label>
+        </Assay>
+    </AssayList>
+    <ProteinList id="ProtList1">
+        <Protein searchDatabase_ref="SD1" accession="peptides1" id="prot_0">
+            <PeptideConsensus_refs>pep_IGDYAGIK pep_TNFDAFPDK pep_AVIESENSAER pep_IQNAGTEVVEAK pep_NVNDVIAPAFVK</PeptideConsensus_refs>
+        </Protein>
+    </ProteinList>
+    <PeptideConsensusList finalResult="true" id="PepList1">
+        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_IGDYAGIK">
+            <PeptideSequence>IGDYAGIK</PeptideSequence>
+            <EvidenceRef feature_ref="ft_0" assay_refs="ass_0"/>
+            <EvidenceRef feature_ref="ft_1" assay_refs="ass_0"/>
+        </PeptideConsensus>
+        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_TNFDAFPDK">
+            <PeptideSequence>TNFDAFPDK</PeptideSequence>
+            <EvidenceRef feature_ref="ft_2" assay_refs="ass_0"/>
+            <EvidenceRef feature_ref="ft_3" assay_refs="ass_0"/>
+        </PeptideConsensus>
+        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_AVIESENSAER">
+            <PeptideSequence>AVIESENSAER</PeptideSequence>
+            <EvidenceRef feature_ref="ft_4" assay_refs="ass_0"/>
+            <EvidenceRef feature_ref="ft_5" assay_refs="ass_0"/>
+        </PeptideConsensus>
+        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_IQNAGTEVVEAK">
+            <PeptideSequence>IQNAGTEVVEAK</PeptideSequence>
+            <EvidenceRef feature_ref="ft_6" assay_refs="ass_0"/>
+            <EvidenceRef feature_ref="ft_7" assay_refs="ass_0"/>
+        </PeptideConsensus>
+        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_NVNDVIAPAFVK">
+            <PeptideSequence>NVNDVIAPAFVK</PeptideSequence>
+            <EvidenceRef feature_ref="ft_8" assay_refs="ass_0"/>
+            <EvidenceRef feature_ref="ft_9" assay_refs="ass_0"/>
+        </PeptideConsensus>
+    </PeptideConsensusList>
+    <FeatureList id="Flist_0" rawFilesGroup_ref="rg_0">
+        <Feature charge="1" mz="723.367181" rt="14.11" id="ft_0"/>
+        <Feature charge="1" mz="666.345717" rt="14.12" id="ft_1"/>
+        <Feature charge="1" mz="839.393395" rt="14.95" id="ft_2"/>
+        <Feature charge="1" mz="692.324982" rt="14.96" id="ft_3"/>
+        <Feature charge="1" mz="921.390829" rt="13.01" id="ft_4"/>
+        <Feature charge="1" mz="792.348236" rt="13.01" id="ft_5"/>
+        <Feature charge="1" mz="1017.521115" rt="13.47" id="ft_6"/>
+        <Feature charge="1" mz="832.441074" rt="13.48" id="ft_7"/>
+        <Feature charge="1" mz="1073.598972" rt="16.02" id="ft_8"/>
+        <Feature charge="1" mz="745.460687" rt="16.02" id="ft_9"/>
+        <FeatureQuantLayer id="FQL_0">
+            <ColumnDefinition>
+                <Column index="0">
+                    <DataType>
+                        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" name="Q3 m/z"/>
+                    </DataType>
+                </Column>
+            </ColumnDefinition>
+            <DataMatrix>
+                <Row object_ref="ft_0">966054</Row>
+                <Row object_ref="ft_1">307341</Row>
+                <Row object_ref="ft_2">157291</Row>
+                <Row object_ref="ft_3">75522</Row>
+                <Row object_ref="ft_4">1200373</Row>
+                <Row object_ref="ft_5">1587970</Row>
+                <Row object_ref="ft_6">6404507</Row>
+                <Row object_ref="ft_7">2666498</Row>
+                <Row object_ref="ft_8">111856</Row>
+                <Row object_ref="ft_9">137701</Row>
+            </DataMatrix>
+        </FeatureQuantLayer>
+    </FeatureList>
+</MzQuantML>

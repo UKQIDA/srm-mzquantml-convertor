@@ -1,0 +1,264 @@
+
+Parameters for C:\MassLynx\2013_February.PRO\ACQUDB\Waters_QC_revised_peak_widths_SWH_modified.EXP
+
+Data Processing:
+SIR / MRM Chromatogram Spike Removal	OFF
+SIR / MRM Smoothing		OFF
+Smoothing window size (scans)	3
+Number of smooths		2
+
+
+Prescan Statistics:
+Initial Average Intensity	6.8709
+Initial Average Std Dev		1.4511
+Bunch Zero Level		0.0032
+Bunch Std Dev			0.0085
+Bunch Threshold			0.0677
+Spike Removal Std Dev		1.4315
+
+
+Method Events:
+Initial Stop Flow:	No Change
+Initial Switch 2:	No Change
+Initial Switch 3:	No Change
+Initial Switch 4:	No Change
+Initial Infusion:	No Change
+Initial Flow State:	LC
+Initial Flow Rate:	5
+Initial Reservoir:	No Action
+API Probe Delay Temp:	1
+Initial Refill:		No Action
+Timed Events Disabled
+Event	Time	Name		Action
+
+
+Source Information:
+Type - NanoFlow
+Status - Probe Adjuster Disconnected
+
+Instrument Parameters - Function 1:
+Parameter File - C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+Polarity	ES+
+Calibration	Static 2
+Capillary (kV)	3.00	3.05
+Cone (V)	30.00	53.35
+Extractor (V)	3.00	23.91
+Source Temperature (°C)	70	70
+Cone Gas Flow (L/Hr)	OFF
+Purge Gas Flow (L/Hr)	OFF
+NanoFlow Gas Flow (Bar)	0.10	0.10
+Collision Gas Flow (mL/Min)	0.22	0.21
+LM 1 Resolution	2.8
+HM 1 Resolution	15.0
+Ion Energy 1	0.7
+MS Mode Collision Energy	4.00
+MSMS Mode Collision Energy	30.00
+MS Mode Entrance	0.50
+MS Mode Exit	0.50
+Gas On MS Mode Entrance	0.50
+Gas On MS Mode Exit	0.50
+Gas On MSMS Mode Entrance	0.50
+Gas On MSMS Mode Exit	0.50
+Gas Off MS Mode Entrance	30.00
+Gas Off MS Mode Exit	30.00
+Gas Off MSMS Mode Entrance	30.00
+Gas Off MSMS Mode Exit	30.00
+ScanWave MS Mode Entrance	0.50
+ScanWave MS Mode Exit	0.50
+ScanWave MSMS Mode Entrance	0.50
+ScanWave MSMS Mode Exit	0.50
+LM 2 Resolution	2.8
+HM 2 Resolution	14.9
+Ion Energy 2	0.8
+Gain	1.00
+Multiplier	515.75
+Active Reservoir	Wash
+
+Instrument Parameters - Function 2:
+Parameter File - C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+Polarity	ES+
+Calibration	Static 2
+Capillary (kV)	3.00	3.05
+Cone (V)	30.00	53.35
+Extractor (V)	3.00	23.91
+Source Temperature (°C)	70	70
+Cone Gas Flow (L/Hr)	OFF
+Purge Gas Flow (L/Hr)	OFF
+NanoFlow Gas Flow (Bar)	0.10	0.10
+Collision Gas Flow (mL/Min)	0.22	0.21
+LM 1 Resolution	2.8
+HM 1 Resolution	15.0
+Ion Energy 1	0.7
+MS Mode Collision Energy	4.00
+MSMS Mode Collision Energy	30.00
+MS Mode Entrance	0.50
+MS Mode Exit	0.50
+Gas On MS Mode Entrance	0.50
+Gas On MS Mode Exit	0.50
+Gas On MSMS Mode Entrance	0.50
+Gas On MSMS Mode Exit	0.50
+Gas Off MS Mode Entrance	30.00
+Gas Off MS Mode Exit	30.00
+Gas Off MSMS Mode Entrance	30.00
+Gas Off MSMS Mode Exit	30.00
+ScanWave MS Mode Entrance	0.50
+ScanWave MS Mode Exit	0.50
+ScanWave MSMS Mode Entrance	0.50
+ScanWave MSMS Mode Exit	0.50
+LM 2 Resolution	2.8
+HM 2 Resolution	14.9
+Ion Energy 2	0.8
+Gain	1.00
+Multiplier	515.75
+Active Reservoir	Wash
+
+Instrument Parameters - Function 3:
+Parameter File - C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+Polarity	ES+
+Calibration	Static 2
+Capillary (kV)	3.00	3.05
+Cone (V)	30.00	53.35
+Extractor (V)	3.00	23.91
+Source Temperature (°C)	70	70
+Cone Gas Flow (L/Hr)	OFF
+Purge Gas Flow (L/Hr)	OFF
+NanoFlow Gas Flow (Bar)	0.10	0.10
+Collision Gas Flow (mL/Min)	0.22	0.21
+LM 1 Resolution	2.8
+HM 1 Resolution	15.0
+Ion Energy 1	0.7
+MS Mode Collision Energy	4.00
+MSMS Mode Collision Energy	30.00
+MS Mode Entrance	0.50
+MS Mode Exit	0.50
+Gas On MS Mode Entrance	0.50
+Gas On MS Mode Exit	0.50
+Gas On MSMS Mode Entrance	0.50
+Gas On MSMS Mode Exit	0.50
+Gas Off MS Mode Entrance	30.00
+Gas Off MS Mode Exit	30.00
+Gas Off MSMS Mode Entrance	30.00
+Gas Off MSMS Mode Exit	30.00
+ScanWave MS Mode Entrance	0.50
+ScanWave MS Mode Exit	0.50
+ScanWave MSMS Mode Entrance	0.50
+ScanWave MSMS Mode Exit	0.50
+LM 2 Resolution	2.8
+HM 2 Resolution	14.9
+Ion Energy 2	0.8
+Gain	1.00
+Multiplier	515.75
+Active Reservoir	Wash
+
+Instrument Parameters - Function 4:
+Parameter File - C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+Polarity	ES+
+Calibration	Static 2
+Capillary (kV)	3.00	3.05
+Cone (V)	30.00	53.35
+Extractor (V)	3.00	23.91
+Source Temperature (°C)	70	70
+Cone Gas Flow (L/Hr)	OFF
+Purge Gas Flow (L/Hr)	OFF
+NanoFlow Gas Flow (Bar)	0.10	0.10
+Collision Gas Flow (mL/Min)	0.22	0.21
+LM 1 Resolution	2.8
+HM 1 Resolution	15.0
+Ion Energy 1	0.7
+MS Mode Collision Energy	4.00
+MSMS Mode Collision Energy	30.00
+MS Mode Entrance	0.50
+MS Mode Exit	0.50
+Gas On MS Mode Entrance	0.50
+Gas On MS Mode Exit	0.50
+Gas On MSMS Mode Entrance	0.50
+Gas On MSMS Mode Exit	0.50
+Gas Off MS Mode Entrance	30.00
+Gas Off MS Mode Exit	30.00
+Gas Off MSMS Mode Entrance	30.00
+Gas Off MSMS Mode Exit	30.00
+ScanWave MS Mode Entrance	0.50
+ScanWave MS Mode Exit	0.50
+ScanWave MSMS Mode Entrance	0.50
+ScanWave MSMS Mode Exit	0.50
+LM 2 Resolution	2.8
+HM 2 Resolution	14.9
+Ion Energy 2	0.8
+Gain	1.00
+Multiplier	515.75
+Active Reservoir	Wash
+
+Instrument Parameters - Function 5:
+Parameter File - C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+Polarity	ES+
+Calibration	Static 2
+Capillary (kV)	3.00	3.05
+Cone (V)	30.00	53.35
+Extractor (V)	3.00	23.91
+Source Temperature (°C)	70	70
+Cone Gas Flow (L/Hr)	OFF
+Purge Gas Flow (L/Hr)	OFF
+NanoFlow Gas Flow (Bar)	0.10	0.10
+Collision Gas Flow (mL/Min)	0.22	0.21
+LM 1 Resolution	2.8
+HM 1 Resolution	15.0
+Ion Energy 1	0.7
+MS Mode Collision Energy	4.00
+MSMS Mode Collision Energy	30.00
+MS Mode Entrance	0.50
+MS Mode Exit	0.50
+Gas On MS Mode Entrance	0.50
+Gas On MS Mode Exit	0.50
+Gas On MSMS Mode Entrance	0.50
+Gas On MSMS Mode Exit	0.50
+Gas Off MS Mode Entrance	30.00
+Gas Off MS Mode Exit	30.00
+Gas Off MSMS Mode Entrance	30.00
+Gas Off MSMS Mode Exit	30.00
+ScanWave MS Mode Entrance	0.50
+ScanWave MS Mode Exit	0.50
+ScanWave MSMS Mode Entrance	0.50
+ScanWave MSMS Mode Exit	0.50
+LM 2 Resolution	2.8
+HM 2 Resolution	14.9
+Ion Energy 2	0.8
+Gain	1.00
+Multiplier	515.75
+Active Reservoir	Wash
+
+
+Engineers Settings:
+MS1 Low Mass Position      	672
+MS1 High Mass Position     	293
+MS1 Low Mass Resolution    	219
+MS1 High Mass Resolution   	1941
+MS1 Resolution Linearity   	537
+MS1 High Mass DC Balance   	-0.20
+MS1 DC Polarity            	Negative
+MS2 Low Mass Position      	671
+MS2 High Mass Position     	277
+MS2 Low Mass Resolution    	221
+MS2 High Mass Resolution   	1903
+MS2 Resolution Linearity   	533
+MS2 High Mass DC Balance   	-0.55
+MS2 DC Polarity            	Negative
+
+
+Inter-scan delays:
+Automatic Mode
+MS Inter-scan delay (secs)                   	0.005
+Polarity/Mode switch Inter-scan delay (secs) 	0.020
+Enhanced Inter-scan delay (secs)             	0.020
+Inter-channel delay - See Tables
+MS 1 Delay Table:
+         R     delay
+<=   0.500     0.005
+<=   2.000     0.008
+<=   4.000     0.010
+<=  11.000     0.012
+>   11.000     0.014
+MS 2 Delay Table:
+         R     delay
+<=   8.000     0.005
+<=  25.000     0.005
+>   25.000     0.007

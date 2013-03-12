@@ -26,7 +26,7 @@ public class SrmReader implements Closeable {
     /*
      * PeptideSequence (== peptide)
      * ProteinName (== protein)
-     * ReplicateName (== assay / raw file)
+     * ReplicateName (== assay name/ raw file (+".raw")
      * PrecursorMz
      * PrecursorCharge
      * ProductMz

@@ -1,0 +1,101 @@
+
+ACE Experimental Record
+
+
+Inlet Method File: c:\masslynx\2013_february.pro\acqudb\waters_qc_modified
+
+---------------------   Run method parameters   ----------------
+
+-- PUMP --
+
+Waters GI Pump
+1 -------------------------------------------- 
+ Application Mode: Single Pump Trapping 
+ Pump Type: BSM1 
+ Run Time: 30.00 min
+ Solvent Selection A: A1 
+ Solvent Selection B: B1 
+ Seal Wash: 30.0 min
+ Switch 1: No Change 
+ Switch 2: No Change 
+ Switch 3: No Change 
+ Chart Out 1: System Pressure 
+ Chart Out 2: %B 
+ Run Events: Yes 
+ [Gradient Table]
+  Time(min) Flow Rate(uL/min) %A %B Curve 
+ 1. Initial 0.300 97.0 3.0  
+ 2. 10.00 0.300 60.0 40.0 6 
+ 3. 12.00 0.300 5.0 95.0 6 
+ 4. 14.00 0.300 5.0 95.0 6 
+ 5. 15.00 0.300 97.0 3.0 6 
+ 6. 30.00 0.300 97.0 3.0 6 
+ Analytical Low Pressure Limit: 0 psi
+ Analytical High Pressure Limit: 10000 psi
+ Sample Loading Time: 3.00 min
+ Trapping Flow Rate: 5.000 uL/min
+ Trapping %A: 99.9 
+ Trapping %B: 0.1 
+ Trapping Low Pressure Limit: 0 psi
+ Trapping High Pressure Limit: 10000 psi
+ Flow Rate A Data Channel: Yes 
+ Flow Rate B Data Channel: Yes 
+ Solvent Name A: Water 
+ Solvent Name B: Acetonitrile 
+ Comment:  
+ System Pressure Data Channel: Yes 
+ Flow Rate Data Channel: Yes 
+ %A Data Channel: No 
+ %B Data Channel: Yes 
+ Primary A Pressure Data Channel: No 
+ Accumulator A Pressure Data Channel: No 
+ Primary B Pressure Data Channel: No 
+ Accumulator B Pressure Data Channel: No 
+ Degasser Pressure Data Channel: No 
+
+-- END PUMP --
+
+-- AUTOSAMPLER --
+
+Waters Acquity AutoSampler 
+ Run Time: 30.00 min
+ Comment:  
+ Loop Option: Partial Loop 
+ LoopOffline: Disable 
+ Weak Wash Solvent Name: Water 
+ Weak Wash Volume: 900 uL
+ Strong Wash Solvent Name: Acetonitrile 
+ Strong Wash Volume: 300 uL
+ Target Column Temperature: 35.0 C
+ Column Temperature Alarm Band: Disabled 
+ Target Sample Temperature: 4.0 C
+ Sample Temperature Alarm Band: Disabled 
+ Full Loop Overfill Factor: Automatic 
+ Syringe Draw Rate: Automatic 
+ Needle Placement: 0.2 
+ Pre-Aspirate Air Gap: Automatic 
+ Post-Aspirate Air Gap: Automatic 
+ Column Temperature Data Channel: No 
+ Ambient Temperature Data Channel: No 
+ Sample Temperature Data Channel: No 
+ Sample Pressure Data Channel: No 
+ Switch 1: No Change 
+ Switch 2: No Change 
+ Switch 3: No Change 
+ Switch 4: No Change 
+ Chart Out: Sample Pressure 
+ Sample Temp Alarm: Disabled 
+ Column Temp Alarm: Disabled 
+ Run Events: Yes 
+ SampleLoop: 5.000 
+
+
+Sample Run Injection Parameter
+
+Injection Volume (ul)   -   1.00
+-- END AUTOSAMPLER --
+
+----------------------------  oOo  -----------------------------
+
+
+End of experimental record.
