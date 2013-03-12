@@ -1,0 +1,66 @@
+$$ Version: 01.00
+$$ Acquired Name: 2013feb05_Waters_QC_FL_1
+$$ Acquired Date: 06-Feb-2013
+$$ Acquired Time: 09:14:48
+$$ Job Code: 2013_February
+$$ Task Code: 
+$$ User Name: 
+$$ Instrument: XEVO-TQMS#VBA278
+$$ Conditions: 
+$$ Laboratory Name: 
+$$ Sample Description: Waters QC mix, 1.25 fmoles/uL
+$$ Solvent Delay: 0.0000
+$$ Submitter: 
+$$ SampleID: 
+$$ Bottle Number: 1:A,1
+$$ Plate Desc: 01TL,YX,LN,1: 6,2: 8,3:140.0,4:140.0,5:  0.0,6:  0.0,7:O,8:O,9:1280.0,10:860.0,11:320.0,12:120.0,13:150.0,14: 83.0
+$$ Cal MS1 Static: -1.076660966832696e-1,1.000926039559235e0,-1.536287021917853e-6,9.091081713827725e-10,-1.809503249383658e-13,T0
+$$ Cal MS2 Static: -1.693359390602662e-1,1.001291289087839e0,-2.194274650552880e-6,1.272623341444911e-9,-2.553346465903078e-13,T0
+$$ Associated Datafile: 
+$$ Cal MS1 Static Params: 20,1974,0.00,5.00,2.8,15.0,0.7,Naics,STATMS1
+$$ Cal MS1 Dynamic Params: 2,2048,20.4600,-1.00,2.8,15.0,0.7,Naics,SCNMS1
+$$ Cal MS1 Fast Params: 2,2048,1.0230,-1.00,2.8,15.0,0.7,Naics,FASTMS1
+$$ Cal MS2 Static Params: 20,1974,0.00,5.00,2.8,14.9,0.8,Naics,STATMS2
+$$ Cal MS2 Dynamic Params: 2,2048,20.4600,-1.00,2.8,14.9,0.8,Naics,SCNMS2
+$$ Cal MS2 Fast Params: 2,2048,0.2046,-1.00,2.8,14.9,0.8,Naics,FASTMS2
+$$ Cal Time: 12:14
+$$ Cal Date: 06/18/12
+$$ Analog Channel 1 Offset: 0.000
+$$ Analog Channel 2 Offset: 0.000
+$$ Analog Channel 3 Offset: 0.000
+$$ Analog Channel 4 Offset: 0.000
+$$ Mux Stream: 0
+$$ Cal Temperature: 0.0000000
+$$ Inlet Method: C:\MassLynx\2013_February.PRO\ACQUDB\Waters_QC_modified
+$$ Inlet Prerun Method: 
+$$ Inlet Postrun Method: 
+$$ Inlet Switch Method: 
+$$ HPLC Method: 
+$$ MS Method: C:\MassLynx\2013_February.PRO\ACQUDB\Waters_QC_revised_peak_widths_SWH_modified.EXP
+$$ Tune Method: C:\MassLynx\2013_February.PRO\ACQUDB\2013jan31_Nano_ESI.IPR
+$$ FractionLynx Method: 
+$$ Spare1: 
+$$ Spare2: 
+$$ Spare3: 
+$$ Spare4: 
+$$ Spare5: 
+$$ Reinjections: 0
+$$ PIC MRM Function:  
+$$ PIC Scan Function: 0,0
+$$ ScanWave Func List: 
+$$ Calibration File: C:\MassLynx\IntelliStart\Results\Unit Mass Resolution\Calibration_20120618_2.cal
+$$ Cal Function 1: 0.000000000000000e0,1.000000000000000e0,T0
+$$ Cal Function 2: 0.000000000000000e0,1.000000000000000e0,T0
+$$ Cal Function 3: 0.000000000000000e0,1.000000000000000e0,T0
+$$ Cal Function 4: 0.000000000000000e0,1.000000000000000e0,T0
+$$ Cal Function 5: 0.000000000000000e0,1.000000000000000e0,T0
+$$ Cal StdDev Function 1: 0.000000000000000e0
+$$ Cal StdDev Function 2: 0.000000000000000e0
+$$ Cal StdDev Function 3: 0.000000000000000e0
+$$ Cal StdDev Function 4: 0.000000000000000e0
+$$ Cal StdDev Function 5: 0.000000000000000e0
+$$ Cal CoVar 1: 0.000000000000000e0,0.000000000000000e0,0.000000000000000e0
+$$ Cal CoVar 2: 0.000000000000000e0,0.000000000000000e0,0.000000000000000e0
+$$ Cal CoVar 3: 0.000000000000000e0,0.000000000000000e0,0.000000000000000e0
+$$ Cal CoVar 4: 0.000000000000000e0,0.000000000000000e0,0.000000000000000e0
+$$ Cal CoVar 5: 0.000000000000000e0,0.000000000000000e0,0.000000000000000e0

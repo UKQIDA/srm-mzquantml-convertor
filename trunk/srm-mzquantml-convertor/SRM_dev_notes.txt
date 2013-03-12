@@ -1,0 +1,16 @@
+Issues with SRM support
+***********************
+
+For SRM, potential for multiple quantitative values for a given MS1 region
+	- We might choose to have one or more features to represent these
+	- Agreed that Q3 m/z is a mandatory CV term for Feature
+	
+- We need to try converting some Waters XEVO raw data in mzML to see if SRM data are represented in <spectrum> or <chromatogram>
+- Plus conversion from Thermo Vantage 
+
+?- for absolute quantification, where a standard is spiked in, need to capture the spike-in concentration (for the reference/standard only)
+	- at each peptide per assay.
+	- different spike-in concentrations for each peptide within a single assay
+	- not contained within the raw file/skyline output? would need manually adding? 	not feasible?
+	
+ 
