@@ -1,6 +1,7 @@
 
 package uk.ac.liv.srmconvertor;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,8 +24,13 @@ public class SrmConvertor {
     public static void main(String[] args)
             throws IOException {
 
-        String inputFn = "src//main//resources//examples//test_skyline_output.csv";
-        String mzqFn = "src//main//resources//examples//test_skyline_output.mzq";
+        File directory = new File(".");
+        String path = directory.getCanonicalPath();
+//        String inputFn = "src//main//resources//examples//test_skyline_output.csv";
+//        String mzqFn = "src//main//resources//examples//test_skyline_output.mzq";
+
+        String inputFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_test.csv";
+        String mzqFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_test.mzq";
 
         SrmReader sRd = new SrmReader(new FileReader(inputFn));
 
@@ -91,7 +97,7 @@ public class SrmConvertor {
          * create AnalysisSummary
          */
 
-        AnalysisSummary analysisSummary = new AnalysisSummary();
+        ParamList analysisSummary = new ParamList();
         analysisSummary.getParamGroup().add(createCvParam("SRM quantitation analysis", "PSI-MS", "MS:1001838"));
 
         //TODO: need cv terms
@@ -156,9 +162,10 @@ public class SrmConvertor {
         HashMap<String, String> assayNrgIdMap = new HashMap<String, String>();
 
         int rawFileCounter = 0;
-        for (String assayN : sRd.getAssayList()) {
+        //replicate name represents the raw file name
+        for (String repN : sRd.getReplicateList()) {
             // create fictional raw file name
-            String rawFn = assayN + ".raw";
+            String rawFn = repN + ".raw";
 
             // create raw file ID
             String rawId = "raw_" + Integer.toString(rawFileCounter);
@@ -182,7 +189,11 @@ public class SrmConvertor {
             rawFilesGroupList.add(rawFilesGroup);
 
 
-            if (assayNrgIdMap.get(assayN) == null) {
+//            if (assayNrgIdMap.get(assayN) == null) {
+//                assayNrgIdMap.put(assayN, rgId);
+//            }
+
+            for (String assayN : sRd.getReplicateToAssayMap().get(repN)) {
                 assayNrgIdMap.put(assayN, rgId);
             }
             /*
@@ -234,7 +245,7 @@ public class SrmConvertor {
 
             //TODO: it is a temporary solution
             RawFilesGroup rawFilesGroup = new RawFilesGroup();
-            rawFilesGroup.setId("rg_" + Integer.toString(assayCounter));
+            rawFilesGroup.setId(assayNrgIdMap.get(assayN));
             assay.setRawFilesGroupRef(rawFilesGroup);
         }
         mzq.setAssayList(assays);
