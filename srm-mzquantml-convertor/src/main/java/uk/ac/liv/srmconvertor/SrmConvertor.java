@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import uk.ac.liv.jmzqml.model.mzqml.*;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
-import uk.ac.liv.reader.SrmReader;
 
 /**
  * Hello world!
