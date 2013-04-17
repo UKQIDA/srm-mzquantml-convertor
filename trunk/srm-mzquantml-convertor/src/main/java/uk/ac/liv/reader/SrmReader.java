@@ -52,6 +52,7 @@ public class SrmReader implements Closeable {
     private int BackgroundPos = 0;
     private int PeakRankPos = 0;
     private int IsotopeLabelTypePos = 0;
+    private int PeptideRatioPos = 0;
     //ArrayList variables
 //    private ArrayList<String> assayList;
 //    private ArrayList<String> proteinList;
@@ -71,6 +72,8 @@ public class SrmReader implements Closeable {
     private LinkedHashMap<String, String> PeakRankMap = new LinkedHashMap();
     private LinkedHashMap<String, String> IsotopeLabelTypeMap = new LinkedHashMap();
     private LinkedHashMap<String, String> AssayMap = new LinkedHashMap();
+    //the orginal data from csv file, index-->ratio
+    private LinkedHashMap<String, String> PeptideRatioMap = new LinkedHashMap();
     //derived hashmap one to many variables
     private LinkedHashMap<String, ArrayList<String>> proteinIdMap;
     private LinkedHashMap<String, ArrayList<String>> peptideIdMap;
@@ -89,6 +92,7 @@ public class SrmReader implements Closeable {
     private LinkedHashMap<String, ArrayList<String>> assayToPeptideMap;
     private LinkedHashMap<String, ArrayList<String>> replicateToAssayMap;
     private LinkedHashMap<String, ArrayList<String>> assayToReplicateMap;
+    private LinkedHashMap<String, String> peptideToRatioMap;
 
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
@@ -142,6 +146,9 @@ public class SrmReader implements Closeable {
             else if (nextLine[i].equals("IsotopeLabelType")) {
                 IsotopeLabelTypePos = i;
             }
+            else if (nextLine[i].equals("RatioToStandard")) {
+                PeptideRatioPos = i;
+            }
         }
 
         // read the data into hashmap
@@ -162,6 +169,7 @@ public class SrmReader implements Closeable {
             PeakRankMap.put(Integer.toString(index), nextLine[PeakRankPos]);
             IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[IsotopeLabelTypePos]);
             AssayMap.put(Integer.toString(index), nextLine[ReplicateNamePos] + "_" + nextLine[IsotopeLabelTypePos]);
+            PeptideRatioMap.put(Integer.toString(index), nextLine[PeptideRatioPos]);
 
             index++;
         }
@@ -300,6 +308,11 @@ public class SrmReader implements Closeable {
     public LinkedHashMap<String, ArrayList<String>> getReplicateToAssayMap() {
         createReplicateToAssayMap();
         return replicateToAssayMap;
+    }
+
+    public LinkedHashMap<String, String> getPeptideToRatioMap() {
+        createPeptideToRatioMap();
+        return peptideToRatioMap;
     }
     //private method
 
@@ -492,6 +505,22 @@ public class SrmReader implements Closeable {
             ArrayList<String> replicateList = getListFromId(idList, ReplicateNameMap);
 
             assayToReplicateMap.put(assay, replicateList);
+        }
+    }
+
+    /*
+     * @HashMap<String,String> peptideToRatioMap
+     * @key = peptide sequence
+     * @value = peptide ratio
+     */
+    private void createPeptideToRatioMap() {
+        peptideToRatioMap = new LinkedHashMap();
+        for (String id : PeptideRatioMap.keySet()) {
+            String pepSeq = PeptideSequenceMap.get(id);
+            String ratio = peptideToRatioMap.get(pepSeq);
+            if (ratio == null) {
+                peptideToRatioMap.put(pepSeq, PeptideRatioMap.get(id));
+            }
         }
     }
 
