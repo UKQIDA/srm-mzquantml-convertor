@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ReportSpecList>
+  <report name="mzQuantML Report">
+    <table name="T1">DbTransition</table>
+    <table name="T2">DbTransitionResult</table>
+    <select>
+      <column name="T1">Precursor.Peptide.Sequence</column>
+      <column name="T1">Precursor.Peptide.Protein.Name</column>
+      <column name="T2">PrecursorResult.PeptideResult.ProteinResult.ReplicateName</column>
+      <column name="T1">Precursor.ModifiedSequence</column>
+      <column name="T1">Precursor.Mz</column>
+      <column name="T1">Precursor.Charge</column>
+      <column name="T1">ProductMz</column>
+      <column name="T1">ProductCharge</column>
+      <column name="T1">CleavageAa</column>
+      <column name="T1">FragmentIon</column>
+      <column name="T2">RetentionTime</column>
+      <column name="T2">PrecursorResult.BestRetentionTime</column>
+      <column name="T2">PrecursorResult.PeptideResult.PeptideRetentionTime</column>
+      <column name="T2">Area</column>
+      <column name="T2">Background</column>
+      <column name="T2">PeakRank</column>
+      <column name="T2">PrecursorResult.PeptideResult.ProteinResult.FileName</column>
+      <column name="T1">Precursor.IsotopeLabelType</column>
+      <column name="T2">Height</column>
+      <column name="T2">PrecursorResult.TotalAreaRatio</column>
+    </select>
+  </report>
+</ReportSpecList>
