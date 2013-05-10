@@ -2,17 +2,14 @@
 package uk.ac.liv.srmconvertor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import uk.ac.liv.jmzqml.model.mzqml.*;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
 
@@ -99,7 +96,7 @@ public class SrmConvertor {
         CvParam labelCvParam = new CvParam();
         labelCvParam.setAccession("MS:1002038");
         labelCvParam.setName("unlabeled sample");
-        labelCvParam.setCvRef(cv);
+        labelCvParam.setCv(cv);
         ModParam modParam = new ModParam();
         modParam.setCvParam(labelCvParam);
         label.getModification().add(modParam);
@@ -109,7 +106,7 @@ public class SrmConvertor {
         CvParam label_silac = new CvParam();
         label_silac.setAccession("MOD:00188");
         label_silac.setName("13C(6) Silac label");
-        label_silac.setCvRef(cv_mod);
+        label_silac.setCv(cv_mod);
         label_silac.setValue("6.020129");
         ModParam modParam_silac = new ModParam();
         modParam_silac.setCvParam(label_silac);
@@ -155,7 +152,7 @@ public class SrmConvertor {
         andy.setLastName("Jones");
 
         Affiliation aff = new Affiliation();
-        aff.setOrganizationRef(uol);
+        aff.setOrganization(uol);
         andy.getAffiliation().add(aff);
         andy.setId("PERS_ARJ");
         auditCollection.getPerson().add(andy);
@@ -242,7 +239,7 @@ public class SrmConvertor {
         db.setDatabaseName(dbName);
         UserParam dbNameParam = new UserParam();
         dbNameParam.setName("sgd_orfs_plus_ups_prots.fasta");
-        dbName.setParamGroup(dbNameParam);
+        dbName.setParam(dbNameParam);
 
         mzq.setInputFiles(inputFiles);
 
@@ -274,7 +271,7 @@ public class SrmConvertor {
             //TODO: it is a temporary solution
             RawFilesGroup rawFilesGroup = new RawFilesGroup();
             rawFilesGroup.setId(assayNrgIdMap.get(assayN));
-            assay.setRawFilesGroupRef(rawFilesGroup);
+            assay.setRawFilesGroup(rawFilesGroup);
         }
         mzq.setAssayList(assays);
 
@@ -297,7 +294,7 @@ public class SrmConvertor {
         DataProcessingList dataProcessingList = new DataProcessingList();
         DataProcessing dataProcessing = new DataProcessing();
         dataProcessing.setId("feature_quantification");
-        dataProcessing.setSoftwareRef(software);
+        dataProcessing.setSoftware(software);
         dataProcessing.setOrder(BigInteger.ONE);
         ProcessingMethod processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.ONE);
@@ -329,13 +326,14 @@ public class SrmConvertor {
 
             // set protein accession
             protein.setAccession(protAcc);
-            protein.setSearchDatabaseRef(db);
+            protein.setSearchDatabase(db);
 
             ArrayList<String> pepSeqs = protToPepMap.get(protAcc);
 
             if (pepSeqs != null) {
 
-                List<Object> peptideConsensusRefList = protein.getPeptideConsensusRefs();
+                //List<Object> peptideConsensusRefList = protein.getPeptideConsensusRefs();  //jmzquantml 1.0.0-1.0.0
+                List<PeptideConsensus> peptides = protein.getPeptideConsensuses();
                 ArrayList<String> pepIds = new ArrayList();
 
                 for (String pepSeq : pepSeqs) {
@@ -344,7 +342,8 @@ public class SrmConvertor {
                     pepCon.setPeptideSequence(pepSeq);
 
                     if (!pepIds.contains("pep_" + pepSeq)) {
-                        peptideConsensusRefList.add(pepCon);
+                        //peptideConsensusRefList.add(pepCon);  //jmzquantml 1.0.0-1.0.0
+                        peptides.add(pepCon);
                         pepIds.add("pep_" + pepSeq);
                     }
                 }
@@ -406,7 +405,7 @@ public class SrmConvertor {
                 featureList = new FeatureList();
                 RawFilesGroup rawFilesGroup = new RawFilesGroup();
                 rawFilesGroup.setId(rgId);
-                featureList.setRawFilesGroupRef(rawFilesGroup);
+                featureList.setRawFilesGroup(rawFilesGroup);
                 String fListId = "Flist_" + rgId.substring(3);
                 featureList.setId(fListId);
                 rgIdFeatureListMap.put(rgId, featureList);
@@ -469,7 +468,7 @@ public class SrmConvertor {
                 DataMatrix DM = new DataMatrix();
 
                 Row row = new Row();
-                row.setObjectRef(feature);
+                row.setObject(feature);
                 /*
                  * first column
                  */
@@ -503,7 +502,7 @@ public class SrmConvertor {
             }
             else {
                 Row row = new Row();
-                row.setObjectRef(feature);
+                row.setObject(feature);
 
                 /*
                  * first column
@@ -556,13 +555,13 @@ public class SrmConvertor {
                 //numerator_ref
                 Assay assay = new Assay();
                 assay.setId(assayNameIdMap.get(assayN));
-                pepRatio.setNumeratorRef(assay);
+                pepRatio.setNumerator(assay);
             }
             else if (assayN.contains("heavy")) {
                 //denominator_ref
                 Assay assay = new Assay();
                 assay.setId(assayNameIdMap.get(assayN));
-                pepRatio.setDenominatorRef(assay);
+                pepRatio.setDenominator(assay);
             }
             else {
                 throw new IllegalArgumentException("neight light nor heavy assay is provided");
@@ -589,7 +588,9 @@ public class SrmConvertor {
          */
         RatioQuantLayer pepRQL = new RatioQuantLayer();
         pepRQL.setId("PepRQL_1");
-        pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));
+        //pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));   //jmzquantml 1.0.0-1.0.0
+        
+        pepRQL.getColumns().add(ratioList.getRatio().get(0));
         DataMatrix pepRatioDM = new DataMatrix();
         pepRQL.setDataMatrix(pepRatioDM);
         List<PeptideConsensus> peptideList = peptideConsensuses.getPeptideConsensus();
@@ -597,7 +598,7 @@ public class SrmConvertor {
             PeptideConsensus pepCon = new PeptideConsensus();
             pepCon.setId("pep_" + pepSeq);
             pepCon.setPeptideSequence(pepSeq);
-            pepCon.setSearchDatabaseRef(db);
+            pepCon.setSearchDatabase(db);
 
             //add peptide charge list
             ArrayList<String> ids = sRd.getPeptideIdMap().get(pepSeq);
@@ -618,16 +619,24 @@ public class SrmConvertor {
                 // set Feature to evidenceRef
                 Feature feature = new Feature();
                 feature.setId("ft_" + id);
-                evidenceRef.setFeatureRef(feature);
+                evidenceRef.setFeature(feature);
 
                 // set AssayRefs to evidenceRef
                 String assayN = sRd.getAssayMap().get(id);
                 String assayId = assayNameIdMap.get(assayN);
                 Assay assay = new Assay();
                 assay.setId(assayId);
-                if (!evidenceRef.getAssayRefs().contains(assay)) {
-                    evidenceRef.getAssayRefs().add(assay);
+//                if (!evidenceRef.getAssayRefs().contains(assay)) {
+//                    evidenceRef.getAssayRefs().add(assay);
+//                }    //jmzquantml 1.0.0-1.0.0
+                
+                List<Assay> assayas = new ArrayList<Assay>();
+                if (!evidenceRef.getAssayRefs().contains(assay.getId())){
+                    //evidenceRef.getAssayRefs().add(assay.getId());
+                    //evidenceRef.getAssays().add(assay);
+                    assayas.add(assay);
                 }
+                evidenceRef.setAssays(assayas);
             }
             peptideList.add(pepCon);
 
@@ -635,7 +644,7 @@ public class SrmConvertor {
              * add DataMatrix for RatioQuantLayer
              */
             Row row = new Row();
-            row.setObjectRef(pepCon);
+            row.setObject(pepCon);
             String ratio = sRd.getPeptideToRatioMap().get(pepSeq);
             row.getValue().add(ratio);
             pepRatioDM.getRow().add(row);
