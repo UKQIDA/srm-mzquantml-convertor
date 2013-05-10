@@ -1,28 +1,29 @@
-<MzQuantML id="SRM-1242013" version="1.0.0" creationDate="2013-04-12T16:16:32.874+01:00" xsi:schemaLocation="http://psidev.info/psi/pi/mzQuantML/1.0.0 ../../../schema/mzQuantML_1_0_0.xsd" xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MzQuantML creationDate="2013-05-10T16:24:08.352+01:00" version="1.0.0" id="SRM-1052013" xsi:schemaLocation="http://www.psidev.info/files/mzQuantML_1_0_0.xsd" xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <CvList>
-        <Cv id="PSI-MS" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" version="2.25.0" fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies"/>
-        <Cv id="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" fullName="Unimod"/>
-        <Cv id="PSI-MOD" uri="http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo" fullName="Proteomics Standards Initiative Protein Modifications Vocabularies"/>
+        <Cv fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies" version="2.25.0" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" id="PSI-MS"/>
+        <Cv fullName="Unimod" uri="http://www.unimod.org/obo/unimod.obo" id="UNIMOD"/>
+        <Cv fullName="Proteomics Standards Initiative Protein Modifications Vocabularies" uri="http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo" id="PSI-MOD"/>
     </CvList>
     <AuditCollection>
-        <Person firstName="Andy" lastName="Jones" id="PERS_ARJ">
+        <Person lastName="Jones" firstName="Andy" id="PERS_ARJ">
             <Affiliation organization_ref="ORG_UOL"/>
         </Person>
-        <Person firstName="Da" lastName="Qi" id="PERS_DQ">
+        <Person lastName="Qi" firstName="Da" id="PERS_DQ">
             <Affiliation organization_ref="ORG_UOL"/>
         </Person>
-        <Organization name="University of Liverpool" id="ORG_UOL"/>
+        <Organization id="ORG_UOL" name="University of Liverpool"/>
     </AuditCollection>
     <AnalysisSummary>
-        <cvParam accession="MS:1001838" cvRef="PSI-MS" name="SRM quantitation analysis"/>
-        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM raw feature quantitation"/>
-        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM peptide level quantitation"/>
-        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="true" name="SRM protein level quantitation"/>
-        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="false" name="SRM proteingroup level quantitation"/>
+        <cvParam cvRef="PSI-MS" accession="MS:1001838" name="SRM quantitation analysis"/>
+        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="SRM raw feature quantitation" value="true"/>
+        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="SRM peptide level quantitation" value="true"/>
+        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="SRM protein level quantitation" value="true"/>
+        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="SRM proteingroup level quantitation" value="false"/>
     </AnalysisSummary>
     <InputFiles>
         <RawFilesGroup id="rg_0">
-            <RawFile location="../msmsdata/2011aug06_CC026_B3_10fmol_SRM_list_A.raw" name="2011aug06_CC026_B3_10fmol_SRM_list_A.raw" id="raw_0"/>
+            <RawFile location="../msmsdata/2011aug06_CC026_B3_10fmol_SRM_list_A.raw" id="raw_0" name="2011aug06_CC026_B3_10fmol_SRM_list_A.raw"/>
         </RawFilesGroup>
         <SearchDatabase location="sgd_orfs_plus_ups_prots.fasta" id="SD1">
             <DatabaseName>
@@ -32,100 +33,95 @@
     </InputFiles>
     <SoftwareList>
         <Software version="1.4" id="Skyline">
-            <cvParam accession="MS:1000922" cvRef="PSI-MS" name="Skyline"/>
+            <cvParam cvRef="PSI-MS" accession="MS:1000922" name="Skyline"/>
         </Software>
     </SoftwareList>
     <DataProcessingList>
-        <DataProcessing order="1" software_ref="Skyline" id="feature_quantification">
+        <DataProcessing software_ref="Skyline" order="1" id="feature_quantification">
             <ProcessingMethod order="1">
-                <cvParam accession="MS:1001861" cvRef="PSI-MS" name="quantification data processing"/>
+                <cvParam cvRef="PSI-MS" accession="MS:1001861" name="quantification data processing"/>
             </ProcessingMethod>
         </DataProcessing>
     </DataProcessingList>
     <AssayList id="AssayList_1">
-        <Assay rawFilesGroup_ref="rg_0" name="2011aug06_CC026_B3_10fmol_SRM_list_A_light" id="ass_0">
+        <Assay name="2011aug06_CC026_B3_10fmol_SRM_list_A_light" rawFilesGroup_ref="rg_0" id="ass_0">
             <Label>
                 <Modification>
-                    <cvParam accession="MS:1002038" cvRef="PSI-MS" name="unlabeled sample"/>
+                    <cvParam cvRef="PSI-MS" accession="MS:1002038" name="unlabeled sample"/>
                 </Modification>
             </Label>
         </Assay>
-        <Assay rawFilesGroup_ref="rg_0" name="2011aug06_CC026_B3_10fmol_SRM_list_A_heavy" id="ass_1">
+        <Assay name="2011aug06_CC026_B3_10fmol_SRM_list_A_heavy" rawFilesGroup_ref="rg_0" id="ass_1">
             <Label>
                 <Modification>
-                    <cvParam accession="MOD:00188" cvRef="PSI-MOD" value="6.020129" name="13C(6) Silac label"/>
+                    <cvParam cvRef="PSI-MOD" accession="MOD:00188" name="13C(6) Silac label" value="6.020129"/>
                 </Modification>
             </Label>
         </Assay>
     </AssayList>
     <RatioList>
-        <Ratio name="Ratio for peptide" id="ratio1" denominator_ref="ass_1" numerator_ref="ass_0"/>
+        <Ratio numerator_ref="ass_0" denominator_ref="ass_1" name="Ratio for peptide" id="ratio1"/>
     </RatioList>
     <ProteinList id="ProtList1">
-        <Protein searchDatabase_ref="SD1" accession="Protein_A" id="prot_0">
-            <PeptideConsensus_refs>pep_EVDIGIPDATGR pep_TFTDCFNCLPIAAIIDEK pep_FLYDGIR</PeptideConsensus_refs>
-        </Protein>
-        <Protein searchDatabase_ref="SD1" accession="Protein_B" id="prot_1">
-            <PeptideConsensus_refs>pep_FDTSAQSDR pep_IDESEVGEFIIPYYVQDEK pep_EAVSGILGK</PeptideConsensus_refs>
-        </Protein>
+        <Protein accession="Protein_A" searchDatabase_ref="SD1" id="prot_0"/>
+        <Protein accession="Protein_B" searchDatabase_ref="SD1" id="prot_1"/>
     </ProteinList>
     <PeptideConsensusList finalResult="true" id="PepList1">
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_EVDIGIPDATGR">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_EVDIGIPDATGR">
             <PeptideSequence>EVDIGIPDATGR</PeptideSequence>
-            <EvidenceRef feature_ref="ft_0" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_1" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_2" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_3" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_4" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_5" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_0"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_2"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_3"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_4"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_5"/>
         </PeptideConsensus>
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_TFTDCFNCLPIAAIIDEK">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_TFTDCFNCLPIAAIIDEK">
             <PeptideSequence>TFTDCFNCLPIAAIIDEK</PeptideSequence>
-            <EvidenceRef feature_ref="ft_6" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_7" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_8" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_9" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_10" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_11" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_6"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_7"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_8"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_9"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_10"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_11"/>
         </PeptideConsensus>
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_FLYDGIR">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_FLYDGIR">
             <PeptideSequence>FLYDGIR</PeptideSequence>
-            <EvidenceRef feature_ref="ft_12" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_13" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_14" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_15" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_16" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_17" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_12"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_13"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_14"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_15"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_16"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_17"/>
         </PeptideConsensus>
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_FDTSAQSDR">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_FDTSAQSDR">
             <PeptideSequence>FDTSAQSDR</PeptideSequence>
-            <EvidenceRef feature_ref="ft_18" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_19" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_20" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_21" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_22" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_23" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_18"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_19"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_20"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_21"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_22"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_23"/>
         </PeptideConsensus>
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_IDESEVGEFIIPYYVQDEK">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_IDESEVGEFIIPYYVQDEK">
             <PeptideSequence>IDESEVGEFIIPYYVQDEK</PeptideSequence>
-            <EvidenceRef feature_ref="ft_24" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_25" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_26" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_27" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_28" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_29" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_24"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_25"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_26"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_27"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_28"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_29"/>
         </PeptideConsensus>
-        <PeptideConsensus searchDatabase_ref="SD1" charge="2" id="pep_EAVSGILGK">
+        <PeptideConsensus charge="2" searchDatabase_ref="SD1" id="pep_EAVSGILGK">
             <PeptideSequence>EAVSGILGK</PeptideSequence>
-            <EvidenceRef feature_ref="ft_30" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_31" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_32" assay_refs="ass_0"/>
-            <EvidenceRef feature_ref="ft_33" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_34" assay_refs="ass_1"/>
-            <EvidenceRef feature_ref="ft_35" assay_refs="ass_1"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_30"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_31"/>
+            <EvidenceRef assay_refs="ass_0" feature_ref="ft_32"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_33"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_34"/>
+            <EvidenceRef assay_refs="ass_1" feature_ref="ft_35"/>
         </PeptideConsensus>
         <RatioQuantLayer id="PepRQL_1">
-            <ColumnIndex>ratio1</ColumnIndex>
             <DataMatrix>
                 <Row object_ref="pep_EVDIGIPDATGR">1.4664</Row>
                 <Row object_ref="pep_TFTDCFNCLPIAAIIDEK">0.9136</Row>
@@ -136,166 +132,166 @@
             </DataMatrix>
         </RatioQuantLayer>
     </PeptideConsensusList>
-    <FeatureList id="Flist_0" rawFilesGroup_ref="rg_0">
-        <Feature charge="2" mz="621.819866" rt="37.44" id="ft_0">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1014.52145" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+    <FeatureList rawFilesGroup_ref="rg_0" id="Flist_0">
+        <Feature rt="37.44" mz="621.819866" charge="2" id="ft_0">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1014.52145"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="621.819866" rt="37.43" id="ft_1">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="786.410442" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.43" mz="621.819866" charge="2" id="ft_1">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="786.410442"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="621.819866" rt="37.43" id="ft_2">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="404.225208" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.43" mz="621.819866" charge="2" id="ft_2">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="404.225208"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="624.829931" rt="37.4" id="ft_3">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1020.541579" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.4" mz="624.829931" charge="2" id="ft_3">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1020.541579"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="624.829931" rt="37.43" id="ft_4">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="792.430571" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.43" mz="624.829931" charge="2" id="ft_4">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="792.430571"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="624.829931" rt="37.43" id="ft_5">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="410.245337" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.43" mz="624.829931" charge="2" id="ft_5">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="410.245337"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1064.508108" rt="58.12" id="ft_6">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="969.561523" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.12" mz="1064.508108" charge="2" id="ft_6">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="969.561523"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1064.508108" rt="58.12" id="ft_7">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="688.387582" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.12" mz="1064.508108" charge="2" id="ft_7">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="688.387582"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1064.508108" rt="58.1" id="ft_8">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="504.266404" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.1" mz="1064.508108" charge="2" id="ft_8">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="504.266404"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1067.518172" rt="58.16" id="ft_9">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="975.581652" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.16" mz="1067.518172" charge="2" id="ft_9">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="975.581652"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1067.518172" rt="58.12" id="ft_10">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="694.407711" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.12" mz="1067.518172" charge="2" id="ft_10">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="694.407711"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1067.518172" rt="58.12" id="ft_11">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="510.286533" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="58.12" mz="1067.518172" charge="2" id="ft_11">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="510.286533"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="442.237253" rt="37.94" id="ft_12">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="736.398815" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="442.237253" charge="2" id="ft_12">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="736.398815"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="442.237253" rt="37.94" id="ft_13">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="623.314751" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="442.237253" charge="2" id="ft_13">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="623.314751"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="442.237253" rt="37.94" id="ft_14">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="460.251423" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="442.237253" charge="2" id="ft_14">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="460.251423"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="445.247317" rt="37.94" id="ft_15">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="742.418944" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="445.247317" charge="2" id="ft_15">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="742.418944"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="445.247317" rt="37.94" id="ft_16">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="629.33488" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="445.247317" charge="2" id="ft_16">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="629.33488"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="445.247317" rt="37.94" id="ft_17">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="466.271552" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="37.94" mz="445.247317" charge="2" id="ft_17">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="466.271552"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="513.727977" rt="21.13" id="ft_18">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="764.353322" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.13" mz="513.727977" charge="2" id="ft_18">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="764.353322"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="513.727977" rt="21.25" id="ft_19">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="663.305643" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.25" mz="513.727977" charge="2" id="ft_19">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="663.305643"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="513.727977" rt="21.1" id="ft_20">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="576.273615" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.1" mz="513.727977" charge="2" id="ft_20">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="576.273615"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="516.738042" rt="21.08" id="ft_21">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="770.373451" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.08" mz="516.738042" charge="2" id="ft_21">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="770.373451"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="516.738042" rt="21.08" id="ft_22">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="669.325772" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.08" mz="516.738042" charge="2" id="ft_22">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="669.325772"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="516.738042" rt="21.08" id="ft_23">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="582.293744" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="21.08" mz="516.738042" charge="2" id="ft_23">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="582.293744"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1137.046632" rt="#N/A" id="ft_24">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1154.572816" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="#N/A" mz="1137.046632" charge="2" id="ft_24">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1154.572816"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1137.046632" rt="52.54" id="ft_25">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1041.488752" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="52.54" mz="1137.046632" charge="2" id="ft_25">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1041.488752"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1137.046632" rt="52.54" id="ft_26">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="781.37266" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="52.54" mz="1137.046632" charge="2" id="ft_26">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="781.37266"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1140.056696" rt="52.55" id="ft_27">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1160.592945" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="52.55" mz="1140.056696" charge="2" id="ft_27">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1160.592945"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1140.056696" rt="52.48" id="ft_28">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1047.508881" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="52.48" mz="1140.056696" charge="2" id="ft_28">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="1047.508881"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="1140.056696" rt="52.56" id="ft_29">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="787.392789" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="52.56" mz="1140.056696" charge="2" id="ft_29">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="787.392789"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="437.255642" rt="32.41" id="ft_30">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="673.424302" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="437.255642" charge="2" id="ft_30">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="673.424302"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="437.255642" rt="32.41" id="ft_31">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="574.355888" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="437.255642" charge="2" id="ft_31">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="574.355888"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="437.255642" rt="32.41" id="ft_32">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="487.323859" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="437.255642" charge="2" id="ft_32">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="487.323859"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="440.265707" rt="32.41" id="ft_33">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="679.444431" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="440.265707" charge="2" id="ft_33">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="679.444431"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="440.265707" rt="32.41" id="ft_34">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="580.376017" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="440.265707" charge="2" id="ft_34">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="580.376017"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
-        <Feature charge="2" mz="440.265707" rt="32.41" id="ft_35">
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="493.343988" name="Q3 mz"/>
-            <cvParam accession="MS:100XXXX" cvRef="PSI-MS" value="1" name="Q3 charge"/>
+        <Feature rt="32.41" mz="440.265707" charge="2" id="ft_35">
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 mz" value="493.343988"/>
+            <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 charge" value="1"/>
         </Feature>
         <FeatureQuantLayer id="FQL_0">
             <ColumnDefinition>
                 <Column index="0">
                     <DataType>
-                        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" name="Q3 area"/>
+                        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 area"/>
                     </DataType>
                 </Column>
                 <Column index="1">
                     <DataType>
-                        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" name="Q3 background"/>
+                        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 background"/>
                     </DataType>
                 </Column>
                 <Column index="2">
                     <DataType>
-                        <cvParam accession="MS:100XXXX" cvRef="PSI-MS" name="Q3 peakrank"/>
+                        <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 peakrank"/>
                     </DataType>
                 </Column>
             </ColumnDefinition>
