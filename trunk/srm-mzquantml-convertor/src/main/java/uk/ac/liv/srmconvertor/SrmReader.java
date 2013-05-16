@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 /**
  *
@@ -26,73 +25,115 @@ public class SrmReader implements Closeable {
     /*
      * PeptideSequence (== peptide)
      * ProteinName (== protein)
-     * ReplicateName (== raw file (+".raw")
+     * ReplicateName (== raw file (+".raw") /TODO: duplicate with FileName?
+     * ModifiedSequence
      * PrecursorMz
      * PrecursorCharge
      * ProductMz
      * ProductCharge
+     * CleavageAa
      * FragmentIon
+     * PeptideRetentionTime
      * RetentionTime
      * Area (== Q3 m/z)
      * Background
      * PeakRank
+     * FileName (raw file name with .raw
      * IsotopeLabelType (ReplicateName + "_" + IsotopeLabelType = assay name)
+     * Height
+     * TotalAreaRatio
+     * AreaNormalized
      */
+    //existence of column
+    private boolean hasPeptideSequence = false;
+    private boolean hasProteinName = false;
+    private boolean hasReplicateName = false;
+    private boolean hasModificationSequence = false;
+    private boolean hasPrecursorMz = false;
+    private boolean hasPrecursorCharge = false;
+    private boolean hasProductMz = false;
+    private boolean hasProductCharge = false;
+    private boolean hasCleavageAa = false;
+    private boolean hasFragmentIon = false;
+    private boolean hasPeptideRetentionTime = false;
+    private boolean hasRetentionTime = false;
+    private boolean hasArea = false;
+    private boolean hasBackground = false;
+    private boolean hasPeakRank = false;
+    private boolean hasFileName = false;
+    private boolean hasIsotopeLabelType = false;
+    private boolean hasHeight = false;
+    private boolean hasTotalAreaRatio = false;
+    private boolean hasAreaNormalized = false;
+    private boolean hasPeptideRatio = false;
     //position variables
-    private int PeptideSequencePos = 0;
-    private int ProteinNamePos = 0;
-    private int ReplicateNamePos = 0;
-    private int PrecursorMzPos = 0;
-    private int PrecursorChargePos = 0;
-    private int ProductMzPos = 0;
-    private int ProductChargePos = 0;
-    private int FragmentIonPos = 0;
-    private int RetentionTimePos = 0;
-    private int AreaPos = 0;
-    private int BackgroundPos = 0;
-    private int PeakRankPos = 0;
-    private int IsotopeLabelTypePos = 0;
-    private int PeptideRatioPos = 0;
-    //ArrayList variables
-//    private ArrayList<String> assayList;
-//    private ArrayList<String> proteinList;
-//    private ArrayList<String> peptideList;
-    //hashmap one to one variables
-    private LinkedHashMap<String, String> PeptideSequenceMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> ProteinNameMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> ReplicateNameMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> PrecursorMzMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> PrecursorChargeMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> ProductMzMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> ProductChargeMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> FragmentIonMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> RetentionTimeMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> AreaMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> BackgroundMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> PeakRankMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> IsotopeLabelTypeMap = new LinkedHashMap();
-    private LinkedHashMap<String, String> AssayMap = new LinkedHashMap();
-    //the orginal data from csv file, index-->ratio
-    private LinkedHashMap<String, String> PeptideRatioMap = new LinkedHashMap();
-    //derived hashmap one to many variables
-    private LinkedHashMap<String, ArrayList<String>> proteinIdMap;
-    private LinkedHashMap<String, ArrayList<String>> peptideIdMap;
+    private int posPeptideSequence = 0;
+    private int posProteinName = 0;
+    private int posReplicateName = 0;
+    private int posModificationSequence = 0;
+    private int posPrecursorMz = 0;
+    private int posPrecursorCharge = 0;
+    private int posProductMz = 0;
+    private int posProductCharge = 0;
+    private int posCleavageAa = 0;
+    private int posFragmentIon = 0;
+    private int posPeptideRetentionTime = 0;
+    private int posRetentionTime = 0;
+    private int posArea = 0;
+    private int posBackground = 0;
+    private int posPeakRank = 0;
+    private int posFileName = 0;
+    private int posIsotopeLabelType = 0;
+    private int posHeight = 0;
+    private int posTotalAreaRatio = 0;
+    private int posAreaNormalized = 0;
+    // PeptideRatio is not in the mzQuantML report
+    // this is just to show how to deal with non exist column
+    private int posPeptideRatio = 0;
     /*
-     * @key assay name
-     * @value list of ids
+     * HashMap one to one variables
      */
-    private LinkedHashMap<String, ArrayList<String>> assayIdMap;
-    private LinkedHashMap<String, ArrayList<String>> replicateIdMap;
-    //derived from the above four IdMap
-    private LinkedHashMap<String, ArrayList<String>> proteinToPeptideMap;
-    private LinkedHashMap<String, ArrayList<String>> peptideToProteinMap;
-    private LinkedHashMap<String, ArrayList<String>> proteinToAssayMap;
-    private LinkedHashMap<String, ArrayList<String>> assayToProteinMap;
-    private LinkedHashMap<String, ArrayList<String>> peptideToAssayMap;
-    private LinkedHashMap<String, ArrayList<String>> assayToPeptideMap;
-    private LinkedHashMap<String, ArrayList<String>> replicateToAssayMap;
-    private LinkedHashMap<String, ArrayList<String>> assayToReplicateMap;
-    private LinkedHashMap<String, String> peptideToRatioMap;
+    private HashMap<String, String> PeptideSequenceMap = new HashMap();
+    private HashMap<String, String> ProteinNameMap = new HashMap();
+    private HashMap<String, String> ReplicateNameMap = new HashMap();
+    private HashMap<String, String> ModificationSequenceMap = new HashMap();
+    private HashMap<String, String> PrecursorMzMap = new HashMap();
+    private HashMap<String, String> PrecursorChargeMap = new HashMap();
+    private HashMap<String, String> ProductMzMap = new HashMap();
+    private HashMap<String, String> ProductChargeMap = new HashMap();
+    private HashMap<String, String> CleavageAaMap = new HashMap();
+    private HashMap<String, String> FragmentIonMap = new HashMap();
+    private HashMap<String, String> PeptideRetentionTimeMap = new HashMap();
+    private HashMap<String, String> RetentionTimeMap = new HashMap();
+    private HashMap<String, String> AreaMap = new HashMap();
+    private HashMap<String, String> BackgroundMap = new HashMap();
+    private HashMap<String, String> PeakRankMap = new HashMap();
+    private HashMap<String, String> FileNameMap = new HashMap();
+    private HashMap<String, String> IsotopeLabelTypeMap = new HashMap();
+    private HashMap<String, String> HeightMap = new HashMap();
+    private HashMap<String, String> TotalAreaRatioMap = new HashMap();
+    private HashMap<String, String> AreaNormalizedMap = new HashMap();
+    private HashMap<String, String> AssayMap = new HashMap();
+    //the orginal data from csv file, index-->ratio
+    private HashMap<String, String> PeptideRatioMap = new HashMap();
+    //derived hashmap one to many variables
+    private HashMap<String, ArrayList<String>> proteinIdMap;
+    private HashMap<String, ArrayList<String>> peptideIdMap;
+    private HashMap<String, ArrayList<String>> assayIdMap;
+    private HashMap<String, ArrayList<String>> replicateIdMap;
+    private HashMap<String, ArrayList<String>> rawFileNameIdMap;
+    //derived from the above IdMap(s)
+    private HashMap<String, ArrayList<String>> proteinToPeptideMap;
+    private HashMap<String, ArrayList<String>> peptideToProteinMap;
+    private HashMap<String, ArrayList<String>> proteinToAssayMap;
+    private HashMap<String, ArrayList<String>> assayToProteinMap;
+    private HashMap<String, ArrayList<String>> peptideToAssayMap;
+    private HashMap<String, ArrayList<String>> assayToPeptideMap;
+    private HashMap<String, ArrayList<String>> replicateToAssayMap;
+    private HashMap<String, ArrayList<String>> assayToReplicateMap;
+    private HashMap<String, ArrayList<String>> rawFileNameToAssayMap;
+    private HashMap<String, ArrayList<String>> assayToRawFileNameMap;
+    private HashMap<String, String> peptideToRatioMap;
 
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
@@ -103,51 +144,93 @@ public class SrmReader implements Closeable {
         CSVReader reader = new CSVReader(br);
         String nextLine[];
 
-        // process the title row
+        // process the title row to get positions for measurements 
         nextLine = reader.readNext();
 
         for (int i = 0; i < nextLine.length; i++) {
             if (nextLine[i].equals("PeptideSequence")) {
-                PeptideSequencePos = i;
+                posPeptideSequence = i;
+                hasPeptideSequence = true;
             }
             else if (nextLine[i].equals("ProteinName")) {
-                ProteinNamePos = i;
+                posProteinName = i;
+                hasProteinName = true;
             }
             else if (nextLine[i].equals("ReplicateName")) {
-                ReplicateNamePos = i;
+                posReplicateName = i;
+                hasReplicateName = true;
+            }
+            else if (nextLine[i].equals("ModificationSequence")) {
+                posModificationSequence = i;
+                hasModificationSequence = true;
             }
             else if (nextLine[i].equals("PrecursorMz")) {
-                PrecursorMzPos = i;
+                posPrecursorMz = i;
+                hasPrecursorMz = true;
             }
             else if (nextLine[i].equals("PrecursorCharge")) {
-                PrecursorChargePos = i;
+                posPrecursorCharge = i;
+                hasPrecursorCharge = true;
             }
             else if (nextLine[i].equals("ProductMz")) {
-                ProductMzPos = i;
+                posProductMz = i;
+                hasProductMz = true;
             }
             else if (nextLine[i].equals("ProductCharge")) {
-                ProductChargePos = i;
+                posProductCharge = i;
+                hasProductCharge = true;
+            }
+            else if (nextLine[i].equals("CleavageAa")) {
+                posCleavageAa = i;
+                hasCleavageAa = true;
             }
             else if (nextLine[i].equals("FragmentIon")) {
-                FragmentIonPos = i;
+                posFragmentIon = i;
+                hasFragmentIon = true;
+            }
+            else if (nextLine[i].equals("PeptideRetentionTime")) {
+                posPeptideRetentionTime = i;
+                hasPeptideRetentionTime = true;
             }
             else if (nextLine[i].equals("RetentionTime")) {
-                RetentionTimePos = i;
+                posRetentionTime = i;
+                hasRetentionTime = true;
             }
             else if (nextLine[i].equals("Area")) {
-                AreaPos = i;
+                posArea = i;
+                hasArea = true;
             }
             else if (nextLine[i].equals("Background")) {
-                BackgroundPos = i;
+                posBackground = i;
+                hasBackground = true;
+            }
+            else if (nextLine[i].equals("FileName")) {
+                posFileName = i;
+                hasFileName = true;
             }
             else if (nextLine[i].equals("PeakRank")) {
-                PeakRankPos = i;
+                posPeakRank = i;
+                hasPeakRank = true;
             }
             else if (nextLine[i].equals("IsotopeLabelType")) {
-                IsotopeLabelTypePos = i;
+                posIsotopeLabelType = i;
+                hasIsotopeLabelType = true;
+            }
+            else if (nextLine[i].equals("Height")) {
+                posHeight = i;
+                hasHeight = true;
+            }
+            else if (nextLine[i].equals("TotalAreaRatio")) {
+                posTotalAreaRatio = i;
+                hasTotalAreaRatio = true;
+            }
+            else if (nextLine[i].equals("AreaNormalized")) {
+                posAreaNormalized = i;
+                hasAreaNormalized = true;
             }
             else if (nextLine[i].equals("RatioToStandard")) {
-                PeptideRatioPos = i;
+                posPeptideRatio = i;
+                hasPeptideRatio = true;
             }
         }
 
@@ -155,21 +238,73 @@ public class SrmReader implements Closeable {
         // key = index
         int index = 0;
         while ((nextLine = reader.readNext()) != null) {
-            PeptideSequenceMap.put(Integer.toString(index), nextLine[PeptideSequencePos]);
-            ProteinNameMap.put(Integer.toString(index), nextLine[ProteinNamePos]);
-            ReplicateNameMap.put(Integer.toString(index), nextLine[ReplicateNamePos]);
-            PrecursorMzMap.put(Integer.toString(index), nextLine[PrecursorMzPos]);
-            PrecursorChargeMap.put(Integer.toString(index), nextLine[PrecursorChargePos]);
-            ProductMzMap.put(Integer.toString(index), nextLine[ProductMzPos]);
-            ProductChargeMap.put(Integer.toString(index), nextLine[ProductChargePos]);
-            FragmentIonMap.put(Integer.toString(index), nextLine[FragmentIonPos]);
-            RetentionTimeMap.put(Integer.toString(index), nextLine[RetentionTimePos]);
-            AreaMap.put(Integer.toString(index), nextLine[AreaPos]);
-            BackgroundMap.put(Integer.toString(index), nextLine[BackgroundPos]);
-            PeakRankMap.put(Integer.toString(index), nextLine[PeakRankPos]);
-            IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[IsotopeLabelTypePos]);
-            AssayMap.put(Integer.toString(index), nextLine[ReplicateNamePos] + "_" + nextLine[IsotopeLabelTypePos]);
-            PeptideRatioMap.put(Integer.toString(index), nextLine[PeptideRatioPos]);
+
+            if (hasPeptideSequence) {
+                PeptideSequenceMap.put(Integer.toString(index), nextLine[posPeptideSequence]);
+            }
+            if (hasProteinName) {
+                ProteinNameMap.put(Integer.toString(index), nextLine[posProteinName]);
+            }
+            if (hasReplicateName) {
+                ReplicateNameMap.put(Integer.toString(index), nextLine[posReplicateName]);
+            }
+            if (hasModificationSequence) {
+                ModificationSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+            }
+            if (hasPrecursorMz) {
+                PrecursorMzMap.put(Integer.toString(index), nextLine[posPrecursorMz]);
+            }
+            if (hasPrecursorCharge) {
+                PrecursorChargeMap.put(Integer.toString(index), nextLine[posPrecursorCharge]);
+            }
+            if (hasProductMz) {
+                ProductMzMap.put(Integer.toString(index), nextLine[posProductMz]);
+            }
+            if (hasProductCharge) {
+                ProductChargeMap.put(Integer.toString(index), nextLine[posProductCharge]);
+            }
+            if (hasCleavageAa) {
+                CleavageAaMap.put(Integer.toString(index), nextLine[posCleavageAa]);
+            }
+            if (hasFragmentIon) {
+                FragmentIonMap.put(Integer.toString(index), nextLine[posFragmentIon]);
+            }
+            if (hasPeptideRetentionTime) {
+                PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
+            }
+            if (hasRetentionTime) {
+                RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
+            }
+            if (hasArea) {
+                AreaMap.put(Integer.toString(index), nextLine[posArea]);
+            }
+            if (hasBackground) {
+                BackgroundMap.put(Integer.toString(index), nextLine[posBackground]);
+            }
+            if (hasFileName) {
+                FileNameMap.put(Integer.toString(index), nextLine[posFileName]);
+            }
+            if (hasPeakRank) {
+                PeakRankMap.put(Integer.toString(index), nextLine[posPeakRank]);
+            }
+            if (hasIsotopeLabelType) {
+                IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[posIsotopeLabelType]);
+            }
+            if (hasHeight) {
+                HeightMap.put(Integer.toString(index), nextLine[posHeight]);
+            }
+            if (hasTotalAreaRatio) {
+                TotalAreaRatioMap.put(Integer.toString(index), nextLine[posTotalAreaRatio]);
+            }
+            if (hasAreaNormalized) {
+                AreaNormalizedMap.put(Integer.toString(index), nextLine[posAreaNormalized]);
+            }
+            if (hasReplicateName && hasIsotopeLabelType) {
+                AssayMap.put(Integer.toString(index), nextLine[posReplicateName] + "_" + nextLine[posIsotopeLabelType]);
+            }
+            if (hasPeptideRatio) {
+                PeptideRatioMap.put(Integer.toString(index), nextLine[posPeptideRatio]);
+            }
 
             index++;
         }
@@ -187,9 +322,96 @@ public class SrmReader implements Closeable {
 
         //create replicateIdMap, replicate name represents raw file name
         createReplicateIdMap();
+
+        //create rawFileNameIdMap
+        createRawFileNameIdMap();
     }
 
     //public methods
+    public boolean hasPeptideSequence() {
+        return hasPeptideSequence;
+    }
+
+    public boolean hasProteinName() {
+        return hasProteinName;
+    }
+
+    public boolean hasReplicateName() {
+        return hasReplicateName;
+    }
+
+    public boolean hasModificationSequence() {
+        return hasModificationSequence;
+    }
+
+    public boolean hasPrecursorMz() {
+        return hasPrecursorMz;
+    }
+
+    public boolean hasPrecursorCharge() {
+        return hasPrecursorCharge;
+    }
+
+    public boolean hasProductMz() {
+        return hasProductMz;
+    }
+
+    public boolean hasProductCharge() {
+        return hasProductCharge;
+    }
+
+    public boolean hasCleavageAa() {
+        return hasCleavageAa;
+    }
+
+    public boolean hasFragmentIon() {
+        return hasFragmentIon;
+    }
+
+    public boolean hasPeptideRetentionTime() {
+        return hasPeptideRetentionTime;
+    }
+
+    public boolean hasRetentionTime() {
+        return hasRetentionTime;
+    }
+
+    public boolean hasArea() {
+        return hasArea;
+    }
+
+    public boolean hasBackground() {
+        return hasBackground;
+    }
+
+    public boolean hasPeakRank() {
+        return hasPeakRank;
+    }
+
+    public boolean hasFileName() {
+        return hasFileName;
+    }
+
+    public boolean hasIsotopeLabelType() {
+        return hasIsotopeLabelType;
+    }
+
+    public boolean hasHeight() {
+        return hasHeight;
+    }
+
+    public boolean hasTotalAreaRatio() {
+        return hasTotalAreaRatio;
+    }
+
+    public boolean hasAreaNormalized() {
+        return hasAreaNormalized;
+    }
+
+    public boolean hasPeptideRatio() {
+        return hasPeptideRatio;
+    }
+
     public ArrayList<String> getAssayList() {
         return new ArrayList(assayIdMap.keySet());
     }
@@ -206,160 +428,240 @@ public class SrmReader implements Closeable {
         return new ArrayList(replicateIdMap.keySet());
     }
 
-    public LinkedHashMap<String, String> getPeptideMap() {
+    public ArrayList<String> getRawFileNameList() {
+        return new ArrayList(rawFileNameIdMap.keySet());
+    }
+
+    /*
+     * return private HashMap(s)
+     */
+    public HashMap<String, String> getPeptideSequenceMap() {
         return PeptideSequenceMap;
     }
 
-    public LinkedHashMap<String, String> getProteinMap() {
+    public HashMap<String, String> getProteinNameMap() {
         return ProteinNameMap;
     }
 
-    public LinkedHashMap<String, String> getReplicateMap() {
+    public HashMap<String, String> getReplicateNameMap() {
         return ReplicateNameMap;
     }
 
-    public LinkedHashMap<String, String> getPrecursorMzMap() {
+    public HashMap<String, String> getModificationSequenceMap() {
+        return ModificationSequenceMap;
+    }
+
+    public HashMap<String, String> getPrecursorMzMap() {
         return PrecursorMzMap;
     }
 
-    public LinkedHashMap<String, String> getPrecursorChargeMap() {
+    public HashMap<String, String> getPrecursorChargeMap() {
         return PrecursorChargeMap;
     }
 
-    public LinkedHashMap<String, String> getProductMzMap() {
+    public HashMap<String, String> getProductMzMap() {
         return ProductMzMap;
     }
 
-    public LinkedHashMap<String, String> getProductChargeMap() {
+    public HashMap<String, String> getProductChargeMap() {
         return ProductChargeMap;
     }
 
-    public LinkedHashMap<String, String> getFragmentIonMap() {
+    public HashMap<String, String> getCleavageAaMap() {
+        return CleavageAaMap;
+    }
+
+    public HashMap<String, String> getFragmentIonMap() {
         return FragmentIonMap;
     }
 
-    public LinkedHashMap<String, String> getRetentionTimeMap() {
+    public HashMap<String, String> getPeptideRetentionTimeMap() {
+        return PeptideRetentionTimeMap;
+    }
+
+    public HashMap<String, String> getRetentionTimeMap() {
         return RetentionTimeMap;
     }
 
-    public LinkedHashMap<String, String> getAreaMap() {
+    public HashMap<String, String> getAreaMap() {
         return AreaMap;
     }
 
-    public LinkedHashMap<String, String> getBackgroundMap() {
+    public HashMap<String, String> getBackgroundMap() {
         return BackgroundMap;
     }
 
-    public LinkedHashMap<String, String> getPeakRankMap() {
+    public HashMap<String, String> getPeakRankMap() {
         return PeakRankMap;
     }
 
-    public LinkedHashMap<String, String> getAssayMap() {
+    public HashMap<String, String> getIsotopeLabelTypeMap() {
+        return IsotopeLabelTypeMap;
+    }
+
+    public HashMap<String, String> getHeightMap() {
+        return HeightMap;
+    }
+
+    public HashMap<String, String> getTotalAreaRatioMap() {
+        return TotalAreaRatioMap;
+    }
+
+    public HashMap<String, String> getAreaNormalizedMap() {
+        return AreaNormalizedMap;
+    }
+
+    public HashMap<String, String> getAssayMap() {
         return AssayMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getAssayIdMap() {
+    public HashMap<String, String> getPeptideRatioMap() {
+        return PeptideRatioMap;
+    }
+
+    /*
+     * return private one to many id list HashMaps
+     */
+    public HashMap<String, ArrayList<String>> getAssayIdMap() {
         return assayIdMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getProteinIdMap() {
+    public HashMap<String, ArrayList<String>> getProteinIdMap() {
         return proteinIdMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getPeptideIdMap() {
+    public HashMap<String, ArrayList<String>> getPeptideIdMap() {
         return peptideIdMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getAssayToPeptideMap() {
+    public HashMap<String, ArrayList<String>> getRawFileNameIdMap() {
+        return rawFileNameIdMap;
+    }
+
+    /*
+     * cross reference HashMap (one to many)
+     */
+    public HashMap<String, ArrayList<String>> getAssayToPeptideMap() {
         createAssayToPeptideMap();
         return assayToPeptideMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getPeptideToAssayMap() {
+    public HashMap<String, ArrayList<String>> getPeptideToAssayMap() {
         createPeptideToAssayMap();
         return peptideToAssayMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getAssayToProteinMap() {
+    public HashMap<String, ArrayList<String>> getAssayToProteinMap() {
         createAssayToProteinMap();
         return assayToProteinMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getProteinToAssayMap() {
+    public HashMap<String, ArrayList<String>> getProteinToAssayMap() {
         createProteinToAssayMap();
         return proteinToAssayMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getPeptideToProteinMap() {
+    public HashMap<String, ArrayList<String>> getPeptideToProteinMap() {
         createPeptideToProteinMap();
         return peptideToProteinMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getProteinToPeptideMap() {
+    public HashMap<String, ArrayList<String>> getProteinToPeptideMap() {
         createProteinToPeptideMap();
         return proteinToPeptideMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getAssayToReplicateMap() {
+    public HashMap<String, ArrayList<String>> getAssayToReplicateMap() {
         createAssayToReplicateMap();
         return assayToReplicateMap;
     }
 
-    public LinkedHashMap<String, ArrayList<String>> getReplicateToAssayMap() {
+    public HashMap<String, ArrayList<String>> getReplicateToAssayMap() {
         createReplicateToAssayMap();
         return replicateToAssayMap;
     }
 
-    public LinkedHashMap<String, String> getPeptideToRatioMap() {
+    public HashMap<String, ArrayList<String>> getRawFileNameToAssayMap() {
+        createRawFileNameToAssayMap();
+        return rawFileNameToAssayMap;
+    }
+
+    public HashMap<String, ArrayList<String>> getAssayToRawFileNameMap() {
+        createAssayToRawFileNameMap();
+        return assayToRawFileNameMap;
+    }
+
+    public HashMap<String, String> getPeptideToRatioMap() {
         createPeptideToRatioMap();
         return peptideToRatioMap;
     }
-    //private method
 
+    /*
+     * ******************
+     *
+     * private methods
+     *
+     * ******************
+     */
+    /*
+     * @assayIdMap: assay name to id list HashMap
+     */
     private void createAssayIdMap() {
-        assayIdMap = new LinkedHashMap();
+        assayIdMap = new HashMap();
         //ArrayList<String> assayList = new ArrayList();
-        for (String id : AssayMap.keySet()) {
-            String assay = AssayMap.get(id);
-            ArrayList<String> idList = assayIdMap.get(assay);
-            if (idList == null) {
-                idList = new ArrayList();
-                assayIdMap.put(assay, idList);
+        if (AssayMap.keySet() != null) {
+            for (String id : AssayMap.keySet()) {
+                String assay = AssayMap.get(id);
+                ArrayList<String> idList = assayIdMap.get(assay);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    assayIdMap.put(assay, idList);
+                }
+                idList.add(id);
             }
-            idList.add(id);
         }
     }
 
+    /*
+     * @proteinIdMap: protein name to id list HashMap
+     */
     private void createProteinIdMap() {
-        proteinIdMap = new LinkedHashMap();
+        proteinIdMap = new HashMap();
         //ArrayList<String> proteinList = new ArrayList();
-        for (String id : ProteinNameMap.keySet()) {
-            String protein = ProteinNameMap.get(id);
-            ArrayList<String> idList = proteinIdMap.get(protein);
-            if (idList == null) {
-                idList = new ArrayList();
-                proteinIdMap.put(protein, idList);
+        if (ProteinNameMap.keySet() != null) {
+            for (String id : ProteinNameMap.keySet()) {
+                String protein = ProteinNameMap.get(id);
+                ArrayList<String> idList = proteinIdMap.get(protein);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    proteinIdMap.put(protein, idList);
+                }
+                idList.add(id);
             }
-            idList.add(id);
         }
     }
 
+    /*
+     * @peptideIdMap: peptide sequence to id list HashMap
+     */
     private void createPeptideIdMap() {
-        peptideIdMap = new LinkedHashMap();
+        peptideIdMap = new HashMap();
         //ArrayList<String> peptideList = new ArrayList();
-        for (String id : PeptideSequenceMap.keySet()) {
-            String peptide = PeptideSequenceMap.get(id);
-            ArrayList<String> idList = peptideIdMap.get(peptide);
-            if (idList == null) {
-                idList = new ArrayList();
-                peptideIdMap.put(peptide, idList);
+        if (PeptideSequenceMap.keySet() != null) {
+            for (String id : PeptideSequenceMap.keySet()) {
+                String peptide = PeptideSequenceMap.get(id);
+                ArrayList<String> idList = peptideIdMap.get(peptide);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    peptideIdMap.put(peptide, idList);
+                }
+                idList.add(id);
             }
-            idList.add(id);
         }
     }
 
     private void createReplicateIdMap() {
-        replicateIdMap = new LinkedHashMap();
+        replicateIdMap = new HashMap();
         //ArrayList<String> replicateList = new ArrayList();
         for (String id : ReplicateNameMap.keySet()) {
             String replicate = ReplicateNameMap.get(id);
@@ -373,12 +675,30 @@ public class SrmReader implements Closeable {
     }
 
     /*
+     * @rawFileNameIdMap: raw file name (.raw) to id list HashMap
+     */
+    private void createRawFileNameIdMap() {
+        rawFileNameIdMap = new HashMap();
+        if (FileNameMap.keySet() != null) {
+            for (String id : FileNameMap.keySet()) {
+                String rawFileName = FileNameMap.get(id);
+                ArrayList<String> idList = rawFileNameIdMap.get(rawFileName);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    rawFileNameIdMap.put(rawFileName, idList);
+                }
+                idList.add(id);
+            }
+        }
+    }
+
+    /*
      * @HashMap<String, ArrayList<String>> proteinToPeptideMap
      * @key = protein name
      * @value = list of peptide sequence
      */
     private void createProteinToPeptideMap() {
-        proteinToPeptideMap = new LinkedHashMap();
+        proteinToPeptideMap = new HashMap();
         for (String protein : proteinIdMap.keySet()) {
             ArrayList<String> idList = proteinIdMap.get(protein);
 
@@ -395,7 +715,7 @@ public class SrmReader implements Closeable {
      * @value = list of protein name
      */
     private void createPeptideToProteinMap() {
-        peptideToProteinMap = new LinkedHashMap();
+        peptideToProteinMap = new HashMap();
         for (String peptide : peptideIdMap.keySet()) {
             ArrayList<String> idList = peptideIdMap.get(peptide);
 
@@ -412,7 +732,7 @@ public class SrmReader implements Closeable {
      * @value = list of assay name
      */
     private void createPeptideToAssayMap() {
-        peptideToAssayMap = new LinkedHashMap();
+        peptideToAssayMap = new HashMap();
         for (String peptide : peptideIdMap.keySet()) {
             ArrayList<String> idList = peptideIdMap.get(peptide);
 
@@ -429,14 +749,14 @@ public class SrmReader implements Closeable {
      * @value = list of peptide sequence
      */
     private void createAssayToPeptideMap() {
-        assayToPeptideMap = new LinkedHashMap();
+        assayToPeptideMap = new HashMap();
         for (String assay : assayIdMap.keySet()) {
             ArrayList<String> idList = assayIdMap.get(assay);
 
-            // get peptideList from PeptideSequenceMap based on idList
-            ArrayList<String> peptideList = getListFromId(idList, PeptideSequenceMap);
+            // get peptideSequenceList from PeptideSequenceMap based on idList
+            ArrayList<String> peptideSequenceList = getListFromId(idList, PeptideSequenceMap);
 
-            assayToPeptideMap.put(assay, peptideList);
+            assayToPeptideMap.put(assay, peptideSequenceList);
         }
     }
 
@@ -446,11 +766,11 @@ public class SrmReader implements Closeable {
      * @value = list of assay name
      */
     private void createProteinToAssayMap() {
-        proteinToAssayMap = new LinkedHashMap();
+        proteinToAssayMap = new HashMap();
         for (String protein : proteinIdMap.keySet()) {
             ArrayList<String> idList = proteinIdMap.get(protein);
 
-            // get assayList from ProteinNameMap based on idList
+            // get assayList from AssayMap based on idList
             ArrayList<String> assayList = getListFromId(idList, AssayMap);
 
             peptideToAssayMap.put(protein, assayList);
@@ -463,7 +783,7 @@ public class SrmReader implements Closeable {
      * @value = list of protein name
      */
     private void createAssayToProteinMap() {
-        assayToProteinMap = new LinkedHashMap();
+        assayToProteinMap = new HashMap();
         for (String assay : assayIdMap.keySet()) {
             ArrayList<String> idList = assayIdMap.get(assay);
 
@@ -480,11 +800,11 @@ public class SrmReader implements Closeable {
      * @value = list of assay name
      */
     private void createReplicateToAssayMap() {
-        replicateToAssayMap = new LinkedHashMap();
+        replicateToAssayMap = new HashMap();
         for (String replicate : replicateIdMap.keySet()) {
             ArrayList<String> idList = replicateIdMap.get(replicate);
 
-            // get assayList from ReplicateNameMap based on idList
+            // get assayList from AssayMap based on idList
             ArrayList<String> assayList = getListFromId(idList, AssayMap);
 
             replicateToAssayMap.put(replicate, assayList);
@@ -497,14 +817,43 @@ public class SrmReader implements Closeable {
      * @value = list of replicate name
      */
     private void createAssayToReplicateMap() {
-        assayToReplicateMap = new LinkedHashMap();
+        assayToReplicateMap = new HashMap();
         for (String assay : assayIdMap.keySet()) {
             ArrayList<String> idList = assayIdMap.get(assay);
 
-            // get replicateList from ProteinNameMap based on idList
+            // get replicateList from ReplicateNameMap based on idList
             ArrayList<String> replicateList = getListFromId(idList, ReplicateNameMap);
 
             assayToReplicateMap.put(assay, replicateList);
+        }
+    }
+
+    /*
+     * @HashMap<String, ArrayList<String>> rawFileNameToAssayMap
+     * @key = raw file name
+     * @value = list of assay name
+     */
+    private void createRawFileNameToAssayMap() {
+        rawFileNameToAssayMap = new HashMap();
+        for (String rawFn : rawFileNameIdMap.keySet()) {
+            ArrayList<String> idList = rawFileNameIdMap.get(rawFn);
+
+            // get assayList from AssayMap based on idList
+            ArrayList<String> assayList = getListFromId(idList, AssayMap);
+
+            rawFileNameToAssayMap.put(rawFn, assayList);
+        }
+    }
+
+    private void createAssayToRawFileNameMap() {
+        assayToRawFileNameMap = new HashMap();
+        for (String assay : assayIdMap.keySet()) {
+            ArrayList<String> idList = assayIdMap.get(assay);
+
+            // get rawFileNameList from rawFileNameMap based on idList
+            ArrayList<String> rawFileNameList = getListFromId(idList, FileNameMap);
+
+            assayToRawFileNameMap.put(assay, rawFileNameList);
         }
     }
 
@@ -514,8 +863,8 @@ public class SrmReader implements Closeable {
      * @value = peptide ratio
      */
     private void createPeptideToRatioMap() {
-        peptideToRatioMap = new LinkedHashMap();
-        for (String id : PeptideRatioMap.keySet()) {
+        peptideToRatioMap = new HashMap();
+        for (String id : TotalAreaRatioMap.keySet()) {
             String pepSeq = PeptideSequenceMap.get(id);
             String ratio = peptideToRatioMap.get(pepSeq);
             if (ratio == null) {
@@ -526,11 +875,13 @@ public class SrmReader implements Closeable {
 
     private ArrayList<String> getListFromId(ArrayList<String> idList,
                                             HashMap<String, String> aMap) {
-        ArrayList<String> resList = new ArrayList();
+        ArrayList<String> retList = new ArrayList();
         for (String id : idList) {
-            resList.add(aMap.get(id));
+            if (!retList.contains(aMap.get(id))) {
+                retList.add(aMap.get(id));
+            }
         }
-        return resList;
+        return retList;
 
     }
 
