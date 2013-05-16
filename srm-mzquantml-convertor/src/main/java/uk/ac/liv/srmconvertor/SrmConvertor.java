@@ -8,7 +8,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import uk.ac.liv.jmzqml.model.mzqml.*;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
@@ -18,6 +17,20 @@ import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
  *
  */
 public class SrmConvertor {
+
+    private static SrmReader sRd;
+    private static MzQuantMLMarshaller marshaller;
+    private static MzQuantML mzq;
+    private static Cv cv;
+    private static Label label;
+    private static Label label_heavy;
+    private static SearchDatabase db;
+    private static HashMap<String, ArrayList<String>> rgIdrawIdMap;
+    private static HashMap<String, String> rawIdrgIdMap;
+    private static HashMap<String, String> rawFileNameIdMap;
+    private static HashMap<String, String> rawFileIdNameMap;
+    private static HashMap<String, String> assayNameIdMap;
+    private static HashMap<String, String> assayIdNameMap;
 
     public static void main(String[] args)
             throws IOException {
@@ -37,13 +50,15 @@ public class SrmConvertor {
 //        String inputFn = args[0];
 //        String mzqFn = args[1];
 
-        String inputFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_test.csv";
-        String mzqFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_test.mzq";
+        String inputFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.csv";
+        String mzqFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.mzq";
 
-        SrmReader sRd = new SrmReader(new FileReader(inputFn));
+        sRd = new SrmReader(new FileReader(inputFn));
+
+        marshaller = new MzQuantMLMarshaller(mzqFn);
 
         //create MzQuantML instance
-        MzQuantML mzq = new MzQuantML();
+        mzq = new MzQuantML();
 
         String version = "1.0.0";
         mzq.setVersion(version);
@@ -61,83 +76,104 @@ public class SrmConvertor {
 
         mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
 
+        createCvList();
+
+        createAnalysisSummary();
+
+        createAuditCollection();
+
+        createInputFiles();
+
+        createAssayList();
+
+        createSoftwareList();
+
+        createDataProcessingList();
+
+        createProteinList();
+
+        createFeatureList();
+
+        createRatioList();
+
+        createPeptideconsensusList();
+
         /**
          * *
+         * create a Marshaller and marshal to File
+         */
+        marshaller.marshall(mzq);
+    }
+
+    // private methods
+    private static void createCvList() {
+        /**
          * create CvListType
          */
         CvList cvs = new CvList();
         List<Cv> cvList = cvs.getCv();
         // psi-ms
-        Cv cv = new Cv();
-        cv.setId("PSI-MS");
-        cv.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
-        cv.setFullName("Proteomics Standards Initiative Mass Spectrometry Vocabularies");
-        cv.setVersion("2.25.0");
+
+        cv = marshaller.createCv("PSI-MS",
+                                 "Proteomics Standards Initiative Mass Spectrometry Vocabularies",
+                                 "http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo",
+                                 "2.25.0");
         cvList.add(cv);
 
         //unimod
-        Cv cv_unimod = new Cv();
-        cv_unimod.setId("UNIMOD");
-        cv_unimod.setUri("http://www.unimod.org/obo/unimod.obo");
-        cv_unimod.setFullName("Unimod");
+        Cv cv_unimod = marshaller.createCv("UNIMOD", "Unimod", "http://www.unimod.org/obo/unimod.obo", null);
         cvList.add(cv_unimod);
 
         //psi-mod
-        Cv cv_mod = new Cv();
-        cv_mod.setId("PSI-MOD");
-        cv_mod.setUri("http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo");
-        cv_mod.setFullName("Proteomics Standards Initiative Protein Modifications Vocabularies");
+        Cv cv_mod = marshaller.createCv("PSI-MOD",
+                                        "Proteomics Standards Initiative Protein Modifications Vocabularies",
+                                        "http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo",
+                                        null);
         cvList.add(cv_mod);
 
         mzq.setCvList(cvs);
 
         //light label
-        Label label = new Label();
-        CvParam labelCvParam = new CvParam();
-        labelCvParam.setAccession("MS:1002038");
-        labelCvParam.setName("unlabeled sample");
-        labelCvParam.setCv(cv);
+        label = new Label();
+        CvParam labelCvParam = marshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
         ModParam modParam = new ModParam();
         modParam.setCvParam(labelCvParam);
         label.getModification().add(modParam);
 
         //heavy label
-        Label label_heavy = new Label();
-        CvParam label_silac = new CvParam();
-        label_silac.setAccession("MOD:00188");
-        label_silac.setName("13C(6) Silac label");
-        label_silac.setCv(cv_mod);
-        label_silac.setValue("6.020129");
+        //TODO: to detect the heavy label from the file or get it from Skyline setting
+        label_heavy = new Label();
+        CvParam label_silac = marshaller.createCvParam("13C(6) Silac label", cv_mod, "MOD:00188", "6.020129", "", "", "");
         ModParam modParam_silac = new ModParam();
         modParam_silac.setCvParam(label_silac);
         label_heavy.getModification().add(modParam_silac);
+    }
 
+    private static void createAnalysisSummary() {
         /*
          * create AnalysisSummary
          */
 
         AnalysisSummary analysisSummary = new AnalysisSummary();
-        analysisSummary.getParamGroup().add(createCvParam("SRM quantitation analysis", "PSI-MS", "MS:1001838"));
+        analysisSummary.getParamGroup().add(marshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
         //TODO: need cv terms
-        CvParam analysisSummaryCv = createCvParam("SRM raw feature quantitation", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("true");
+        CvParam analysisSummaryCv = marshaller.createCvParam("SRM raw feature quantitation", cv, "MS:100XXXX", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = createCvParam("SRM peptide level quantitation", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("true");
+        analysisSummaryCv = marshaller.createCvParam("SRM peptide level quantitation", cv, "MS:100XXXX", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = createCvParam("SRM protein level quantitation", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("true");
+        analysisSummaryCv = marshaller.createCvParam("SRM protein level quantitation", cv, "MS:100XXXX", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = createCvParam("SRM proteingroup level quantitation", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("false");
+        analysisSummaryCv = marshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:100XXXX", "false", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         mzq.setAnalysisSummary(analysisSummary);
+    }
 
+    private static void createAuditCollection() {
         /**
          * create AuditCollection
          */
@@ -168,7 +204,9 @@ public class SrmConvertor {
         auditCollection.getOrganization().add(uol);
 
         mzq.setAuditCollection(auditCollection);
+    }
 
+    private static void createInputFiles() {
         /**
          * *
          * create InputFiles
@@ -176,15 +214,22 @@ public class SrmConvertor {
         InputFiles inputFiles = new InputFiles();
         List<RawFilesGroup> rawFilesGroupList = inputFiles.getRawFilesGroup();
 
-        LinkedHashMap<String, String> rawFileNameIdMap = new LinkedHashMap<String, String>();
-        LinkedHashMap<String, ArrayList<String>> rgIdrawIdMap = new LinkedHashMap<String, ArrayList<String>>();
-        HashMap<String, String> assayNrgIdMap = new HashMap<String, String>();
+        /*
+         * create rawFilesGroup
+         */
+        //all current rawFilesGroup examples are one to one mapping between rg_Id and raw_Id
+        //TODO: find some prefractionation examples 
+
+        //initialisation
+        rawFileNameIdMap = new HashMap<String, String>();
+        rawFileIdNameMap = new HashMap<String, String>();
+        rgIdrawIdMap = new HashMap<String, ArrayList<String>>();
+        rawIdrgIdMap = new HashMap<String, String>();
+//        HashMap<String, String> assayNrgIdMap = new HashMap<String, String>(); //jmzquantml 1.0.0-1.0.0
 
         int rawFileCounter = 0;
-        //replicate name represents the raw file name
-        for (String repN : sRd.getReplicateList()) {
-            // create fictional raw file name
-            String rawFn = repN + ".raw";
+
+        for (String rawFn : sRd.getRawFileNameList()) {
 
             // create raw file ID
             String rawId = "raw_" + Integer.toString(rawFileCounter);
@@ -196,25 +241,26 @@ public class SrmConvertor {
             rawFile.setId(rawId);
             rawFile.setName(rawFn);
             /*
-             * make up some raw file locations as we don't know the real
+             * TODO:make up some raw file locations as we don't know the real
              * location from progenesis files
              */
             rawFile.setLocation("../msmsdata/" + rawFn);
             rawFileNameIdMap.put(rawFn, rawId);
+            rawFileIdNameMap.put(rawId, rawFn);
             rawFiles.add(rawFile);
 
             String rgId = "rg_" + Integer.toString(rawFileCounter);
             rawFilesGroup.setId(rgId);
             rawFilesGroupList.add(rawFilesGroup);
 
-
+            // jmzquantml 1.0.0-1.0.0
 //            if (assayNrgIdMap.get(assayN) == null) {
 //                assayNrgIdMap.put(assayN, rgId);
 //            }
 
-            for (String assayN : sRd.getReplicateToAssayMap().get(repN)) {
-                assayNrgIdMap.put(assayN, rgId);
-            }
+//            for (String assayN : sRd.getRawFileNameToAssayMap().get(rawFn)) {
+//                assayNrgIdMap.put(assayN, rgId);
+//            }
             /*
              * build rgIdrawIdMap raw files group id as key raw file ids
              * (ArrayList) as value
@@ -225,13 +271,14 @@ public class SrmConvertor {
                 rgIdrawIdMap.put(rgId, rawIds);
             }
             rawIds.add(rawId);
+            rawIdrgIdMap.put(rawId, rgId);
 
             rawFileCounter++;
         }
 
         //add search databases
         List<SearchDatabase> searchDBs = inputFiles.getSearchDatabase();
-        SearchDatabase db = new SearchDatabase();
+        db = new SearchDatabase();
         db.setId("SD1");
         db.setLocation("sgd_orfs_plus_ups_prots.fasta");
         searchDBs.add(db);
@@ -242,7 +289,9 @@ public class SrmConvertor {
         dbName.setParam(dbNameParam);
 
         mzq.setInputFiles(inputFiles);
+    }
 
+    private static void createAssayList() {
         /**
          * *
          * create AssayList
@@ -251,7 +300,11 @@ public class SrmConvertor {
         assays.setId("AssayList_1");
         List<Assay> assayList = assays.getAssay();
         int assayCounter = 0;
-        HashMap<String, String> assayNameIdMap = new HashMap<String, String>();
+
+        //initialisation
+        assayNameIdMap = new HashMap<String, String>();
+        assayIdNameMap = new HashMap<String, String>();
+
         for (String assayN : sRd.getAssayList()) {
             Assay assay = new Assay();
             String assayId = "ass_" + Integer.toString(assayCounter);
@@ -267,14 +320,19 @@ public class SrmConvertor {
             assayCounter++;
 
             assayNameIdMap.put(assayN, assayId);
+            assayIdNameMap.put(assayId, assayN);
 
-            //TODO: it is a temporary solution
             RawFilesGroup rawFilesGroup = new RawFilesGroup();
-            rawFilesGroup.setId(assayNrgIdMap.get(assayN));
+
+            rawFilesGroup.setId(getRawFilesGroupIdFromAssayName(assayN));
+
+            //rawFilesGroup.setId(assayNrgIdMap.get(assayN)); //jmzquantml 1.0.0-1.0.0
             assay.setRawFilesGroup(rawFilesGroup);
         }
         mzq.setAssayList(assays);
+    }
 
+    private static void createSoftwareList() {
         /**
          * *
          * create SoftwareList
@@ -284,9 +342,11 @@ public class SrmConvertor {
         softwareList.getSoftware().add(software);
         software.setId("Skyline");
         software.setVersion("1.4");
-        software.getCvParam().add(createCvParam("Skyline", "PSI-MS", "MS:1000922"));
+        software.getCvParam().add(marshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
         mzq.setSoftwareList(softwareList);
+    }
 
+    private static void createDataProcessingList() {
         /**
          * *
          * create DataProcessingList
@@ -294,22 +354,25 @@ public class SrmConvertor {
         DataProcessingList dataProcessingList = new DataProcessingList();
         DataProcessing dataProcessing = new DataProcessing();
         dataProcessing.setId("feature_quantification");
-        dataProcessing.setSoftware(software);
+        //dataProcessing.setSoftware(software); //jmzquantml 1.0.0-1.0.0
+        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(0));
         dataProcessing.setOrder(BigInteger.ONE);
         ProcessingMethod processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.ONE);
-        processingMethod.getParamGroup().add(createCvParam("quantification data processing", "PSI-MS", "MS:1001861"));
+        processingMethod.getParamGroup().add(marshaller.createCvParam("quantification data processing", "PSI-MS", "MS:1001861"));
         dataProcessing.getProcessingMethod().add(processingMethod);
 
         dataProcessingList.getDataProcessing().add(dataProcessing);
         mzq.setDataProcessingList(dataProcessingList);
+    }
 
+    private static void createProteinList() {
         /**
          * *
          * create ProteinList
          */
         // get protein to peptide map from SRMReader
-        LinkedHashMap<String, ArrayList<String>> protToPepMap = sRd.getProteinToPeptideMap();
+        HashMap<String, ArrayList<String>> protToPepMap = sRd.getProteinToPeptideMap();
 
         ProteinList proteins = new ProteinList();
         proteins.setId("ProtList1");
@@ -333,6 +396,7 @@ public class SrmConvertor {
             if (pepSeqs != null) {
 
                 //List<Object> peptideConsensusRefList = protein.getPeptideConsensusRefs();  //jmzquantml 1.0.0-1.0.0
+                //List<PeptideConsensus> peptides = new ArrayList();
                 List<PeptideConsensus> peptides = protein.getPeptideConsensuses();
                 ArrayList<String> pepIds = new ArrayList();
 
@@ -347,12 +411,15 @@ public class SrmConvertor {
                         pepIds.add("pep_" + pepSeq);
                     }
                 }
+                protein.setPeptideConsensuses(peptides);
             }
 
             proteinList.add(protein);
         }
         mzq.setProteinList(proteins);
+    }
 
+    private static void createFeatureList() {
         /**
          * *
          * create FeatureList
@@ -376,7 +443,10 @@ public class SrmConvertor {
             feature.setMz(Double.valueOf(mz));
 
             // get retention time
-            String rt = sRd.getRetentionTimeMap().get(id);
+            String rt = sRd.getPeptideRetentionTimeMap().get(id);
+            if (rt.equals("#N/A")) {
+                rt = "null";
+            }
             feature.setRt(rt);
 
             // get product charge
@@ -385,19 +455,33 @@ public class SrmConvertor {
             // get product m/z
             String proMz = sRd.getProductMzMap().get(id);
 
+            // get product rt
+            String proRt = sRd.getRetentionTimeMap().get(id);
+            if (proRt.equals("#N/A")) {
+                proRt = "null";
+            }
+
             // set cv term for Q3 mz
-            CvParam cpMz = createCvParam("Q3 mz", "PSI-MS", "MS:100XXXX");
+            CvParam cpMz = marshaller.createCvParam("Q3 mz", "PSI-MS", "MS:100XXXX");
             cpMz.setValue(proMz);
             feature.getCvParam().add(cpMz);
 
             // set cv term for Q3 charge
-            CvParam cpCharge = createCvParam("Q3 charge", "PSI-MS", "MS:100XXXX");
+            CvParam cpCharge = marshaller.createCvParam("Q3 charge", "PSI-MS", "MS:100XXXX");
             cpCharge.setValue(proCharge);
             feature.getCvParam().add(cpCharge);
 
+            // set cv term for Q3 rt
+            CvParam cpRt = marshaller.createCvParam("Q3 retention time", "PSI-MS", "MS:100XXXX");
+            cpRt.setValue(proRt);
+            feature.getCvParam().add(cpRt);
+
+
             // find out this feature belongs to which raw files group via assay name
             String assayN = sRd.getAssayMap().get(id);
-            String rgId = assayNrgIdMap.get(assayN);
+            //String rgId = assayNrgIdMap.get(assayN);  //jmzquantml 1.0.0-1.0.0
+
+            String rgId = getRawFilesGroupIdFromAssayName(assayN);
 
             // get a FeatureList from rgIdFeatureListMap first
             FeatureList featureList = rgIdFeatureListMap.get(rgId);
@@ -431,7 +515,7 @@ public class SrmConvertor {
                 CvParamRef cpRefArea = new CvParamRef();
 
                 //cv term for Q3 area
-                cpRefArea.setCvParam(createCvParam("Q3 area", "PSI-MS", "MS:100XXXX"));
+                cpRefArea.setCvParam(marshaller.createCvParam("Q3 area", "PSI-MS", "MS:100XXXX"));
                 columnArea.setDataType(cpRefArea);
 
                 featureColumnIndex.getColumn().add(columnArea);
@@ -445,7 +529,7 @@ public class SrmConvertor {
                 CvParamRef cpRefBg = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefBg.setCvParam(createCvParam("Q3 background", "PSI-MS", "MS:100XXXX"));
+                cpRefBg.setCvParam(marshaller.createCvParam("Q3 background", "PSI-MS", "MS:100XXXX"));
                 columnBg.setDataType(cpRefBg);
 
                 featureColumnIndex.getColumn().add(columnBg);
@@ -459,10 +543,38 @@ public class SrmConvertor {
                 CvParamRef cpRefPr = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefPr.setCvParam(createCvParam("Q3 peakrank", "PSI-MS", "MS:100XXXX"));
+                cpRefPr.setCvParam(marshaller.createCvParam("Q3 peakrank", "PSI-MS", "MS:100XXXX"));
                 columnPr.setDataType(cpRefPr);
 
                 featureColumnIndex.getColumn().add(columnPr);
+
+                /*
+                 * The fourth column for Q3 height
+                 */
+
+                Column columnHt = new Column();
+                columnHt.setIndex(BigInteger.valueOf(3));
+                CvParamRef cpRefHt = new CvParamRef();
+
+                //cv term for Q3 height
+                cpRefHt.setCvParam(marshaller.createCvParam("Q3 height", "PSI-MS", "MS:100XXXX"));
+                columnHt.setDataType(cpRefHt);
+
+                featureColumnIndex.getColumn().add(columnHt);
+
+                /*
+                 * The fifth column for Q3 AreaNormalized
+                 */
+
+                Column columnAn = new Column();
+                columnAn.setIndex(BigInteger.valueOf(4));
+                CvParamRef cpRefAn = new CvParamRef();
+
+                //cv term for Q3 AreaNormalized
+                cpRefAn.setCvParam(marshaller.createCvParam("Q3 areaNormalized", "PSI-MS", "MS:100XXXX"));
+                columnAn.setDataType(cpRefAn);
+
+                featureColumnIndex.getColumn().add(columnAn);
 
                 // deal with DM for GlobalQuantLayer
                 DataMatrix DM = new DataMatrix();
@@ -495,6 +607,27 @@ public class SrmConvertor {
                     peakRank = "0";
                 }
                 row.getValue().add(peakRank);
+
+                /*
+                 * fourth column
+                 */
+                String height = sRd.getHeightMap().get(id);
+                if (height.equals("#N/A")) {
+                    height = "0";
+                }
+                row.getValue().add(height);
+
+                /*
+                 * fifth column
+                 */
+                String areaNormalized = sRd.getAreaNormalizedMap().get(id);
+                if (areaNormalized.equals("#N/A")) {
+                    areaNormalized = "0";
+                }
+                //change the percentage format to double format
+                areaNormalized = String.valueOf(Double.parseDouble(areaNormalized.replace('%', ' ')) / 100);
+
+                row.getValue().add(areaNormalized);
 
                 //add row
                 DM.getRow().add(row);
@@ -531,13 +664,36 @@ public class SrmConvertor {
                 }
                 row.getValue().add(peakRank);
 
+                /*
+                 * fourth column
+                 */
+                String height = sRd.getHeightMap().get(id);
+                if (height.equals("#N/A")) {
+                    height = "0";
+                }
+                row.getValue().add(height);
+
+                /*
+                 * fifth column
+                 */
+                String areaNormalized = sRd.getAreaNormalizedMap().get(id);
+                if (areaNormalized.equals("#N/A")) {
+                    areaNormalized = "0";
+                }
+                //change the percentage format to double format
+                areaNormalized = String.valueOf(Double.parseDouble(areaNormalized.replace('%', ' ')) / 100);
+
+                row.getValue().add(areaNormalized);
+
                 //add row
                 featureList.getFeatureQuantLayer().get(0).getDataMatrix().getRow().add(row);
             }
             featureList.getFeature().add(feature);
 
         }
+    }
 
+    private static void createRatioList() {
         /**
          * *
          * create RatioList
@@ -568,12 +724,21 @@ public class SrmConvertor {
             }
         }
 
+        CvParamRef denominator_cpRef = new CvParamRef();
+        denominator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        pepRatio.setDenominatorDataType(denominator_cpRef);
+
+        CvParamRef numerator_cpRef = new CvParamRef();
+        numerator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        pepRatio.setNumeratorDataType(numerator_cpRef);
+
         //add to RatioList
         ratioList.getRatio().add(pepRatio);
 
-
         mzq.setRatioList(ratioList);
+    }
 
+    private static void createPeptideconsensusList() {
         /**
          * *
          * create PeptideConsensusList
@@ -589,8 +754,8 @@ public class SrmConvertor {
         RatioQuantLayer pepRQL = new RatioQuantLayer();
         pepRQL.setId("PepRQL_1");
         //pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));   //jmzquantml 1.0.0-1.0.0
-        
-        pepRQL.getColumns().add(ratioList.getRatio().get(0));
+        pepRQL.setColumnIndex(mzq.getRatioList().getRatio());
+        //pepRQL.getColumns().add(mzq.getRatioList().getRatio().get(0));
         DataMatrix pepRatioDM = new DataMatrix();
         pepRQL.setDataMatrix(pepRatioDM);
         List<PeptideConsensus> peptideList = peptideConsensuses.getPeptideConsensus();
@@ -629,9 +794,9 @@ public class SrmConvertor {
 //                if (!evidenceRef.getAssayRefs().contains(assay)) {
 //                    evidenceRef.getAssayRefs().add(assay);
 //                }    //jmzquantml 1.0.0-1.0.0
-                
+
                 List<Assay> assayas = new ArrayList<Assay>();
-                if (!evidenceRef.getAssayRefs().contains(assay.getId())){
+                if (!evidenceRef.getAssayRefs().contains(assay.getId())) {
                     //evidenceRef.getAssayRefs().add(assay.getId());
                     //evidenceRef.getAssays().add(assay);
                     assayas.add(assay);
@@ -652,25 +817,23 @@ public class SrmConvertor {
         peptideConsensuses.setRatioQuantLayer(pepRQL);
         peptideConsensuses.setFinalResult(true);
         peptideConsensusListList.add(peptideConsensuses);
-
-        /**
-         * *
-         * create a Marshaller and marshal to File
-         */
-        MzQuantMLMarshaller marshaller = new MzQuantMLMarshaller(mzqFn);
-        marshaller.marshall(mzq);
     }
 
-    // private methods
-    private static CvParam createCvParam(String name, String cvRef,
-                                         String accession) {
-        CvParam cp = new CvParam();
-        cp.setName(name);
-        Cv cv = new Cv();
-        cv.setId(cvRef);
-        cp.setCv(cv);
-        cp.setAccession(accession);
-        return cp;
+    /**
+     * Assay name always maps to one raw file name not list
+     * TODO: check if the above statement is true
+     *
+     * @param assN assay name
+     *
+     * @return rawFilesGroup id
+     */
+    private static String getRawFilesGroupIdFromAssayName(String assN) {
+
+        String rawFn = sRd.getAssayToRawFileNameMap().get(assN).get(0);
+        String rawId = rawFileNameIdMap.get(rawFn);
+        String rgId = rawIdrgIdMap.get(rawId);
+
+        return rgId;
     }
 
 }

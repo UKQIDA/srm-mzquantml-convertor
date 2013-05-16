@@ -14,9 +14,8 @@
       <column name="T1">ProductCharge</column>
       <column name="T1">CleavageAa</column>
       <column name="T1">FragmentIon</column>
-      <column name="T2">RetentionTime</column>
-      <column name="T2">PrecursorResult.BestRetentionTime</column>
       <column name="T2">PrecursorResult.PeptideResult.PeptideRetentionTime</column>
+      <column name="T2">RetentionTime</column>
       <column name="T2">Area</column>
       <column name="T2">Background</column>
       <column name="T2">PeakRank</column>
@@ -24,6 +23,7 @@
       <column name="T1">Precursor.IsotopeLabelType</column>
       <column name="T2">Height</column>
       <column name="T2">PrecursorResult.TotalAreaRatio</column>
+      <column name="T2">AreaNormalized</column>
     </select>
   </report>
 </ReportSpecList>
