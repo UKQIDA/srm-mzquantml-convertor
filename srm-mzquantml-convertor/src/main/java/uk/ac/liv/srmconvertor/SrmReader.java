@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -133,7 +134,8 @@ public class SrmReader implements Closeable {
     private HashMap<String, ArrayList<String>> assayToReplicateMap;
     private HashMap<String, ArrayList<String>> rawFileNameToAssayMap;
     private HashMap<String, ArrayList<String>> assayToRawFileNameMap;
-    private HashMap<String, String> peptideToRatioMap;
+    private Map<String, String> peptideToRatioMap = new HashMap<String, String>();
+    private Map<String, String> peptideToTotalAreaRatioMap = new HashMap<String, String>();
 
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
@@ -591,11 +593,15 @@ public class SrmReader implements Closeable {
         return assayToRawFileNameMap;
     }
 
-    public HashMap<String, String> getPeptideToRatioMap() {
+    public Map<String, String> getPeptideToTotalAreaRatioMap() {
+        createPeptideToTotalAreaRatioMap();
+        return peptideToTotalAreaRatioMap;
+    }
+
+    public Map<String, String> getPeptideToRatioMap() {
         createPeptideToRatioMap();
         return peptideToRatioMap;
     }
-
     /*
      * ******************
      *
@@ -606,6 +612,7 @@ public class SrmReader implements Closeable {
     /*
      * @assayIdMap: assay name to id list HashMap
      */
+
     private void createAssayIdMap() {
         assayIdMap = new HashMap();
         //ArrayList<String> assayList = new ArrayList();
@@ -857,17 +864,31 @@ public class SrmReader implements Closeable {
         }
     }
 
-    /*
+    /**
+     * @HashMap<String,String> peptideToTotalAreaRatioMap
+     * @key = peptide sequence
+     * @value = total area ratio
+     */
+    private void createPeptideToTotalAreaRatioMap() {
+        for (String id : TotalAreaRatioMap.keySet()) {
+            String pepSeq = PeptideSequenceMap.get(id);
+            String ratio = peptideToTotalAreaRatioMap.get(pepSeq);
+            if (ratio == null && TotalAreaRatioMap.get(id) != null && !TotalAreaRatioMap.get(id).equals("#N/A")) {
+                peptideToTotalAreaRatioMap.put(pepSeq, TotalAreaRatioMap.get(id));
+            }
+        }
+    }
+
+    /**
      * @HashMap<String,String> peptideToRatioMap
      * @key = peptide sequence
      * @value = peptide ratio
      */
     private void createPeptideToRatioMap() {
-        peptideToRatioMap = new HashMap();
-        for (String id : TotalAreaRatioMap.keySet()) {
+        for (String id : PeptideRatioMap.keySet()) {
             String pepSeq = PeptideSequenceMap.get(id);
             String ratio = peptideToRatioMap.get(pepSeq);
-            if (ratio == null) {
+            if (ratio == null && PeptideRatioMap.get(id) != null && !PeptideRatioMap.get(id).equals("#N/A")) {
                 peptideToRatioMap.put(pepSeq, PeptideRatioMap.get(id));
             }
         }

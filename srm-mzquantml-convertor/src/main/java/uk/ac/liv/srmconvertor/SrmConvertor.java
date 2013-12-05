@@ -94,7 +94,9 @@ public class SrmConvertor {
 
         createFeatureList();
 
-        createRatioList();
+        if (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio()) {
+            createRatioList();
+        }
 
         createPeptideconsensusList();
 
@@ -158,16 +160,16 @@ public class SrmConvertor {
         analysisSummary.getParamGroup().add(marshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
         //TODO: need cv terms
-        CvParam analysisSummaryCv = marshaller.createCvParam("SRM raw feature quantitation", cv, "MS:100XXXX", "true", "", "", "");
+        CvParam analysisSummaryCv = marshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM peptide level quantitation", cv, "MS:100XXXX", "true", "", "", "");
+        analysisSummaryCv = marshaller.createCvParam("SRM peptide level quantitation", cv, "MS:1002282", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM protein level quantitation", cv, "MS:100XXXX", "true", "", "", "");
+        analysisSummaryCv = marshaller.createCvParam("SRM protein level quantitation", cv, "MS:1002283", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:100XXXX", "false", "", "", "");
+        analysisSummaryCv = marshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:1002284", "false", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         mzq.setAnalysisSummary(analysisSummary);
@@ -397,7 +399,7 @@ public class SrmConvertor {
 
                 //List<Object> peptideConsensusRefList = protein.getPeptideConsensusRefs();  //jmzquantml 1.0.0-1.0.0
                 //List<PeptideConsensus> peptides = new ArrayList();
-                List<PeptideConsensus> peptides = protein.getPeptideConsensuses();
+                List<String> peptideIds = protein.getPeptideConsensusRefs();
                 ArrayList<String> pepIds = new ArrayList();
 
                 for (String pepSeq : pepSeqs) {
@@ -406,12 +408,12 @@ public class SrmConvertor {
                     pepCon.setPeptideSequence(pepSeq);
 
                     if (!pepIds.contains("pep_" + pepSeq)) {
-                        //peptideConsensusRefList.add(pepCon);  //jmzquantml 1.0.0-1.0.0
-                        peptides.add(pepCon);
+
+                        peptideIds.add("pep_" + pepSeq);
                         pepIds.add("pep_" + pepSeq);
                     }
                 }
-                protein.setPeptideConsensuses(peptides);
+                //protein.setPeptideConsensuses(peptides);
             }
 
             proteinList.add(protein);
@@ -751,13 +753,20 @@ public class SrmConvertor {
         /*
          * set RatioQuantLayer
          */
-        RatioQuantLayer pepRQL = new RatioQuantLayer();
-        pepRQL.setId("PepRQL_1");
-        //pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));   //jmzquantml 1.0.0-1.0.0
-        pepRQL.setColumnIndex(mzq.getRatioList().getRatio());
-        //pepRQL.getColumns().add(mzq.getRatioList().getRatio().get(0));
         DataMatrix pepRatioDM = new DataMatrix();
-        pepRQL.setDataMatrix(pepRatioDM);
+        if (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio()) {
+
+            RatioQuantLayer pepRQL = new RatioQuantLayer();
+            pepRQL.setId("PepRQL_1");
+            //pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));   //jmzquantml 1.0.0-1.0.0
+            for (Ratio rat : mzq.getRatioList().getRatio()) {
+                pepRQL.getColumnIndex().add(rat.getId());
+            }
+            //pepRQL.getColumns().add(mzq.getRatioList().getRatio().get(0));
+
+            pepRQL.setDataMatrix(pepRatioDM);
+            peptideConsensuses.setRatioQuantLayer(pepRQL);
+        }
         List<PeptideConsensus> peptideList = peptideConsensuses.getPeptideConsensus();
         for (String pepSeq : sRd.getPeptideList()) {
             PeptideConsensus pepCon = new PeptideConsensus();
@@ -808,13 +817,22 @@ public class SrmConvertor {
             /*
              * add DataMatrix for RatioQuantLayer
              */
-            Row row = new Row();
-            row.setObject(pepCon);
-            String ratio = sRd.getPeptideToRatioMap().get(pepSeq);
-            row.getValue().add(ratio);
-            pepRatioDM.getRow().add(row);
+            if (sRd.hasPeptideRatio()) {
+                Row row = new Row();
+                row.setObject(pepCon);
+                String ratio = sRd.getPeptideToRatioMap().get(pepSeq);
+                row.getValue().add(ratio);
+                pepRatioDM.getRow().add(row);
+            }
+            else if (sRd.hasTotalAreaRatio()) {
+                Row row = new Row();
+                row.setObject(pepCon);
+                String ratio = sRd.getPeptideToTotalAreaRatioMap().get(pepSeq);
+                row.getValue().add(ratio);
+                pepRatioDM.getRow().add(row);
+            }
         }
-        peptideConsensuses.setRatioQuantLayer(pepRQL);
+
         peptideConsensuses.setFinalResult(true);
         peptideConsensusListList.add(peptideConsensuses);
     }
