@@ -38,8 +38,7 @@ public class SrmConvertor {
         File directory = new File(".");
         String path = directory.getCanonicalPath();
 
-//        String inputFn = "src//main//resources//examples//test_skyline_output.csv";
-//        String mzqFn = "src//main//resources//examples//test_skyline_output.mzq";
+
 //        if (args.length != 2) {
 //            System.out.println("Incomplete arguments: SrmConvertor.jar input output\ninput: input file name\noutput: output file name\n");
 //            System.err.println("Incomplete arguments: SrmConvertor.jar input output\ninput: input file name\noutput: output file name\n");
@@ -50,9 +49,16 @@ public class SrmConvertor {
 //        String inputFn = args[0];
 //        String mzqFn = args[1];
 
-        String inputFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.csv";
-        String mzqFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.mzq";
-
+        /**
+         * labelled example
+         */
+//        String inputFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.csv";
+//        String mzqFn = path + "//src//main//resources//examples//Labelled_SRM_skyline_files//Light_heavy_pairs_mzquantml_report.mzq";
+        /**
+         * label free example
+         */
+        String inputFn = path + "//src//main//resources//examples//Waters_QC_standard-mzquantml-report.csv";
+        String mzqFn = path + "//src//main//resources//examples//Waters_QC_standard-mzquantml-report.mzq";
         sRd = new SrmReader(new FileReader(inputFn));
 
         marshaller = new MzQuantMLMarshaller(mzqFn);
@@ -94,7 +100,7 @@ public class SrmConvertor {
 
         createFeatureList();
 
-        if (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio()) {
+        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
             createRatioList();
         }
 
@@ -446,7 +452,10 @@ public class SrmConvertor {
 
             // get retention time
             String rt = sRd.getPeptideRetentionTimeMap().get(id);
-            if (rt.equals("#N/A")) {
+            if (rt == null) {
+                rt = "null";
+            }
+            else if (rt.equals("#N/A")) {
                 rt = "null";
             }
             feature.setRt(rt);
@@ -754,7 +763,7 @@ public class SrmConvertor {
          * set RatioQuantLayer
          */
         DataMatrix pepRatioDM = new DataMatrix();
-        if (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio()) {
+        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
 
             RatioQuantLayer pepRQL = new RatioQuantLayer();
             pepRQL.setId("PepRQL_1");
