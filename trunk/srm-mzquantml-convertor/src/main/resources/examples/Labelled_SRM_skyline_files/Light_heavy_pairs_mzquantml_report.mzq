@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<MzQuantML creationDate="2013-12-05T12:32:46.903Z" version="1.0.0" id="SRM-5122013" xsi:schemaLocation="http://www.psidev.info/files/mzQuantML_1_0_0.xsd" xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<MzQuantML creationDate="2013-12-09T15:13:14.165Z" version="1.0.0" id="SRM-9122013" xsi:schemaLocation="http://www.psidev.info/files/mzQuantML_1_0_0.xsd" xmlns="http://psidev.info/psi/pi/mzQuantML/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <CvList>
         <Cv fullName="Proteomics Standards Initiative Mass Spectrometry Vocabularies" version="2.25.0" uri="http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo" id="PSI-MS"/>
         <Cv fullName="Unimod" uri="http://www.unimod.org/obo/unimod.obo" id="UNIMOD"/>
@@ -59,16 +59,6 @@
             </Label>
         </Assay>
     </AssayList>
-    <RatioList>
-        <Ratio numerator_ref="ass_0" denominator_ref="ass_1" name="Ratio for peptide" id="ratio1">
-            <NumeratorDataType>
-                <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 area"/>
-            </NumeratorDataType>
-            <DenominatorDataType>
-                <cvParam cvRef="PSI-MS" accession="MS:100XXXX" name="Q3 area"/>
-            </DenominatorDataType>
-        </Ratio>
-    </RatioList>
     <ProteinList id="ProtList1">
         <Protein accession="Protein_A" searchDatabase_ref="SD1" id="prot_0">
             <PeptideConsensus_refs>pep_FLYDGIR pep_TFTDCFNCLPIAAIIDEK pep_EVDIGIPDATGR</PeptideConsensus_refs>
@@ -132,17 +122,6 @@
             <EvidenceRef assay_refs="ass_1" feature_ref="ft_22"/>
             <EvidenceRef assay_refs="ass_1" feature_ref="ft_23"/>
         </PeptideConsensus>
-        <RatioQuantLayer id="PepRQL_1">
-            <ColumnIndex>ratio1</ColumnIndex>
-            <DataMatrix>
-                <Row object_ref="pep_EVDIGIPDATGR">1.4664</Row>
-                <Row object_ref="pep_IDESEVGEFIIPYYVQDEK">0.1855</Row>
-                <Row object_ref="pep_TFTDCFNCLPIAAIIDEK">0.9136</Row>
-                <Row object_ref="pep_EAVSGILGK">0.6757</Row>
-                <Row object_ref="pep_FLYDGIR">1.6701</Row>
-                <Row object_ref="pep_FDTSAQSDR">0.0079</Row>
-            </DataMatrix>
-        </RatioQuantLayer>
     </PeptideConsensusList>
     <FeatureList rawFilesGroup_ref="rg_0" id="Flist_0">
         <Feature rt="21.11" mz="513.727977" charge="2" id="ft_19">

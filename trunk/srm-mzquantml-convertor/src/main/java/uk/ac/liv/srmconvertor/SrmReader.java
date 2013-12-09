@@ -304,6 +304,9 @@ public class SrmReader implements Closeable {
             if (hasReplicateName && hasIsotopeLabelType) {
                 AssayMap.put(Integer.toString(index), nextLine[posReplicateName] + "_" + nextLine[posIsotopeLabelType]);
             }
+            else if (hasReplicateName && !hasIsotopeLabelType) {
+                AssayMap.put(Integer.toString(index), nextLine[posReplicateName]);
+            }
             if (hasPeptideRatio) {
                 PeptideRatioMap.put(Integer.toString(index), nextLine[posPeptideRatio]);
             }
@@ -602,6 +605,17 @@ public class SrmReader implements Closeable {
         createPeptideToRatioMap();
         return peptideToRatioMap;
     }
+
+    public boolean isLabelled() {
+        boolean ret = false;
+        for (String assN : AssayMap.keySet()) {
+            if (assN.contains("heavy")) {
+                ret = true;
+            }
+        }
+        return ret;
+    }
+
     /*
      * ******************
      *
@@ -612,7 +626,6 @@ public class SrmReader implements Closeable {
     /*
      * @assayIdMap: assay name to id list HashMap
      */
-
     private void createAssayIdMap() {
         assayIdMap = new HashMap();
         //ArrayList<String> assayList = new ArrayList();
