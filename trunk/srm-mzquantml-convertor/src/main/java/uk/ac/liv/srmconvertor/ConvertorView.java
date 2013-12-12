@@ -8,7 +8,6 @@ package uk.ac.liv.srmconvertor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -22,46 +21,7 @@ import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
-import uk.ac.liv.jmzqml.model.mzqml.AnalysisSummary;
-import uk.ac.liv.jmzqml.model.mzqml.Assay;
-import uk.ac.liv.jmzqml.model.mzqml.AssayList;
-import uk.ac.liv.jmzqml.model.mzqml.AuditCollection;
-import uk.ac.liv.jmzqml.model.mzqml.Column;
-import uk.ac.liv.jmzqml.model.mzqml.ColumnDefinition;
-import uk.ac.liv.jmzqml.model.mzqml.Cv;
-import uk.ac.liv.jmzqml.model.mzqml.CvList;
-import uk.ac.liv.jmzqml.model.mzqml.CvParam;
-import uk.ac.liv.jmzqml.model.mzqml.CvParamRef;
-import uk.ac.liv.jmzqml.model.mzqml.DataMatrix;
-import uk.ac.liv.jmzqml.model.mzqml.DataProcessing;
-import uk.ac.liv.jmzqml.model.mzqml.DataProcessingList;
-import uk.ac.liv.jmzqml.model.mzqml.EvidenceRef;
-import uk.ac.liv.jmzqml.model.mzqml.Feature;
-import uk.ac.liv.jmzqml.model.mzqml.FeatureList;
-import uk.ac.liv.jmzqml.model.mzqml.GlobalQuantLayer;
-import uk.ac.liv.jmzqml.model.mzqml.InputFiles;
-import uk.ac.liv.jmzqml.model.mzqml.Label;
-import uk.ac.liv.jmzqml.model.mzqml.ModParam;
-import uk.ac.liv.jmzqml.model.mzqml.MzQuantML;
-import uk.ac.liv.jmzqml.model.mzqml.Organization;
-import uk.ac.liv.jmzqml.model.mzqml.Param;
-import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensus;
-import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensusList;
-import uk.ac.liv.jmzqml.model.mzqml.Person;
-import uk.ac.liv.jmzqml.model.mzqml.ProcessingMethod;
-import uk.ac.liv.jmzqml.model.mzqml.Protein;
-import uk.ac.liv.jmzqml.model.mzqml.ProteinList;
-import uk.ac.liv.jmzqml.model.mzqml.Ratio;
-import uk.ac.liv.jmzqml.model.mzqml.RatioList;
-import uk.ac.liv.jmzqml.model.mzqml.RatioQuantLayer;
-import uk.ac.liv.jmzqml.model.mzqml.RawFile;
-import uk.ac.liv.jmzqml.model.mzqml.RawFilesGroup;
-import uk.ac.liv.jmzqml.model.mzqml.Row;
-import uk.ac.liv.jmzqml.model.mzqml.SearchDatabase;
-import uk.ac.liv.jmzqml.model.mzqml.Software;
-import uk.ac.liv.jmzqml.model.mzqml.SoftwareList;
-import uk.ac.liv.jmzqml.model.mzqml.UserParam;
+import uk.ac.liv.jmzqml.model.mzqml.*;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
 
 /**
@@ -73,7 +33,6 @@ public class ConvertorView extends javax.swing.JFrame {
     private static File currentDirectory;
     private static File inputFile;
     private static File outputFile;
-    private static boolean flag = false;
     private static SrmReader sRd;
     private static MzQuantMLMarshaller marshaller;
     private static MzQuantML mzq;
@@ -249,7 +208,7 @@ public class ConvertorView extends javax.swing.JFrame {
 
                     // loading file...
                     try {
-                        sRd = new SrmReader(new FileReader(inputFile.getAbsolutePath()));
+                        sRd = new SrmReader(new FileReader(fileTextField.getText()));
                         progressBar.setString("Start converting ...");
 
                         marshaller = new MzQuantMLMarshaller(outputFile.getAbsolutePath());
@@ -314,11 +273,13 @@ public class ConvertorView extends javax.swing.JFrame {
                         progressBar.setValue(100);
                     }
                     catch (NullPointerException nex) {
+                        Logger.getLogger(ConvertorView.class.getName()).log(Level.SEVERE, null, nex);
                         progressBar.setString("No input file is selected.");
                         progressBar.setIndeterminate(false);
                         progressBar.setValue(100);
                     }
                     catch (Exception e) {
+                        Logger.getLogger(ConvertorView.class.getName()).log(Level.SEVERE, null, e);
                         progressBar.setString("File loading failed, please check the input file.");
                         progressBar.setIndeterminate(false);
                         progressBar.setValue(100);
@@ -435,6 +396,14 @@ public class ConvertorView extends javax.swing.JFrame {
         AnalysisSummary analysisSummary = new AnalysisSummary();
         analysisSummary.getParamGroup().add(marshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
+        if (sRd.isLabelled()) {
+            CvParam labelBasedCv = marshaller.createCvParam("MS1 Label-based analysis", cv, "MS:1002018");
+            analysisSummary.getParamGroup().add(labelBasedCv);
+        }
+        else {
+            CvParam labelFreeCv = marshaller.createCvParam("LC-MS label-free quantitation analysis", cv, "MS:1001834");
+            analysisSummary.getParamGroup().add(labelFreeCv);
+        }
         //TODO: need cv terms
         CvParam analysisSummaryCv = marshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
@@ -743,17 +712,17 @@ public class ConvertorView extends javax.swing.JFrame {
             }
 
             // set cv term for Q3 mz
-            CvParam cpMz = marshaller.createCvParam("Q3 mz", "PSI-MS", "MS:100XXXX");
+            CvParam cpMz = marshaller.createCvParam("isolation window target m/z", "PSI-MS", "MS:1000827");
             cpMz.setValue(proMz);
             feature.getCvParam().add(cpMz);
 
             // set cv term for Q3 charge
-            CvParam cpCharge = marshaller.createCvParam("Q3 charge", "PSI-MS", "MS:100XXXX");
+            CvParam cpCharge = marshaller.createCvParam("charge state", "PSI-MS", "MS:1000041");
             cpCharge.setValue(proCharge);
             feature.getCvParam().add(cpCharge);
 
             // set cv term for Q3 rt
-            CvParam cpRt = marshaller.createCvParam("Q3 retention time", "PSI-MS", "MS:100XXXX");
+            CvParam cpRt = marshaller.createCvParam("local retention time", "PSI-MS", "MS:1000895");
             cpRt.setValue(proRt);
             feature.getCvParam().add(cpRt);
 
@@ -796,7 +765,7 @@ public class ConvertorView extends javax.swing.JFrame {
                 CvParamRef cpRefArea = new CvParamRef();
 
                 //cv term for Q3 area
-                cpRefArea.setCvParam(marshaller.createCvParam("Q3 area", "PSI-MS", "MS:100XXXX"));
+                cpRefArea.setCvParam(marshaller.createCvParam("XIC area", "PSI-MS", "MS:1001858"));
                 columnArea.setDataType(cpRefArea);
 
                 featureColumnIndex.getColumn().add(columnArea);
@@ -810,7 +779,7 @@ public class ConvertorView extends javax.swing.JFrame {
                 CvParamRef cpRefBg = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefBg.setCvParam(marshaller.createCvParam("Q3 background", "PSI-MS", "MS:100XXXX"));
+                cpRefBg.setCvParam(marshaller.createCvParam("product background", "PSI-MS", "MS:1002414"));
                 columnBg.setDataType(cpRefBg);
 
                 featureColumnIndex.getColumn().add(columnBg);
@@ -824,7 +793,7 @@ public class ConvertorView extends javax.swing.JFrame {
                 CvParamRef cpRefPr = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefPr.setCvParam(marshaller.createCvParam("Q3 peakrank", "PSI-MS", "MS:100XXXX"));
+                cpRefPr.setCvParam(marshaller.createCvParam("product interpretation rank", "PSI-MS", "MS:1000926"));
                 columnPr.setDataType(cpRefPr);
 
                 featureColumnIndex.getColumn().add(columnPr);
@@ -838,7 +807,7 @@ public class ConvertorView extends javax.swing.JFrame {
                 CvParamRef cpRefHt = new CvParamRef();
 
                 //cv term for Q3 height
-                cpRefHt.setCvParam(marshaller.createCvParam("Q3 height", "PSI-MS", "MS:100XXXX"));
+                cpRefHt.setCvParam(marshaller.createCvParam("peak intensity", "PSI-MS", "MS:1000042"));
                 columnHt.setDataType(cpRefHt);
 
                 featureColumnIndex.getColumn().add(columnHt);
@@ -852,7 +821,7 @@ public class ConvertorView extends javax.swing.JFrame {
                 CvParamRef cpRefAn = new CvParamRef();
 
                 //cv term for Q3 AreaNormalized
-                cpRefAn.setCvParam(marshaller.createCvParam("Q3 areaNormalized", "PSI-MS", "MS:100XXXX"));
+                cpRefAn.setCvParam(marshaller.createCvParam("normalized XIC area", "PSI-MS", "MS:1001859"));
                 columnAn.setDataType(cpRefAn);
 
                 featureColumnIndex.getColumn().add(columnAn);
@@ -1006,11 +975,11 @@ public class ConvertorView extends javax.swing.JFrame {
         }
 
         CvParamRef denominator_cpRef = new CvParamRef();
-        denominator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        denominator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setDenominatorDataType(denominator_cpRef);
 
         CvParamRef numerator_cpRef = new CvParamRef();
-        numerator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        numerator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setNumeratorDataType(numerator_cpRef);
 
         //add to RatioList
