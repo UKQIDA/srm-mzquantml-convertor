@@ -165,6 +165,14 @@ public class SrmConvertor {
         AnalysisSummary analysisSummary = new AnalysisSummary();
         analysisSummary.getParamGroup().add(marshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
+        if (sRd.isLabelled()) {
+            CvParam labelBasedCv = marshaller.createCvParam("MS1 Label-based analysis", cv, "MS:1002018");
+            analysisSummary.getParamGroup().add(labelBasedCv);
+        }
+        else {
+            CvParam labelFreeCv = marshaller.createCvParam("LC-MS label-free quantitation analysis", cv, "MS:1001834");
+            analysisSummary.getParamGroup().add(labelFreeCv);
+        }
         //TODO: need cv terms
         CvParam analysisSummaryCv = marshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
@@ -473,17 +481,17 @@ public class SrmConvertor {
             }
 
             // set cv term for Q3 mz
-            CvParam cpMz = marshaller.createCvParam("Q3 mz", "PSI-MS", "MS:100XXXX");
+            CvParam cpMz = marshaller.createCvParam("isolation window target m/z", "PSI-MS", "MS:1000827");
             cpMz.setValue(proMz);
             feature.getCvParam().add(cpMz);
 
             // set cv term for Q3 charge
-            CvParam cpCharge = marshaller.createCvParam("Q3 charge", "PSI-MS", "MS:100XXXX");
+            CvParam cpCharge = marshaller.createCvParam("charge state", "PSI-MS", "MS:1000041");
             cpCharge.setValue(proCharge);
             feature.getCvParam().add(cpCharge);
 
             // set cv term for Q3 rt
-            CvParam cpRt = marshaller.createCvParam("Q3 retention time", "PSI-MS", "MS:100XXXX");
+            CvParam cpRt = marshaller.createCvParam("local retention time", "PSI-MS", "MS:1000895");
             cpRt.setValue(proRt);
             feature.getCvParam().add(cpRt);
 
@@ -526,7 +534,7 @@ public class SrmConvertor {
                 CvParamRef cpRefArea = new CvParamRef();
 
                 //cv term for Q3 area
-                cpRefArea.setCvParam(marshaller.createCvParam("Q3 area", "PSI-MS", "MS:100XXXX"));
+                cpRefArea.setCvParam(marshaller.createCvParam("XIC area", "PSI-MS", "MS:1001858"));
                 columnArea.setDataType(cpRefArea);
 
                 featureColumnIndex.getColumn().add(columnArea);
@@ -540,7 +548,7 @@ public class SrmConvertor {
                 CvParamRef cpRefBg = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefBg.setCvParam(marshaller.createCvParam("Q3 background", "PSI-MS", "MS:100XXXX"));
+                cpRefBg.setCvParam(marshaller.createCvParam("product background", "PSI-MS", "MS:1002414"));
                 columnBg.setDataType(cpRefBg);
 
                 featureColumnIndex.getColumn().add(columnBg);
@@ -554,7 +562,7 @@ public class SrmConvertor {
                 CvParamRef cpRefPr = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefPr.setCvParam(marshaller.createCvParam("Q3 peakrank", "PSI-MS", "MS:100XXXX"));
+                cpRefPr.setCvParam(marshaller.createCvParam("product interpretation rank", "PSI-MS", "MS:1000926"));
                 columnPr.setDataType(cpRefPr);
 
                 featureColumnIndex.getColumn().add(columnPr);
@@ -568,7 +576,7 @@ public class SrmConvertor {
                 CvParamRef cpRefHt = new CvParamRef();
 
                 //cv term for Q3 height
-                cpRefHt.setCvParam(marshaller.createCvParam("Q3 height", "PSI-MS", "MS:100XXXX"));
+                cpRefHt.setCvParam(marshaller.createCvParam("peak intensity", "PSI-MS", "MS:1000042"));
                 columnHt.setDataType(cpRefHt);
 
                 featureColumnIndex.getColumn().add(columnHt);
@@ -582,7 +590,7 @@ public class SrmConvertor {
                 CvParamRef cpRefAn = new CvParamRef();
 
                 //cv term for Q3 AreaNormalized
-                cpRefAn.setCvParam(marshaller.createCvParam("Q3 areaNormalized", "PSI-MS", "MS:100XXXX"));
+                cpRefAn.setCvParam(marshaller.createCvParam("normalized XIC area", "PSI-MS", "MS:1001859"));
                 columnAn.setDataType(cpRefAn);
 
                 featureColumnIndex.getColumn().add(columnAn);
@@ -736,11 +744,11 @@ public class SrmConvertor {
         }
 
         CvParamRef denominator_cpRef = new CvParamRef();
-        denominator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        denominator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setDenominatorDataType(denominator_cpRef);
 
         CvParamRef numerator_cpRef = new CvParamRef();
-        numerator_cpRef.setCvParam(marshaller.createCvParam("Q3 area", cv, "MS:100XXXX"));
+        numerator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setNumeratorDataType(numerator_cpRef);
 
         //add to RatioList
