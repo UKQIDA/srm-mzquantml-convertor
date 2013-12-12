@@ -330,6 +330,10 @@ public class SrmReader implements Closeable {
 
         //create rawFileNameIdMap
         createRawFileNameIdMap();
+
+        if (allFalse()) {
+            throw new IllegalStateException("File is broken.");
+        }
     }
 
     //public methods
@@ -923,6 +927,30 @@ public class SrmReader implements Closeable {
     public void close()
             throws IOException {
         br.close();
+    }
+
+    private boolean allFalse() {
+        return !(hasPeptideSequence
+                || hasProteinName
+                || hasReplicateName
+                || hasModificationSequence
+                || hasPrecursorMz
+                || hasPrecursorCharge
+                || hasProductMz
+                || hasProductCharge
+                || hasCleavageAa
+                || hasFragmentIon
+                || hasPeptideRetentionTime
+                || hasRetentionTime
+                || hasArea
+                || hasBackground
+                || hasPeakRank
+                || hasFileName
+                || hasIsotopeLabelType
+                || hasHeight
+                || hasTotalAreaRatio
+                || hasAreaNormalized
+                || hasPeptideRatio);
     }
 
 }

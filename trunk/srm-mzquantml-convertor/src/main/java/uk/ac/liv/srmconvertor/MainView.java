@@ -379,7 +379,7 @@ public class MainView extends javax.swing.JFrame {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("MzQuantML (*.mzq)", "mzq");
         fileChooser.setFileFilter(filter);
 
-        int returnVal = fileChooser.showOpenDialog(this);
+        int returnVal = fileChooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             outputFile = fileChooser.getSelectedFile();
            // inputFileArea.setText(inputFile.getAbsolutePath() + " is opened.");
