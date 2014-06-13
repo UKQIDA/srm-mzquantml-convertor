@@ -1,12 +1,11 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 package uk.ac.liv.srmconvertor;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,26 +16,67 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import uk.ac.liv.jmzqml.model.mzqml.*;
+import javafx.concurrent.Task;
+import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
+import uk.ac.liv.jmzqml.model.mzqml.AnalysisSummary;
+import uk.ac.liv.jmzqml.model.mzqml.Assay;
+import uk.ac.liv.jmzqml.model.mzqml.AssayList;
+import uk.ac.liv.jmzqml.model.mzqml.AuditCollection;
+import uk.ac.liv.jmzqml.model.mzqml.Column;
+import uk.ac.liv.jmzqml.model.mzqml.ColumnDefinition;
+import uk.ac.liv.jmzqml.model.mzqml.Cv;
+import uk.ac.liv.jmzqml.model.mzqml.CvList;
+import uk.ac.liv.jmzqml.model.mzqml.CvParam;
+import uk.ac.liv.jmzqml.model.mzqml.CvParamRef;
+import uk.ac.liv.jmzqml.model.mzqml.DataMatrix;
+import uk.ac.liv.jmzqml.model.mzqml.DataProcessing;
+import uk.ac.liv.jmzqml.model.mzqml.DataProcessingList;
+import uk.ac.liv.jmzqml.model.mzqml.EvidenceRef;
+import uk.ac.liv.jmzqml.model.mzqml.Feature;
+import uk.ac.liv.jmzqml.model.mzqml.FeatureList;
+import uk.ac.liv.jmzqml.model.mzqml.GlobalQuantLayer;
+import uk.ac.liv.jmzqml.model.mzqml.InputFiles;
+import uk.ac.liv.jmzqml.model.mzqml.Label;
+import uk.ac.liv.jmzqml.model.mzqml.ModParam;
+import uk.ac.liv.jmzqml.model.mzqml.MzQuantML;
+import uk.ac.liv.jmzqml.model.mzqml.Organization;
+import uk.ac.liv.jmzqml.model.mzqml.Param;
+import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensus;
+import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensusList;
+import uk.ac.liv.jmzqml.model.mzqml.Person;
+import uk.ac.liv.jmzqml.model.mzqml.ProcessingMethod;
+import uk.ac.liv.jmzqml.model.mzqml.Protein;
+import uk.ac.liv.jmzqml.model.mzqml.ProteinList;
+import uk.ac.liv.jmzqml.model.mzqml.Ratio;
+import uk.ac.liv.jmzqml.model.mzqml.RatioList;
+import uk.ac.liv.jmzqml.model.mzqml.RatioQuantLayer;
+import uk.ac.liv.jmzqml.model.mzqml.RawFile;
+import uk.ac.liv.jmzqml.model.mzqml.RawFilesGroup;
+import uk.ac.liv.jmzqml.model.mzqml.Row;
+import uk.ac.liv.jmzqml.model.mzqml.SearchDatabase;
+import uk.ac.liv.jmzqml.model.mzqml.Software;
+import uk.ac.liv.jmzqml.model.mzqml.SoftwareList;
+import uk.ac.liv.jmzqml.model.mzqml.UserParam;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
 
 /**
  *
  * @author Da Qi
+ * @institute University of Liverpool
+ * @time 13-Jun-2014 14:55:53
  */
-public class ConvertorView extends javax.swing.JFrame {
+public class MzqCreateTask extends Task<Void> {
 
-    private static File currentDirectory;
-    private static File inputFile;
-    private static File outputFile;
+    private final String in;
+    private final File out;
+
     private static SrmReader sRd;
     private static MzQuantMLMarshaller marshaller;
     private static MzQuantML mzq;
     private static Cv cv;
+    private static Cv cv_mod;
+    private static Cv cv_unimod;
+    private static Cv cv_uo;
     private static Label label;
     private static Label label_heavy;
     private static SearchDatabase db;
@@ -47,304 +87,103 @@ public class ConvertorView extends javax.swing.JFrame {
     private static HashMap<String, String> assayNameIdMap;
     private static HashMap<String, String> assayIdNameMap;
 
-    /**
-     * Creates new form ConvertorView
-     */
-    public ConvertorView() {
-        //... Setting standard look and feel ...//
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (ClassNotFoundException ex) {
-            System.out.println(ex.getStackTrace());
-        }
-        catch (InstantiationException ex) {
-            System.out.println(ex.getStackTrace());
-        }
-        catch (IllegalAccessException ex) {
-            System.out.println(ex.getStackTrace());
-        }
-        catch (UnsupportedLookAndFeelException ex) {
-            System.out.println(ex.getStackTrace());
-        }
-
-        // Get the size of the screen
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
-        // Determine the new location of the window
-        int w = this.getSize().width;
-        int h = this.getSize().height;
-        int x = (dim.width - w) / 2;
-        int y = (dim.height - h) / 2;
-
-        // Move the window
-        this.setLocation(x, y);
-
-        initComponents();
+    public MzqCreateTask(String input, File output) {
+        this.in = input;
+        this.out = output;
     }
 
-    /**
-     * This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    @Override
+    protected Void call()
+            throws Exception {
+        updateMessage("Loading file ...");
+        updateProgress(-1.0, 1.0);
 
-        jPanel2 = new javax.swing.JPanel();
-        fileTextField = new javax.swing.JTextField();
-        selectButton = new javax.swing.JToggleButton();
-        convertButton = new javax.swing.JButton();
-        progressBar = new javax.swing.JProgressBar();
+        try {
+            sRd = new SrmReader(new FileReader(in));
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("SRM mzQuantML Convertor version 1.0");
+            updateMessage("Start converting ...");
 
-        selectButton.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        selectButton.setText("Select file ...");
-        selectButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectButtonActionPerformed(evt);
+            for (int i = 0; i < 100000; i++) {
+                for (int j = 0; j < 10000; j++) {
+                    if (((i + j) % 333) == 0) {
+                        updateMessage("i = " + i + ", j = " + j + " ......");
+                    }
+                }
             }
-        });
 
-        convertButton.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        convertButton.setText("Convert");
-        convertButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                convertButtonActionPerformed(evt);
-            }
-        });
+            marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
 
-        progressBar.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+            //create MzQuantML instance
+            mzq = new MzQuantML();
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
-                    .addComponent(fileTextField))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(selectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(convertButton, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(selectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(convertButton, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+            String version = "1.0.0";
+            mzq.setVersion(version);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
+            Calendar rightnow = Calendar.getInstance();
+            mzq.setCreationDate(rightnow);
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+            int day = rightnow.get(Calendar.DATE);
+            int month = rightnow.get(Calendar.MONTH) + 1;
+            int year = rightnow.get(Calendar.YEAR);
 
-    private void selectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectButtonActionPerformed
-        JFileChooser fileChooser = new javax.swing.JFileChooser("user.home");
-        fileChooser.setDialogTitle("Select a CSV file");
-        fileChooser.setCurrentDirectory(currentDirectory);
-
-        //... Applying file extension filters ...//
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma delimited)(*.csv)", "csv");
-        fileChooser.setFileFilter(filter);
-
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            inputFile = fileChooser.getSelectedFile();
-            fileTextField.setText(inputFile.getAbsolutePath());
-            currentDirectory = inputFile.getParentFile();
-        }
-    }//GEN-LAST:event_selectButtonActionPerformed
-
-    private void convertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertButtonActionPerformed
-
-        JFileChooser fileChooser = new javax.swing.JFileChooser("user.home");
-        fileChooser.setDialogTitle("Save mzq file");
-        fileChooser.setCurrentDirectory(currentDirectory);
-
-        //... Applying file extension filters ...//
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("MzQuantML (*.mzq)", "mzq");
-        fileChooser.setFileFilter(filter);
-
-        int returnVal = fileChooser.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            outputFile = fileChooser.getSelectedFile();
-            // inputFileArea.setText(inputFile.getAbsolutePath() + " is opened.");
-            currentDirectory = outputFile.getParentFile();
-            /**
-             * New thread for progreassBar
+            /*
+             * set mzQuantML id
              */
-            new Thread(new Runnable() {
+            mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
 
-                @Override
-                public void run() {
-                    progressBar.setStringPainted(true);
-                    progressBar.setString("Loading file ...");
-                    progressBar.setIndeterminate(true);
+            createCvList();
 
-                    // loading file...
-                    try {
-                        sRd = new SrmReader(new FileReader(fileTextField.getText()));
-                        progressBar.setString("Start converting ...");
+            createAnalysisSummary();
 
-                        marshaller = new MzQuantMLMarshaller(outputFile.getAbsolutePath());
+            createAuditCollection();
 
-                        //create MzQuantML instance
-                        mzq = new MzQuantML();
+            createInputFiles();
 
-                        String version = "1.0.0";
-                        mzq.setVersion(version);
+            createAssayList();
 
-                        Calendar rightnow = Calendar.getInstance();
-                        mzq.setCreationDate(rightnow);
+            createSoftwareList();
 
-                        int day = rightnow.get(Calendar.DATE);
-                        int month = rightnow.get(Calendar.MONTH) + 1;
-                        int year = rightnow.get(Calendar.YEAR);
+            createDataProcessingList();
 
-                        /*
-                         * set mzQuantML id
-                         */
+            createProteinList();
 
-                        mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
+            createFeatureList();
 
-                        createCvList();
-
-                        createAnalysisSummary();
-
-                        createAuditCollection();
-
-                        createInputFiles();
-
-                        createAssayList();
-
-                        createSoftwareList();
-
-                        createDataProcessingList();
-
-                        createProteinList();
-
-                        createFeatureList();
-
-                        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
-                            createRatioList();
-                        }
-
-                        createPeptideconsensusList();
-
-                        /**
-                         * *
-                         * create a Marshaller and marshal to File
-                         */
-                        marshaller.marshall(mzq);
-
-                        progressBar.setString("Converting complete.");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setValue(100);
-                    }
-                    catch (IOException ex) {
-                        Logger.getLogger(ConvertorView.class.getName()).log(Level.SEVERE, null, ex);
-                        progressBar.setString("File loading failed, please check the input file.");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setValue(100);
-                    }
-                    catch (NullPointerException nex) {
-                        Logger.getLogger(ConvertorView.class.getName()).log(Level.SEVERE, null, nex);
-                        progressBar.setString("No input file is selected.");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setValue(100);
-                    }
-                    catch (Exception e) {
-                        Logger.getLogger(ConvertorView.class.getName()).log(Level.SEVERE, null, e);
-                        progressBar.setString("File loading failed, please check the input file.");
-                        progressBar.setIndeterminate(false);
-                        progressBar.setValue(100);
-                    }
-                }
-
-            }).start();
-        }
-    }//GEN-LAST:event_convertButtonActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /*
-         * Set the Nimbus look and feel
-         */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        }
-        catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ConvertorView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ConvertorView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ConvertorView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ConvertorView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /*
-         * Create and display the form
-         */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                new ConvertorView().setVisible(true);
+            if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
+                createRatioList();
             }
 
-        });
+            createPeptideconsensusList();
+
+            /**
+             * *
+             * create a Marshaller and marshal to File
+             */
+            marshaller.marshall(mzq);
+
+            updateProgress(1.0, 1.0);
+            updateMessage("Converting complete.");
+        }
+        catch (IOException ex) {
+            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, ex);
+            updateMessage("File loading failed, please check the input file.");
+            updateProgress(0, 1.0);
+        }
+        catch (NullPointerException nex) {
+            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, nex);
+            updateMessage("No input file is selected.");
+            updateProgress(0, 1.0);
+        }
+        catch (Exception e) {
+            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, e);
+            updateMessage("File loading failed, please check the input file!");
+            updateProgress(0, 1.0);
+        }
+
+        return null;
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton convertButton;
-    private javax.swing.JTextField fileTextField;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JProgressBar progressBar;
-    private javax.swing.JToggleButton selectButton;
-    // End of variables declaration//GEN-END:variables
-
-    // private methods
+// private methods
     private static void createCvList() {
         /**
          * create CvListType
@@ -360,20 +199,24 @@ public class ConvertorView extends javax.swing.JFrame {
         cvList.add(cv);
 
         //unimod
-        Cv cv_unimod = marshaller.createCv("UNIMOD", "Unimod", "http://www.unimod.org/obo/unimod.obo", null);
+        cv_unimod = marshaller.createCv("UNIMOD", "Unimod", "http://www.unimod.org/obo/unimod.obo", null);
         cvList.add(cv_unimod);
 
         //psi-mod
-        Cv cv_mod = marshaller.createCv("PSI-MOD",
-                                        "Proteomics Standards Initiative Protein Modifications Vocabularies",
-                                        "http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo",
-                                        null);
+        cv_mod = marshaller.createCv("PSI-MOD",
+                                     "Proteomics Standards Initiative Protein Modifications Vocabularies",
+                                     "http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo",
+                                     null);
         cvList.add(cv_mod);
+
+        //unit ontology
+        cv_uo = marshaller.createCv("UO", "Unit Ontology", "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/phenotype/unit.obo", null);
+        cvList.add(cv_uo);
 
         mzq.setCvList(cvs);
 
         //light label
-        label = new Label();
+        label = new uk.ac.liv.jmzqml.model.mzqml.Label();
         CvParam labelCvParam = marshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
         ModParam modParam = new ModParam();
         modParam.setCvParam(labelCvParam);
@@ -381,7 +224,7 @@ public class ConvertorView extends javax.swing.JFrame {
 
         //heavy label
         //TODO: to detect the heavy label from the file or get it from Skyline setting
-        label_heavy = new Label();
+        label_heavy = new uk.ac.liv.jmzqml.model.mzqml.Label();
         CvParam label_silac = marshaller.createCvParam("13C(6) Silac label", cv_mod, "MOD:00188", "6.020129", "", "", "");
         ModParam modParam_silac = new ModParam();
         modParam_silac.setCvParam(label_silac);
@@ -466,12 +309,11 @@ public class ConvertorView extends javax.swing.JFrame {
          */
         //all current rawFilesGroup examples are one to one mapping between rg_Id and raw_Id
         //TODO: find some prefractionation examples 
-
         //initialisation
-        rawFileNameIdMap = new HashMap<String, String>();
-        rawFileIdNameMap = new HashMap<String, String>();
-        rgIdrawIdMap = new HashMap<String, ArrayList<String>>();
-        rawIdrgIdMap = new HashMap<String, String>();
+        rawFileNameIdMap = new HashMap<>();
+        rawFileIdNameMap = new HashMap<>();
+        rgIdrawIdMap = new HashMap<>();
+        rawIdrgIdMap = new HashMap<>();
 //        HashMap<String, String> assayNrgIdMap = new HashMap<String, String>(); //jmzquantml 1.0.0-1.0.0
 
         int rawFileCounter = 0;
@@ -504,7 +346,6 @@ public class ConvertorView extends javax.swing.JFrame {
 //            if (assayNrgIdMap.get(assayN) == null) {
 //                assayNrgIdMap.put(assayN, rgId);
 //            }
-
 //            for (String assayN : sRd.getRawFileNameToAssayMap().get(rawFn)) {
 //                assayNrgIdMap.put(assayN, rgId);
 //            }
@@ -514,7 +355,7 @@ public class ConvertorView extends javax.swing.JFrame {
              */
             ArrayList<String> rawIds = rgIdrawIdMap.get(rgId);
             if (rawIds == null) {
-                rawIds = new ArrayList<String>();
+                rawIds = new ArrayList<>();
                 rgIdrawIdMap.put(rgId, rawIds);
             }
             rawIds.add(rawId);
@@ -549,8 +390,8 @@ public class ConvertorView extends javax.swing.JFrame {
         int assayCounter = 0;
 
         //initialisation
-        assayNameIdMap = new HashMap<String, String>();
-        assayIdNameMap = new HashMap<String, String>();
+        assayNameIdMap = new HashMap<>();
+        assayIdNameMap = new HashMap<>();
 
         for (String assayN : sRd.getAssayList()) {
             Assay assay = new Assay();
@@ -672,7 +513,7 @@ public class ConvertorView extends javax.swing.JFrame {
          * create FeatureList
          */
         List<FeatureList> featureLists = mzq.getFeatureList();
-        HashMap<String, FeatureList> rgIdFeatureListMap = new HashMap<String, FeatureList>();
+        HashMap<String, FeatureList> rgIdFeatureListMap = new HashMap<>();
 
         // for each feature
         for (String id : sRd.getAreaMap().keySet()) {
@@ -724,8 +565,10 @@ public class ConvertorView extends javax.swing.JFrame {
             // set cv term for Q3 rt
             CvParam cpRt = marshaller.createCvParam("local retention time", "PSI-MS", "MS:1000895");
             cpRt.setValue(proRt);
+            cpRt.setUnitCv(cv_uo);
+            cpRt.setUnitAccession("UO:0000031");
+            cpRt.setUnitName("minute");
             feature.getCvParam().add(cpRt);
-
 
             // find out this feature belongs to which raw files group via assay name
             String assayN = sRd.getAssayMap().get(id);
@@ -759,7 +602,6 @@ public class ConvertorView extends javax.swing.JFrame {
                 /*
                  * The first column for Q3 area
                  */
-
                 Column columnArea = new Column();
                 columnArea.setIndex(BigInteger.ZERO);
                 CvParamRef cpRefArea = new CvParamRef();
@@ -773,7 +615,6 @@ public class ConvertorView extends javax.swing.JFrame {
                 /*
                  * The second column for Q3 background
                  */
-
                 Column columnBg = new Column();
                 columnBg.setIndex(BigInteger.ONE);
                 CvParamRef cpRefBg = new CvParamRef();
@@ -787,7 +628,6 @@ public class ConvertorView extends javax.swing.JFrame {
                 /*
                  * The third column for Q3 peakrank
                  */
-
                 Column columnPr = new Column();
                 columnPr.setIndex(BigInteger.valueOf(2));
                 CvParamRef cpRefPr = new CvParamRef();
@@ -801,7 +641,6 @@ public class ConvertorView extends javax.swing.JFrame {
                 /*
                  * The fourth column for Q3 height
                  */
-
                 Column columnHt = new Column();
                 columnHt.setIndex(BigInteger.valueOf(3));
                 CvParamRef cpRefHt = new CvParamRef();
@@ -815,7 +654,6 @@ public class ConvertorView extends javax.swing.JFrame {
                 /*
                  * The fifth column for Q3 AreaNormalized
                  */
-
                 Column columnAn = new Column();
                 columnAn.setIndex(BigInteger.valueOf(4));
                 CvParamRef cpRefAn = new CvParamRef();
@@ -954,7 +792,6 @@ public class ConvertorView extends javax.swing.JFrame {
         pepRatio.setName("Ratio for peptide");
 
         //work out which assay ref used in numerator and denominator
-
         for (String assayN : assayNameIdMap.keySet()) {
 
             if (assayN.contains("light")) {
@@ -1024,7 +861,7 @@ public class ConvertorView extends javax.swing.JFrame {
 
             //add peptide charge list
             ArrayList<String> ids = sRd.getPeptideIdMap().get(pepSeq);
-            ArrayList<String> charges = new ArrayList<String>();
+            ArrayList<String> charges = new ArrayList<>();
             for (String id : ids) {
                 String charge = sRd.getPrecursorChargeMap().get(id);
                 if (!charges.contains(charge)) {
@@ -1052,7 +889,7 @@ public class ConvertorView extends javax.swing.JFrame {
 //                    evidenceRef.getAssayRefs().add(assay);
 //                }    //jmzquantml 1.0.0-1.0.0
 
-                List<Assay> assayas = new ArrayList<Assay>();
+                List<Assay> assayas = new ArrayList<>();
                 if (!evidenceRef.getAssayRefs().contains(assay.getId())) {
                     //evidenceRef.getAssayRefs().add(assay.getId());
                     //evidenceRef.getAssays().add(assay);
