@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.concurrent.Task;
@@ -460,7 +461,7 @@ public class MzqCreateTask extends Task<Void> {
          * create ProteinList
          */
         // get protein to peptide map from SRMReader
-        HashMap<String, ArrayList<String>> protToPepMap = sRd.getProteinToPeptideMap();
+        Map<String, List<String>> protToPepMap = sRd.getProteinToPeptideMap();
 
         ProteinList proteins = new ProteinList();
         proteins.setId("ProtList1");
@@ -479,7 +480,7 @@ public class MzqCreateTask extends Task<Void> {
             protein.setAccession(protAcc);
             protein.setSearchDatabase(db);
 
-            ArrayList<String> pepSeqs = protToPepMap.get(protAcc);
+            List<String> pepSeqs = protToPepMap.get(protAcc);
 
             if (pepSeqs != null) {
 
@@ -860,8 +861,8 @@ public class MzqCreateTask extends Task<Void> {
             pepCon.setSearchDatabase(db);
 
             //add peptide charge list
-            ArrayList<String> ids = sRd.getPeptideIdMap().get(pepSeq);
-            ArrayList<String> charges = new ArrayList<>();
+            List<String> ids = sRd.getPeptideIdMap().get(pepSeq);
+            List<String> charges = new ArrayList<>();
             for (String id : ids) {
                 String charge = sRd.getPrecursorChargeMap().get(id);
                 if (!charges.contains(charge)) {
