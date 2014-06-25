@@ -17,9 +17,10 @@ public class MainApp extends Application {
         Parent root = (Parent)loader.load();
         ConvertorViewFXMLController controller = (ConvertorViewFXMLController)loader.getController();
         controller.setStageAndSetupListeners(stage);
-        
+                     
         Scene scene = new Scene(root, 600, 200);
-      
+        scene.getStylesheets().add("styles/convertorview.css");
+        
         stage.setResizable(false);
         stage.setTitle("SRM mzQuantML Convertor (version 1.0)");
         stage.setScene(scene);

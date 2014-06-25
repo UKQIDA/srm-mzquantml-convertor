@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane alignment="CENTER" hgap="15.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="600.0" vgap="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.ac.liv.srmconvertor.ConvertorViewFXMLController">
+<GridPane alignment="CENTER" hgap="15.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="600.0" styleClass="botton" stylesheets="@../styles/convertorview.css" vgap="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uk.ac.liv.srmconvertor.ConvertorViewFXMLController">
   <columnConstraints>
     <ColumnConstraints hgrow="ALWAYS" maxWidth="442.0" minWidth="10.0" prefWidth="427.0" />
     <ColumnConstraints hgrow="NEVER" maxWidth="138.0" minWidth="10.0" prefWidth="138.0" />
