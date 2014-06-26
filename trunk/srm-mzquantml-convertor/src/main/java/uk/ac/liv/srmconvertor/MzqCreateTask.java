@@ -48,6 +48,7 @@ import uk.ac.liv.jmzqml.model.mzqml.Person;
 import uk.ac.liv.jmzqml.model.mzqml.ProcessingMethod;
 import uk.ac.liv.jmzqml.model.mzqml.Protein;
 import uk.ac.liv.jmzqml.model.mzqml.ProteinList;
+import uk.ac.liv.jmzqml.model.mzqml.QuantLayer;
 import uk.ac.liv.jmzqml.model.mzqml.Ratio;
 import uk.ac.liv.jmzqml.model.mzqml.RatioList;
 import uk.ac.liv.jmzqml.model.mzqml.RatioQuantLayer;
@@ -81,12 +82,12 @@ public class MzqCreateTask extends Task<Void> {
     private static Label label;
     private static Label label_heavy;
     private static SearchDatabase db;
-    private static HashMap<String, ArrayList<String>> rgIdrawIdMap;
-    private static HashMap<String, String> rawIdrgIdMap;
-    private static HashMap<String, String> rawFileNameIdMap;
-    private static HashMap<String, String> rawFileIdNameMap;
-    private static HashMap<String, String> assayNameIdMap;
-    private static HashMap<String, String> assayIdNameMap;
+    private static Map<String, List<String>> rgIdrawIdMap;
+    private static Map<String, String> rawIdrgIdMap;
+    private static Map<String, String> rawFileNameIdMap;
+    private static Map<String, String> rawFileIdNameMap;
+    private static Map<String, String> assayNameIdMap;
+    private static Map<String, String> assayIdNameMap;
 
     public MzqCreateTask(String input, File output) {
         this.in = input;
@@ -103,14 +104,6 @@ public class MzqCreateTask extends Task<Void> {
             sRd = new SrmReader(new FileReader(in));
 
             updateMessage("Start converting ...");
-
-            for (int i = 0; i < 100000; i++) {
-                for (int j = 0; j < 10000; j++) {
-                    if (((i + j) % 333) == 0) {
-                        updateMessage("i = " + i + ", j = " + j + " ......");
-                    }
-                }
-            }
 
             marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
 
@@ -154,7 +147,7 @@ public class MzqCreateTask extends Task<Void> {
                 createRatioList();
             }
 
-            createPeptideconsensusList();
+            createPeptideConsensusList();
 
             /**
              * *
@@ -217,7 +210,7 @@ public class MzqCreateTask extends Task<Void> {
         mzq.setCvList(cvs);
 
         //light label
-        label = new uk.ac.liv.jmzqml.model.mzqml.Label();
+        label = new Label();
         CvParam labelCvParam = marshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
         ModParam modParam = new ModParam();
         modParam.setCvParam(labelCvParam);
@@ -225,7 +218,7 @@ public class MzqCreateTask extends Task<Void> {
 
         //heavy label
         //TODO: to detect the heavy label from the file or get it from Skyline setting
-        label_heavy = new uk.ac.liv.jmzqml.model.mzqml.Label();
+        label_heavy = new Label();
         CvParam label_silac = marshaller.createCvParam("13C(6) Silac label", cv_mod, "MOD:00188", "6.020129", "", "", "");
         ModParam modParam_silac = new ModParam();
         modParam_silac.setCvParam(label_silac);
@@ -248,6 +241,10 @@ public class MzqCreateTask extends Task<Void> {
             CvParam labelFreeCv = marshaller.createCvParam("LC-MS label-free quantitation analysis", cv, "MS:1001834");
             analysisSummary.getParamGroup().add(labelFreeCv);
         }
+
+        // for absolute quantitation analysis only
+        analysisSummary.getParamGroup().add(marshaller.createCvParam("absolute quantitation analysis", "PSI-MS", "MS:100XXXX"));
+
         //TODO: need cv terms
         CvParam analysisSummaryCv = marshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
@@ -259,6 +256,15 @@ public class MzqCreateTask extends Task<Void> {
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         analysisSummaryCv = marshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:1002284", "false", "", "", "");
+        analysisSummary.getParamGroup().add(analysisSummaryCv);
+
+        // for absolute quantitation analysis only
+        analysisSummaryCv = marshaller.createCvParam("peptide internal reference used", "PSI-MS", "MS:100XXXX");
+        analysisSummaryCv.setValue("true");
+        analysisSummary.getParamGroup().add(analysisSummaryCv);
+
+        analysisSummaryCv = marshaller.createCvParam("protein internal reference used", "PSI-MS", "MS:100XXXX");
+        analysisSummaryCv.setValue("false");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         mzq.setAnalysisSummary(analysisSummary);
@@ -354,7 +360,7 @@ public class MzqCreateTask extends Task<Void> {
              * build rgIdrawIdMap raw files group id as key raw file ids
              * (ArrayList) as value
              */
-            ArrayList<String> rawIds = rgIdrawIdMap.get(rgId);
+            List<String> rawIds = rgIdrawIdMap.get(rgId);
             if (rawIds == null) {
                 rawIds = new ArrayList<>();
                 rgIdrawIdMap.put(rgId, rawIds);
@@ -487,7 +493,7 @@ public class MzqCreateTask extends Task<Void> {
                 //List<Object> peptideConsensusRefList = protein.getPeptideConsensusRefs();  //jmzquantml 1.0.0-1.0.0
                 //List<PeptideConsensus> peptides = new ArrayList();
                 List<String> peptideIds = protein.getPeptideConsensusRefs();
-                ArrayList<String> pepIds = new ArrayList();
+                List<String> pepIds = new ArrayList();
 
                 for (String pepSeq : pepSeqs) {
                     PeptideConsensus pepCon = new PeptideConsensus();
@@ -514,7 +520,7 @@ public class MzqCreateTask extends Task<Void> {
          * create FeatureList
          */
         List<FeatureList> featureLists = mzq.getFeatureList();
-        HashMap<String, FeatureList> rgIdFeatureListMap = new HashMap<>();
+        Map<String, FeatureList> rgIdFeatureListMap = new HashMap<>();
 
         // for each feature
         for (String id : sRd.getAreaMap().keySet()) {
@@ -826,7 +832,7 @@ public class MzqCreateTask extends Task<Void> {
         mzq.setRatioList(ratioList);
     }
 
-    private static void createPeptideconsensusList() {
+    private static void createPeptideConsensusList() {
         /**
          * *
          * create PeptideConsensusList
@@ -853,6 +859,8 @@ public class MzqCreateTask extends Task<Void> {
             pepRQL.setDataMatrix(pepRatioDM);
             peptideConsensuses.setRatioQuantLayer(pepRQL);
         }
+
+        // PeptideConsensusList
         List<PeptideConsensus> peptideList = peptideConsensuses.getPeptideConsensus();
         for (String pepSeq : sRd.getPeptideList()) {
             PeptideConsensus pepCon = new PeptideConsensus();
@@ -871,6 +879,7 @@ public class MzqCreateTask extends Task<Void> {
             }
             pepCon.getCharge().addAll(charges);
 
+            // Set EvidenceRef for each PeptideConsensus
             for (String id : sRd.getPeptideIdMap().get(pepSeq)) {
                 // set List<EvidenceRef> to pepCon
                 EvidenceRef evidenceRef = new EvidenceRef();
@@ -919,6 +928,43 @@ public class MzqCreateTask extends Task<Void> {
             }
         }
 
+        // Set AssayQuantLayer for reference
+        if (sRd.isLabelled()) {
+            QuantLayer assayQLRef = new QuantLayer();
+
+            // Add heavy assay as spike in to column index
+            for (String assN : sRd.getAssayList()) {
+                if (assN.contains("heavy")) {
+                    assayQLRef.getColumnIndex().add(assayNameIdMap.get(assN));
+                }
+            }
+
+            if (assayQLRef.getColumnIndex().isEmpty()) {
+                throw new IllegalStateException("Could't find heavy assay!");
+            }
+
+            DataMatrix DMRef = new DataMatrix();
+
+            QuantLayer assayQLAbs = new QuantLayer();
+
+            // Add light assay to column index
+            for (String assN : sRd.getAssayList()) {
+                if (assN.contains("light")) {
+                    assayQLAbs.getColumnIndex().add(assayNameIdMap.get(assN));
+                }
+            }
+
+            if (assayQLAbs.getColumnIndex().isEmpty()) {
+                throw new IllegalStateException("Couldn't find light assay!");
+            }
+
+            DataMatrix DMAbs = new DataMatrix();
+            
+            Map<String, List<String>> temp = sRd.getPeptideIdMap();
+            
+            System.out.println("help");
+
+        }
         peptideConsensuses.setFinalResult(true);
         peptideConsensusListList.add(peptideConsensuses);
     }
