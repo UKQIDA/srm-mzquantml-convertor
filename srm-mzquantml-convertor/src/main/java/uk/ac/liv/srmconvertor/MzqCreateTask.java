@@ -1,11 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package uk.ac.liv.srmconvertor;
 
+import gnu.trove.map.TObjectDoubleMap;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.concurrent.Task;
+import org.apache.commons.lang3.math.NumberUtils;
 import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
 import uk.ac.liv.jmzqml.model.mzqml.AnalysisSummary;
 import uk.ac.liv.jmzqml.model.mzqml.Assay;
@@ -71,27 +69,29 @@ public class MzqCreateTask extends Task<Void> {
 
     private final String in;
     private final File out;
+    private final Parameter param;
 
-    private static SrmReader sRd;
-    private static MzQuantMLMarshaller marshaller;
-    private static MzQuantML mzq;
-    private static Cv cv;
-    private static Cv cv_mod;
-    private static Cv cv_unimod;
-    private static Cv cv_uo;
-    private static Label label;
-    private static Label label_heavy;
-    private static SearchDatabase db;
-    private static Map<String, List<String>> rgIdrawIdMap;
-    private static Map<String, String> rawIdrgIdMap;
-    private static Map<String, String> rawFileNameIdMap;
-    private static Map<String, String> rawFileIdNameMap;
-    private static Map<String, String> assayNameIdMap;
-    private static Map<String, String> assayIdNameMap;
+    private SrmReader sRd;
+    private MzQuantMLMarshaller marshaller;
+    private MzQuantML mzq;
+    private Cv cv;
+    private Cv cv_mod;
+    private Cv cv_unimod;
+    private Cv cv_uo;
+    private Label label;
+    private Label label_heavy;
+    private SearchDatabase db;
+    private Map<String, List<String>> rgIdrawIdMap;
+    private Map<String, String> rawIdrgIdMap;
+    private Map<String, String> rawFileNameIdMap;
+    private Map<String, String> rawFileIdNameMap;
+    private Map<String, String> assayNameIdMap;
+    private Map<String, String> assayIdNameMap;
 
-    public MzqCreateTask(String input, File output) {
+    public MzqCreateTask(String input, File output, Parameter param) {
         this.in = input;
         this.out = output;
+        this.param = param;
     }
 
     @Override
@@ -178,7 +178,7 @@ public class MzqCreateTask extends Task<Void> {
     }
 
 // private methods
-    private static void createCvList() {
+    private void createCvList() {
         /**
          * create CvListType
          */
@@ -186,32 +186,32 @@ public class MzqCreateTask extends Task<Void> {
         List<Cv> cvList = cvs.getCv();
         // psi-ms
 
-        cv = marshaller.createCv("PSI-MS",
-                                 "Proteomics Standards Initiative Mass Spectrometry Vocabularies",
-                                 "http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo",
-                                 "2.25.0");
+        cv = MzQuantMLMarshaller.createCv("PSI-MS",
+                                          "Proteomics Standards Initiative Mass Spectrometry Vocabularies",
+                                          "http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo",
+                                          "2.25.0");
         cvList.add(cv);
 
         //unimod
-        cv_unimod = marshaller.createCv("UNIMOD", "Unimod", "http://www.unimod.org/obo/unimod.obo", null);
+        cv_unimod = MzQuantMLMarshaller.createCv("UNIMOD", "Unimod", "http://www.unimod.org/obo/unimod.obo", null);
         cvList.add(cv_unimod);
 
         //psi-mod
-        cv_mod = marshaller.createCv("PSI-MOD",
-                                     "Proteomics Standards Initiative Protein Modifications Vocabularies",
-                                     "http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo",
-                                     null);
+        cv_mod = MzQuantMLMarshaller.createCv("PSI-MOD",
+                                              "Proteomics Standards Initiative Protein Modifications Vocabularies",
+                                              "http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo",
+                                              null);
         cvList.add(cv_mod);
 
-        //unit ontology
-        cv_uo = marshaller.createCv("UO", "Unit Ontology", "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/phenotype/unit.obo", null);
+        //units ontology
+        cv_uo = MzQuantMLMarshaller.createCv("UO", "Units Ontology", "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/phenotype/unit.obo", null);
         cvList.add(cv_uo);
 
         mzq.setCvList(cvs);
 
         //light label
         label = new Label();
-        CvParam labelCvParam = marshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
+        CvParam labelCvParam = MzQuantMLMarshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
         ModParam modParam = new ModParam();
         modParam.setCvParam(labelCvParam);
         label.getModification().add(modParam);
@@ -219,91 +219,87 @@ public class MzqCreateTask extends Task<Void> {
         //heavy label
         //TODO: to detect the heavy label from the file or get it from Skyline setting
         label_heavy = new Label();
-        CvParam label_silac = marshaller.createCvParam("13C(6) Silac label", cv_mod, "MOD:00188", "6.020129", "", "", "");
+        CvParam label_silac = MzQuantMLMarshaller.createCvParam("13C(6) Silac label", cv_mod, "MOD:00188", "6.020129", "", "", "");
         ModParam modParam_silac = new ModParam();
         modParam_silac.setCvParam(label_silac);
         label_heavy.getModification().add(modParam_silac);
     }
 
-    private static void createAnalysisSummary() {
+    private void createAnalysisSummary() {
         /*
          * create AnalysisSummary
          */
 
         AnalysisSummary analysisSummary = new AnalysisSummary();
-        analysisSummary.getParamGroup().add(marshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
+        analysisSummary.getParamGroup().add(MzQuantMLMarshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
         if (sRd.isLabelled()) {
-            CvParam labelBasedCv = marshaller.createCvParam("MS1 Label-based analysis", cv, "MS:1002018");
+            CvParam labelBasedCv = MzQuantMLMarshaller.createCvParam("MS1 Label-based analysis", cv, "MS:1002018");
             analysisSummary.getParamGroup().add(labelBasedCv);
         }
         else {
-            CvParam labelFreeCv = marshaller.createCvParam("LC-MS label-free quantitation analysis", cv, "MS:1001834");
+            CvParam labelFreeCv = MzQuantMLMarshaller.createCvParam("LC-MS label-free quantitation analysis", cv, "MS:1001834");
             analysisSummary.getParamGroup().add(labelFreeCv);
         }
 
         // for absolute quantitation analysis only
-        analysisSummary.getParamGroup().add(marshaller.createCvParam("absolute quantitation analysis", "PSI-MS", "MS:100XXXX"));
+        if (param.isAbsQuant()) {
+            analysisSummary.getParamGroup().add(MzQuantMLMarshaller.createCvParam("absolute quantitation analysis", "PSI-MS", "MS:1002514"));
+        }
 
-        //TODO: need cv terms
-        CvParam analysisSummaryCv = marshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
+        CvParam analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM peptide level quantitation", cv, "MS:1002282", "true", "", "", "");
+        analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM peptide level quantitation", cv, "MS:1002282", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM protein level quantitation", cv, "MS:1002283", "true", "", "", "");
+        analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM protein level quantitation", cv, "MS:1002283", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:1002284", "false", "", "", "");
+        analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:1002284", "false", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         // for absolute quantitation analysis only
-        analysisSummaryCv = marshaller.createCvParam("peptide internal reference used", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("true");
-        analysisSummary.getParamGroup().add(analysisSummaryCv);
+        if (param.isAbsQuant()) {
+            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal peptide reference used", "PSI-MS", "MS:1002515");
+            analysisSummaryCv.setValue("true");
+            analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = marshaller.createCvParam("protein internal reference used", "PSI-MS", "MS:100XXXX");
-        analysisSummaryCv.setValue("false");
-        analysisSummary.getParamGroup().add(analysisSummaryCv);
+            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal protein reference used", "PSI-MS", "MS:1002516");
+            analysisSummaryCv.setValue("false");
+            analysisSummary.getParamGroup().add(analysisSummaryCv);
+        }
 
         mzq.setAnalysisSummary(analysisSummary);
     }
 
-    private static void createAuditCollection() {
+    private void createAuditCollection() {
         /**
          * create AuditCollection
          */
         AuditCollection auditCollection = new AuditCollection();
 
-        Organization uol = new Organization();
-        uol.setId("ORG_UOL");
-        uol.setName("University of Liverpool");
+        Organization org = new Organization();
+        org.setId("ORG1");
+        org.setName(param.getOrg());
 
-        Person andy = new Person();
-        andy.setFirstName("Andy");
-        andy.setLastName("Jones");
+        Person per = new Person();
+        per.setFirstName(param.getFirstName());
+        per.setLastName(param.getLastName());
 
         Affiliation aff = new Affiliation();
-        aff.setOrganization(uol);
-        andy.getAffiliation().add(aff);
-        andy.setId("PERS_ARJ");
-        auditCollection.getPerson().add(andy);
-
-        Person ddq = new Person();
-        ddq.setFirstName("Da");
-        ddq.setLastName("Qi");
-        ddq.setId("PERS_DQ");
-        ddq.getAffiliation().add(aff);
-        auditCollection.getPerson().add(ddq);
+        aff.setOrganization(org);
+        per.getAffiliation().add(aff);
+        per.setId("PERSON1");
+        auditCollection.getPerson().add(per);
 
         // the schema require person before organization
-        auditCollection.getOrganization().add(uol);
+        auditCollection.getOrganization().add(org);
 
         mzq.setAuditCollection(auditCollection);
     }
 
-    private static void createInputFiles() {
+    private void createInputFiles() {
         /**
          * *
          * create InputFiles
@@ -321,7 +317,6 @@ public class MzqCreateTask extends Task<Void> {
         rawFileIdNameMap = new HashMap<>();
         rgIdrawIdMap = new HashMap<>();
         rawIdrgIdMap = new HashMap<>();
-//        HashMap<String, String> assayNrgIdMap = new HashMap<String, String>(); //jmzquantml 1.0.0-1.0.0
 
         int rawFileCounter = 0;
 
@@ -349,13 +344,6 @@ public class MzqCreateTask extends Task<Void> {
             rawFilesGroup.setId(rgId);
             rawFilesGroupList.add(rawFilesGroup);
 
-            // jmzquantml 1.0.0-1.0.0
-//            if (assayNrgIdMap.get(assayN) == null) {
-//                assayNrgIdMap.put(assayN, rgId);
-//            }
-//            for (String assayN : sRd.getRawFileNameToAssayMap().get(rawFn)) {
-//                assayNrgIdMap.put(assayN, rgId);
-//            }
             /*
              * build rgIdrawIdMap raw files group id as key raw file ids
              * (ArrayList) as value
@@ -386,9 +374,8 @@ public class MzqCreateTask extends Task<Void> {
         mzq.setInputFiles(inputFiles);
     }
 
-    private static void createAssayList() {
+    private void createAssayList() {
         /**
-         * *
          * create AssayList
          */
         AssayList assays = new AssayList();
@@ -421,13 +408,12 @@ public class MzqCreateTask extends Task<Void> {
 
             rawFilesGroup.setId(getRawFilesGroupIdFromAssayName(assayN));
 
-            //rawFilesGroup.setId(assayNrgIdMap.get(assayN)); //jmzquantml 1.0.0-1.0.0
             assay.setRawFilesGroup(rawFilesGroup);
         }
         mzq.setAssayList(assays);
     }
 
-    private static void createSoftwareList() {
+    private void createSoftwareList() {
         /**
          * *
          * create SoftwareList
@@ -437,11 +423,11 @@ public class MzqCreateTask extends Task<Void> {
         softwareList.getSoftware().add(software);
         software.setId("Skyline");
         software.setVersion("1.4");
-        software.getCvParam().add(marshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
+        software.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
         mzq.setSoftwareList(softwareList);
     }
 
-    private static void createDataProcessingList() {
+    private void createDataProcessingList() {
         /**
          * *
          * create DataProcessingList
@@ -449,19 +435,18 @@ public class MzqCreateTask extends Task<Void> {
         DataProcessingList dataProcessingList = new DataProcessingList();
         DataProcessing dataProcessing = new DataProcessing();
         dataProcessing.setId("feature_quantification");
-        //dataProcessing.setSoftware(software); //jmzquantml 1.0.0-1.0.0
         dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(0));
         dataProcessing.setOrder(BigInteger.ONE);
         ProcessingMethod processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.ONE);
-        processingMethod.getParamGroup().add(marshaller.createCvParam("quantification data processing", "PSI-MS", "MS:1001861"));
+        processingMethod.getParamGroup().add(MzQuantMLMarshaller.createCvParam("quantification data processing", "PSI-MS", "MS:1001861"));
         dataProcessing.getProcessingMethod().add(processingMethod);
 
         dataProcessingList.getDataProcessing().add(dataProcessing);
         mzq.setDataProcessingList(dataProcessingList);
     }
 
-    private static void createProteinList() {
+    private void createProteinList() {
         /**
          * *
          * create ProteinList
@@ -514,7 +499,7 @@ public class MzqCreateTask extends Task<Void> {
         mzq.setProteinList(proteins);
     }
 
-    private static void createFeatureList() {
+    private void createFeatureList() {
         /**
          * *
          * create FeatureList
@@ -560,17 +545,17 @@ public class MzqCreateTask extends Task<Void> {
             }
 
             // set cv term for Q3 mz
-            CvParam cpMz = marshaller.createCvParam("isolation window target m/z", "PSI-MS", "MS:1000827");
+            CvParam cpMz = MzQuantMLMarshaller.createCvParam("isolation window target m/z", "PSI-MS", "MS:1000827");
             cpMz.setValue(proMz);
             feature.getCvParam().add(cpMz);
 
             // set cv term for Q3 charge
-            CvParam cpCharge = marshaller.createCvParam("charge state", "PSI-MS", "MS:1000041");
+            CvParam cpCharge = MzQuantMLMarshaller.createCvParam("charge state", "PSI-MS", "MS:1000041");
             cpCharge.setValue(proCharge);
             feature.getCvParam().add(cpCharge);
 
             // set cv term for Q3 rt
-            CvParam cpRt = marshaller.createCvParam("local retention time", "PSI-MS", "MS:1000895");
+            CvParam cpRt = MzQuantMLMarshaller.createCvParam("local retention time", "PSI-MS", "MS:1000895");
             cpRt.setValue(proRt);
             cpRt.setUnitCv(cv_uo);
             cpRt.setUnitAccession("UO:0000031");
@@ -614,7 +599,7 @@ public class MzqCreateTask extends Task<Void> {
                 CvParamRef cpRefArea = new CvParamRef();
 
                 //cv term for Q3 area
-                cpRefArea.setCvParam(marshaller.createCvParam("XIC area", "PSI-MS", "MS:1001858"));
+                cpRefArea.setCvParam(MzQuantMLMarshaller.createCvParam("XIC area", "PSI-MS", "MS:1001858"));
                 columnArea.setDataType(cpRefArea);
 
                 featureColumnIndex.getColumn().add(columnArea);
@@ -627,7 +612,7 @@ public class MzqCreateTask extends Task<Void> {
                 CvParamRef cpRefBg = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefBg.setCvParam(marshaller.createCvParam("product background", "PSI-MS", "MS:1002414"));
+                cpRefBg.setCvParam(MzQuantMLMarshaller.createCvParam("product background", "PSI-MS", "MS:1002414"));
                 columnBg.setDataType(cpRefBg);
 
                 featureColumnIndex.getColumn().add(columnBg);
@@ -640,7 +625,7 @@ public class MzqCreateTask extends Task<Void> {
                 CvParamRef cpRefPr = new CvParamRef();
 
                 //cv term for Q3 background
-                cpRefPr.setCvParam(marshaller.createCvParam("product interpretation rank", "PSI-MS", "MS:1000926"));
+                cpRefPr.setCvParam(MzQuantMLMarshaller.createCvParam("product interpretation rank", "PSI-MS", "MS:1000926"));
                 columnPr.setDataType(cpRefPr);
 
                 featureColumnIndex.getColumn().add(columnPr);
@@ -653,7 +638,7 @@ public class MzqCreateTask extends Task<Void> {
                 CvParamRef cpRefHt = new CvParamRef();
 
                 //cv term for Q3 height
-                cpRefHt.setCvParam(marshaller.createCvParam("peak intensity", "PSI-MS", "MS:1000042"));
+                cpRefHt.setCvParam(MzQuantMLMarshaller.createCvParam("peak intensity", "PSI-MS", "MS:1000042"));
                 columnHt.setDataType(cpRefHt);
 
                 featureColumnIndex.getColumn().add(columnHt);
@@ -666,7 +651,7 @@ public class MzqCreateTask extends Task<Void> {
                 CvParamRef cpRefAn = new CvParamRef();
 
                 //cv term for Q3 AreaNormalized
-                cpRefAn.setCvParam(marshaller.createCvParam("normalized XIC area", "PSI-MS", "MS:1001859"));
+                cpRefAn.setCvParam(MzQuantMLMarshaller.createCvParam("normalized XIC area", "PSI-MS", "MS:1001859"));
                 columnAn.setDataType(cpRefAn);
 
                 featureColumnIndex.getColumn().add(columnAn);
@@ -788,7 +773,7 @@ public class MzqCreateTask extends Task<Void> {
         }
     }
 
-    private static void createRatioList() {
+    private void createRatioList() {
         /**
          * *
          * create RatioList
@@ -819,11 +804,11 @@ public class MzqCreateTask extends Task<Void> {
         }
 
         CvParamRef denominator_cpRef = new CvParamRef();
-        denominator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
+        denominator_cpRef.setCvParam(MzQuantMLMarshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setDenominatorDataType(denominator_cpRef);
 
         CvParamRef numerator_cpRef = new CvParamRef();
-        numerator_cpRef.setCvParam(marshaller.createCvParam("XIC area", cv, "MS:1001858"));
+        numerator_cpRef.setCvParam(MzQuantMLMarshaller.createCvParam("XIC area", cv, "MS:1001858"));
         pepRatio.setNumeratorDataType(numerator_cpRef);
 
         //add to RatioList
@@ -832,7 +817,7 @@ public class MzqCreateTask extends Task<Void> {
         mzq.setRatioList(ratioList);
     }
 
-    private static void createPeptideConsensusList() {
+    private void createPeptideConsensusList() {
         /**
          * *
          * create PeptideConsensusList
@@ -930,7 +915,48 @@ public class MzqCreateTask extends Task<Void> {
 
         // Set AssayQuantLayer for reference
         if (sRd.isLabelled()) {
+            // Calculate peptide absolute measurement for light assay
+            TObjectDoubleMap<String> absoluteMap = new TObjectDoubleHashMap<>();
+
+            Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
+            for (String pepSeq : peptideIdsMap.keySet()) {
+                List<String> idList = peptideIdsMap.get(pepSeq);
+                double totalLight = 0;
+                int counterLight = 0;
+                double totalHeavy = 0;
+                int counterHeavy = 0;
+                for (String id : idList) {
+                    if (sRd.getIsotopeLabelTypeMap().get(id).equals("light")) {
+                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
+                            totalLight = totalLight + Double.parseDouble(sRd.getHeightMap().get(id));
+                            counterLight++;
+                        }
+                    }
+                    else if (sRd.getIsotopeLabelTypeMap().get(id).equals("heavy")) {
+                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
+                            totalHeavy = totalHeavy + Double.parseDouble(sRd.getHeightMap().get(id));
+                            counterHeavy++;
+                        }
+                    }
+                }
+
+                //heightLightPeptideMap.put(pepSeq, totalLight / counterLight);
+                //heightHeavyPeptideMap.put(pepSeq, totalHeavy / counterHeavy);
+                // 1000 molecules per cell pre-defined reference absolute number
+                //factorMap.put(pepSeq, 1000 * counterHeavy / totalHeavy);
+                absoluteMap.put(pepSeq, param.getRefQuant() * (totalLight / counterLight) * (counterHeavy / totalHeavy));
+            }
+
             QuantLayer assayQLRef = new QuantLayer();
+
+            assayQLRef.setId("Peptide_AQL_REF");
+            CvParamRef cvParamRef_ref = new CvParamRef();
+            CvParam cp_ref = MzQuantMLMarshaller.createCvParam("internal reference abundance", "PSI-MS", "MS:1002517");
+            cp_ref.setUnitName("molecules per cell");
+            cp_ref.setUnitAccession("MS:1002513");
+            cp_ref.setUnitCv(cv);
+            cvParamRef_ref.setCvParam(cp_ref);
+            assayQLRef.setDataType(cvParamRef_ref);
 
             // Add heavy assay as spike in to column index
             for (String assN : sRd.getAssayList()) {
@@ -945,7 +971,25 @@ public class MzqCreateTask extends Task<Void> {
 
             DataMatrix DMRef = new DataMatrix();
 
+            for (String pepSeq : sRd.getPeptideList()) {
+                Row row = new Row();
+                row.setObjectRef("pep_" + pepSeq);
+                row.getValue().add(Double.toString(param.getRefQuant()));
+                DMRef.getRow().add(row);
+            }
+
+            assayQLRef.setDataMatrix(DMRef);
+
             QuantLayer assayQLAbs = new QuantLayer();
+
+            assayQLAbs.setId("Peptide_AQL_Absolute_Quant");
+            CvParamRef cvParamRef_abs = new CvParamRef();
+            CvParam cp_abs = MzQuantMLMarshaller.createCvParam("absolute quantity", "PSI-MS", "MS:1001137");
+            cp_abs.setUnitName("molecules per cell");
+            cp_abs.setUnitAccession("MS:1002513");
+            cp_abs.setUnitCv(cv);
+            cvParamRef_abs.setCvParam(cp_abs);
+            assayQLAbs.setDataType(cvParamRef_abs);
 
             // Add light assay to column index
             for (String assN : sRd.getAssayList()) {
@@ -959,11 +1003,18 @@ public class MzqCreateTask extends Task<Void> {
             }
 
             DataMatrix DMAbs = new DataMatrix();
-            
-            Map<String, List<String>> temp = sRd.getPeptideIdMap();
-            
-            System.out.println("help");
 
+            for (String pepSeq : absoluteMap.keySet()) {
+                Row row = new Row();
+                row.setObjectRef("pep_" + pepSeq);
+                row.getValue().add(String.valueOf(absoluteMap.get(pepSeq)));
+                DMAbs.getRow().add(row);
+            }
+
+            assayQLAbs.setDataMatrix(DMAbs);
+
+            peptideConsensuses.getAssayQuantLayer().add(assayQLRef);
+            peptideConsensuses.getAssayQuantLayer().add(assayQLAbs);
         }
         peptideConsensuses.setFinalResult(true);
         peptideConsensusListList.add(peptideConsensuses);
@@ -977,7 +1028,7 @@ public class MzqCreateTask extends Task<Void> {
      *
      * @return rawFilesGroup id
      */
-    private static String getRawFilesGroupIdFromAssayName(String assN) {
+    private String getRawFilesGroupIdFromAssayName(String assN) {
 
         String rawFn = sRd.getAssayToRawFileNameMap().get(assN).get(0);
         String rawId = rawFileNameIdMap.get(rawFn);

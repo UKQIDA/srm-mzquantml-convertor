@@ -1,3 +1,4 @@
+
 package uk.ac.liv.srmconvertor;
 
 import javafx.application.Application;
@@ -7,20 +8,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class MainApp extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage)
+            throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ConvertorView.fxml"));
-        
-        Parent root = (Parent)loader.load();
-        ConvertorViewFXMLController controller = (ConvertorViewFXMLController)loader.getController();
+
+        Parent root = (Parent) loader.load();
+        ConvertorViewFXMLController controller = (ConvertorViewFXMLController) loader.getController();
         controller.setStageAndSetupListeners(stage);
-                     
-        Scene scene = new Scene(root, 600, 200);
-        scene.getStylesheets().add("styles/convertorview.css");
-        
+
+        Scene scene = new Scene(root, 600, 350);
+        //scene.getStylesheets().add("styles/convertorview.css");
+
         stage.setResizable(false);
         stage.setTitle("SRM mzQuantML Convertor (version 1.0)");
         stage.setScene(scene);
