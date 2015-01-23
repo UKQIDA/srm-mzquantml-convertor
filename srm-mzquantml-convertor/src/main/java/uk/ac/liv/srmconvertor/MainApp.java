@@ -19,7 +19,7 @@ public class MainApp extends Application {
         ConvertorViewFXMLController controller = (ConvertorViewFXMLController) loader.getController();
         controller.setStageAndSetupListeners(stage);
 
-        Scene scene = new Scene(root, 600, 350);
+        Scene scene = new Scene(root, 600, 300);
         //scene.getStylesheets().add("styles/convertorview.css");
 
         stage.setResizable(false);

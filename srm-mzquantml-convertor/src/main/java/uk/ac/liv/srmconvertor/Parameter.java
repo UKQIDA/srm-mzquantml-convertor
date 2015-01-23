@@ -12,15 +12,15 @@ public class Parameter {
     private String firstName;
     private String lastName;
     private String org;
-    private boolean absQuant;
-    private double refQuant;
+//    private boolean absQuant;
+//    private double refQuant;
     
     public Parameter(){
         this.firstName = "";
         this.lastName = "";
         this.org = "";
-        this.absQuant = false;
-        this.refQuant = 1.0;
+//        this.absQuant = false;
+//        this.refQuant = 1.0;
     }
 
     /**
@@ -65,33 +65,33 @@ public class Parameter {
         this.org = org;
     }
 
-    /**
-     * @return the absQuant
-     */
-    public boolean isAbsQuant() {
-        return absQuant;
-    }
-
-    /**
-     * @param absQuant the absQuant to set
-     */
-    public void setAbsQuant(boolean absQuant) {
-        this.absQuant = absQuant;
-    }
-
-    /**
-     * @return the refQuant
-     */
-    public double getRefQuant() {
-        return refQuant;
-    }
-
-    /**
-     * @param refQuant the refQuant to set
-     */
-    public void setRefQuant(double refQuant) {
-        this.refQuant = refQuant;
-    }
+//    /**
+//     * @return the absQuant
+//     */
+//    public boolean isAbsQuant() {
+//        return absQuant;
+//    }
+//
+//    /**
+//     * @param absQuant the absQuant to set
+//     */
+//    public void setAbsQuant(boolean absQuant) {
+//        this.absQuant = absQuant;
+//    }
+//
+//    /**
+//     * @return the refQuant
+//     */
+//    public double getRefQuant() {
+//        return refQuant;
+//    }
+//
+//    /**
+//     * @param refQuant the refQuant to set
+//     */
+//    public void setRefQuant(double refQuant) {
+//        this.refQuant = refQuant;
+//    }
     
     
 }

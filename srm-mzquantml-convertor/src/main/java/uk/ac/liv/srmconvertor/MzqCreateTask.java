@@ -243,10 +243,9 @@ public class MzqCreateTask extends Task<Void> {
         }
 
         // for absolute quantitation analysis only
-        if (param.isAbsQuant()) {
-            analysisSummary.getParamGroup().add(MzQuantMLMarshaller.createCvParam("absolute quantitation analysis", "PSI-MS", "MS:1002514"));
-        }
-
+//        if (param.isAbsQuant()) {
+//            analysisSummary.getParamGroup().add(MzQuantMLMarshaller.createCvParam("absolute quantitation analysis", "PSI-MS", "MS:1002514"));
+//        }
         CvParam analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM feature level quantitation", cv, "MS:1002281", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
@@ -260,16 +259,15 @@ public class MzqCreateTask extends Task<Void> {
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         // for absolute quantitation analysis only
-        if (param.isAbsQuant()) {
-            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal peptide reference used", "PSI-MS", "MS:1002515");
-            analysisSummaryCv.setValue("true");
-            analysisSummary.getParamGroup().add(analysisSummaryCv);
-
-            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal protein reference used", "PSI-MS", "MS:1002516");
-            analysisSummaryCv.setValue("false");
-            analysisSummary.getParamGroup().add(analysisSummaryCv);
-        }
-
+//        if (param.isAbsQuant()) {
+//            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal peptide reference used", "PSI-MS", "MS:1002515");
+//            analysisSummaryCv.setValue("true");
+//            analysisSummary.getParamGroup().add(analysisSummaryCv);
+//
+//            analysisSummaryCv = MzQuantMLMarshaller.createCvParam("internal protein reference used", "PSI-MS", "MS:1002516");
+//            analysisSummaryCv.setValue("false");
+//            analysisSummary.getParamGroup().add(analysisSummaryCv);
+//        }
         mzq.setAnalysisSummary(analysisSummary);
     }
 
@@ -818,8 +816,7 @@ public class MzqCreateTask extends Task<Void> {
     }
 
     private void createPeptideConsensusList() {
-        /**
-         * *
+        /*
          * create PeptideConsensusList
          */
         List<PeptideConsensusList> peptideConsensusListList = mzq.getPeptideConsensusList();
@@ -835,7 +832,6 @@ public class MzqCreateTask extends Task<Void> {
 
             RatioQuantLayer pepRQL = new RatioQuantLayer();
             pepRQL.setId("PepRQL_1");
-            //pepRQL.getColumnIndex().add(ratioList.getRatio().get(0));   //jmzquantml 1.0.0-1.0.0
             for (Ratio rat : mzq.getRatioList().getRatio()) {
                 pepRQL.getColumnIndex().add(rat.getId());
             }
@@ -880,9 +876,6 @@ public class MzqCreateTask extends Task<Void> {
                 String assayId = assayNameIdMap.get(assayN);
                 Assay assay = new Assay();
                 assay.setId(assayId);
-//                if (!evidenceRef.getAssayRefs().contains(assay)) {
-//                    evidenceRef.getAssayRefs().add(assay);
-//                }    //jmzquantml 1.0.0-1.0.0
 
                 List<Assay> assayas = new ArrayList<>();
                 if (!evidenceRef.getAssayRefs().contains(assay.getId())) {
@@ -913,109 +906,199 @@ public class MzqCreateTask extends Task<Void> {
             }
         }
 
-        // Set AssayQuantLayer for reference
-        if (sRd.isLabelled()) {
-            // Calculate peptide absolute measurement for light assay
-            TObjectDoubleMap<String> absoluteMap = new TObjectDoubleHashMap<>();
+        // Calculate peptide level quant (area value)
+        Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
 
-            Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
-            for (String pepSeq : peptideIdsMap.keySet()) {
-                List<String> idList = peptideIdsMap.get(pepSeq);
-                double totalLight = 0;
-                int counterLight = 0;
-                double totalHeavy = 0;
-                int counterHeavy = 0;
-                for (String id : idList) {
-                    if (sRd.getIsotopeLabelTypeMap().get(id).equals("light")) {
-                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
-                            totalLight = totalLight + Double.parseDouble(sRd.getHeightMap().get(id));
-                            counterLight++;
-                        }
+        // Store calculated peptide area values for each peptide of each assay
+        Map<String, List<String>> peptideAreaMap = new HashMap<>();
+
+        for (String pepSeq : peptideIdsMap.keySet()) {
+            List<String> idList = peptideIdsMap.get(pepSeq);
+            double totalLight = 0;
+            double totalHeavy = 0;
+
+            // Add calculate peptide area value to peptideAreaMap
+            List<String> peptideAreaList = peptideAreaMap.get(pepSeq);
+            if (peptideAreaList == null) {
+                peptideAreaList = new ArrayList<>();
+                peptideAreaMap.put(pepSeq, peptideAreaList);
+            }
+
+            // Store the fragment type of those missing value in either pairing (light or heavy) assays
+            List<String> unpairedFragmentList = new ArrayList<>();
+
+            for (String id : idList) {
+                if (sRd.getIsotopeLabelTypeMap().get(id).equalsIgnoreCase("light")) {
+                    // if unpairedFragmentList doesn't contain this fragment ion type and the value is a number, then add to totalLight
+                    if (!unpairedFragmentList.contains(sRd.getFragmentIonMap().get(id)) && NumberUtils.isNumber(sRd.getAreaMap().get(id))) {
+                        totalLight = totalLight + Double.parseDouble(sRd.getAreaMap().get(id));
+                        //peptideAreaList.add(String.valueOf(totalLight));
                     }
-                    else if (sRd.getIsotopeLabelTypeMap().get(id).equals("heavy")) {
-                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
-                            totalHeavy = totalHeavy + Double.parseDouble(sRd.getHeightMap().get(id));
-                            counterHeavy++;
-                        }
+                    // if unpairedFragmentList doesn't contain this fragment ton type and the value is not a number, then add this fragment ion type
+                    else if (!unpairedFragmentList.contains(sRd.getFragmentIonMap().get(id))) {
+                        unpairedFragmentList.add(sRd.getFragmentIonMap().get(id));
+                    }
+
+                }
+                else if (sRd.getIsotopeLabelTypeMap().get(id).equalsIgnoreCase("heavy")) {
+                    if (!unpairedFragmentList.contains(sRd.getFragmentIonMap().get(id)) && NumberUtils.isNumber(sRd.getAreaMap().get(id))) {
+                        totalHeavy = totalHeavy + Double.parseDouble(sRd.getAreaMap().get(id));
+                        //peptideAreaList.add(String.valueOf(totalHeavy))
+                    }
+                    else if (!unpairedFragmentList.contains(sRd.getFragmentIonMap().get(id))) {
+                        unpairedFragmentList.add(sRd.getFragmentIonMap().get(id));
                     }
                 }
-
-                //heightLightPeptideMap.put(pepSeq, totalLight / counterLight);
-                //heightHeavyPeptideMap.put(pepSeq, totalHeavy / counterHeavy);
-                // 1000 molecules per cell pre-defined reference absolute number
-                //factorMap.put(pepSeq, 1000 * counterHeavy / totalHeavy);
-                absoluteMap.put(pepSeq, param.getRefQuant() * (totalLight / counterLight) * (counterHeavy / totalHeavy));
             }
 
-            QuantLayer assayQLRef = new QuantLayer();
-
-            assayQLRef.setId("Peptide_AQL_REF");
-            CvParamRef cvParamRef_ref = new CvParamRef();
-            CvParam cp_ref = MzQuantMLMarshaller.createCvParam("internal reference abundance", "PSI-MS", "MS:1002517");
-            cp_ref.setUnitName("molecules per cell");
-            cp_ref.setUnitAccession("MS:1002513");
-            cp_ref.setUnitCv(cv);
-            cvParamRef_ref.setCvParam(cp_ref);
-            assayQLRef.setDataType(cvParamRef_ref);
-
-            // Add heavy assay as spike in to column index
-            for (String assN : sRd.getAssayList()) {
-                if (assN.contains("heavy")) {
-                    assayQLRef.getColumnIndex().add(assayNameIdMap.get(assN));
-                }
+            peptideAreaList.add(String.valueOf(totalLight));
+            if (sRd.isLabelled()) {
+                peptideAreaList.add(String.valueOf(totalHeavy));
             }
-
-            if (assayQLRef.getColumnIndex().isEmpty()) {
-                throw new IllegalStateException("Could't find heavy assay!");
-            }
-
-            DataMatrix DMRef = new DataMatrix();
-
-            for (String pepSeq : sRd.getPeptideList()) {
-                Row row = new Row();
-                row.setObjectRef("pep_" + pepSeq);
-                row.getValue().add(Double.toString(param.getRefQuant()));
-                DMRef.getRow().add(row);
-            }
-
-            assayQLRef.setDataMatrix(DMRef);
-
-            QuantLayer assayQLAbs = new QuantLayer();
-
-            assayQLAbs.setId("Peptide_AQL_Absolute_Quant");
-            CvParamRef cvParamRef_abs = new CvParamRef();
-            CvParam cp_abs = MzQuantMLMarshaller.createCvParam("absolute quantity", "PSI-MS", "MS:1001137");
-            cp_abs.setUnitName("molecules per cell");
-            cp_abs.setUnitAccession("MS:1002513");
-            cp_abs.setUnitCv(cv);
-            cvParamRef_abs.setCvParam(cp_abs);
-            assayQLAbs.setDataType(cvParamRef_abs);
-
-            // Add light assay to column index
-            for (String assN : sRd.getAssayList()) {
-                if (assN.contains("light")) {
-                    assayQLAbs.getColumnIndex().add(assayNameIdMap.get(assN));
-                }
-            }
-
-            if (assayQLAbs.getColumnIndex().isEmpty()) {
-                throw new IllegalStateException("Couldn't find light assay!");
-            }
-
-            DataMatrix DMAbs = new DataMatrix();
-
-            for (String pepSeq : absoluteMap.keySet()) {
-                Row row = new Row();
-                row.setObjectRef("pep_" + pepSeq);
-                row.getValue().add(String.valueOf(absoluteMap.get(pepSeq)));
-                DMAbs.getRow().add(row);
-            }
-
-            assayQLAbs.setDataMatrix(DMAbs);
-
-            peptideConsensuses.getAssayQuantLayer().add(assayQLRef);
-            peptideConsensuses.getAssayQuantLayer().add(assayQLAbs);
         }
+
+        // AssayQuantLayer for peptide level area measurement
+        QuantLayer assayQLArea = new QuantLayer();
+
+        assayQLArea.setId("Peptide_AQL_AREA");
+        CvParamRef cvParamRef_ref = new CvParamRef();
+        CvParam cp_ref = MzQuantMLMarshaller.createCvParam("XIC area", cv, "MS:1001858");
+        cvParamRef_ref.setCvParam(cp_ref);
+        assayQLArea.setDataType(cvParamRef_ref);
+
+        // Add light assay first to ColumnIndex
+        for (String assN : sRd.getAssayList()) {
+            if (assN.contains("light")) {
+                assayQLArea.getColumnIndex().add(assayNameIdMap.get(assN));
+            }
+        }
+
+        // Then add heavy assay to ColumnIndex
+        for (String assN : sRd.getAssayList()) {
+            if (assN.contains("heavy")) {
+                assayQLArea.getColumnIndex().add(assayNameIdMap.get(assN));
+            }
+        }
+
+        if (assayQLArea.getColumnIndex().isEmpty()) {
+            throw new IllegalStateException("There is not light or heavy assay!");
+        }
+
+        DataMatrix DMArea = new DataMatrix();
+
+        for (String pepSeq : sRd.getPeptideList()) {
+            Row row = new Row();
+            row.setObjectRef("pep_" + pepSeq);
+            row.getValue().addAll(peptideAreaMap.get(pepSeq));
+            DMArea.getRow().add(row);
+        }
+
+        assayQLArea.setDataMatrix(DMArea);
+        peptideConsensuses.getAssayQuantLayer().add(assayQLArea);
+
+        // Set AssayQuantLayer for reference
+//        if (sRd.isLabelled()) {
+//            // Calculate peptide absolute measurement for light assay
+//            TObjectDoubleMap<String> absoluteMap = new TObjectDoubleHashMap<>();
+//
+//            Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
+//            for (String pepSeq : peptideIdsMap.keySet()) {
+//                List<String> idList = peptideIdsMap.get(pepSeq);
+//                double totalLight = 0;
+//                int counterLight = 0;
+//                double totalHeavy = 0;
+//                int counterHeavy = 0;
+//                for (String id : idList) {
+//                    if (sRd.getIsotopeLabelTypeMap().get(id).equals("light")) {
+//                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
+//                            totalLight = totalLight + Double.parseDouble(sRd.getHeightMap().get(id));
+//                            counterLight++;
+//                        }
+//                    }
+//                    else if (sRd.getIsotopeLabelTypeMap().get(id).equals("heavy")) {
+//                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
+//                            totalHeavy = totalHeavy + Double.parseDouble(sRd.getHeightMap().get(id));
+//                            counterHeavy++;
+//                        }
+//                    }
+//                }
+//
+//                //heightLightPeptideMap.put(pepSeq, totalLight / counterLight);
+//                //heightHeavyPeptideMap.put(pepSeq, totalHeavy / counterHeavy);
+//                // 1000 molecules per cell pre-defined reference absolute number
+//                //factorMap.put(pepSeq, 1000 * counterHeavy / totalHeavy);
+//                absoluteMap.put(pepSeq, param.getRefQuant() * (totalLight / counterLight) * (counterHeavy / totalHeavy));
+//            }
+//
+//            QuantLayer assayQLRef = new QuantLayer();
+//
+//            assayQLRef.setId("Peptide_AQL_REF");
+//            CvParamRef cvParamRef_ref = new CvParamRef();
+//            CvParam cp_ref = MzQuantMLMarshaller.createCvParam("internal reference abundance", "PSI-MS", "MS:1002517");
+//            cp_ref.setUnitName("molecules per cell");
+//            cp_ref.setUnitAccession("MS:1002513");
+//            cp_ref.setUnitCv(cv);
+//            cvParamRef_ref.setCvParam(cp_ref);
+//            assayQLRef.setDataType(cvParamRef_ref);
+//
+//            // Add heavy assay as spike in to column index
+//            for (String assN : sRd.getAssayList()) {
+//                if (assN.contains("heavy")) {
+//                    assayQLRef.getColumnIndex().add(assayNameIdMap.get(assN));
+//                }
+//            }
+//
+//            if (assayQLRef.getColumnIndex().isEmpty()) {
+//                throw new IllegalStateException("Could't find heavy assay!");
+//            }
+//
+//            DataMatrix DMRef = new DataMatrix();
+//
+//            for (String pepSeq : sRd.getPeptideList()) {
+//                Row row = new Row();
+//                row.setObjectRef("pep_" + pepSeq);
+//                row.getValue().add(Double.toString(param.getRefQuant()));
+//                DMRef.getRow().add(row);
+//            }
+//
+//            assayQLRef.setDataMatrix(DMRef);
+//
+//            QuantLayer assayQLAbs = new QuantLayer();
+//
+//            assayQLAbs.setId("Peptide_AQL_Absolute_Quant");
+//            CvParamRef cvParamRef_abs = new CvParamRef();
+//            CvParam cp_abs = MzQuantMLMarshaller.createCvParam("absolute quantity", "PSI-MS", "MS:1001137");
+//            cp_abs.setUnitName("molecules per cell");
+//            cp_abs.setUnitAccession("MS:1002513");
+//            cp_abs.setUnitCv(cv);
+//            cvParamRef_abs.setCvParam(cp_abs);
+//            assayQLAbs.setDataType(cvParamRef_abs);
+//
+//            // Add light assay to column index
+//            for (String assN : sRd.getAssayList()) {
+//                if (assN.contains("light")) {
+//                    assayQLAbs.getColumnIndex().add(assayNameIdMap.get(assN));
+//                }
+//            }
+//
+//            if (assayQLAbs.getColumnIndex().isEmpty()) {
+//                throw new IllegalStateException("Couldn't find light assay!");
+//            }
+//
+//            DataMatrix DMAbs = new DataMatrix();
+//
+//            for (String pepSeq : absoluteMap.keySet()) {
+//                Row row = new Row();
+//                row.setObjectRef("pep_" + pepSeq);
+//                row.getValue().add(String.valueOf(absoluteMap.get(pepSeq)));
+//                DMAbs.getRow().add(row);
+//            }
+//
+//            assayQLAbs.setDataMatrix(DMAbs);
+//
+//            peptideConsensuses.getAssayQuantLayer().add(assayQLRef);
+//            peptideConsensuses.getAssayQuantLayer().add(assayQLAbs);
+//        }
         peptideConsensuses.setFinalResult(true);
         peptideConsensusListList.add(peptideConsensuses);
     }
