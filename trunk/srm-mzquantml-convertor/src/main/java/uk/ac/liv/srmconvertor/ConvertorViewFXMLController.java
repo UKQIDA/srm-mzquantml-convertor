@@ -11,14 +11,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.controlsfx.dialog.Dialogs;
 
 public class ConvertorViewFXMLController implements Initializable {
@@ -39,14 +35,6 @@ public class ConvertorViewFXMLController implements Initializable {
     private TextField lastNameTF;
     @FXML
     private TextField orgTF;
-    @FXML
-    private TextField refQuantTF;
-    @FXML
-    private ToggleGroup quantType;
-    @FXML
-    private RadioButton absQuantRB;
-    @FXML
-    private RadioButton relQuantRB;
 
     private Stage stage;
     private static File currentDirectory;
@@ -74,25 +62,16 @@ public class ConvertorViewFXMLController implements Initializable {
 
         });
 
-        quantType.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
-            @Override
-            public void changed(
-                    ObservableValue<? extends Toggle> observable,
-                    Toggle oldValue, Toggle newValue) {
-                if (newValue.equals(absQuantRB)) {
-                    refQuantTF.setDisable(false);
-                }
-                else {
-                    refQuantTF.setDisable(true);
-                }
-            }
-
-        });
     }
 
     @FXML
     public void selectButtonActionPerformed(ActionEvent event) {
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(0);
+        
+        message.textProperty().unbind();
+        message.setText("");
+        
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Skyline CSV file");
         if (currentDirectory == null) {
@@ -108,8 +87,10 @@ public class ConvertorViewFXMLController implements Initializable {
                 new FileChooser.ExtensionFilter("CSV (Comma delimited)(*.csv)", "*.csv"));
 
         inputFile = fileChooser.showOpenDialog(stage);
-        fileTextField.setText(inputFile.getAbsolutePath());
-        currentDirectory = inputFile.getParentFile();
+        if (inputFile != null) {
+            fileTextField.setText(inputFile.getAbsolutePath());
+            currentDirectory = inputFile.getParentFile();
+        }
 
     }
 
@@ -126,21 +107,7 @@ public class ConvertorViewFXMLController implements Initializable {
                     .message("Please input complete contact details!")
                     .showError();
         }
-        // check if reference quant text fiedl is a number
-        else if (quantType.getSelectedToggle().equals(absQuantRB)) {
-            if (refQuantTF.getText().isEmpty()) {
-                Dialogs.create()
-                        .title("Reference Quantity")
-                        .message("Please input quantity of the reference peptide/protein!")
-                        .showError();
-            }
-            else if (!NumberUtils.isNumber(refQuantTF.getText())) {
-                Dialogs.create()
-                        .title("Reference Quantity")
-                        .message("Please input valid number!")
-                        .showError();
-            }
-        }
+
         else {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save mzq file");
@@ -164,15 +131,6 @@ public class ConvertorViewFXMLController implements Initializable {
                 param.setFirstName(firstNameTF.getText());
                 param.setLastName(lastNameTF.getText());
                 param.setOrg(orgTF.getText());
-
-                //set quant type
-                if (quantType.getSelectedToggle().equals(absQuantRB)) {
-                    param.setAbsQuant(true);
-                    param.setRefQuant(Double.parseDouble(refQuantTF.getText()));
-                }
-                else {
-                    param.setAbsQuant(false);
-                }
 
                 currentDirectory = outputFile.getParentFile();
 
