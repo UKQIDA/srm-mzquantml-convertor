@@ -19,7 +19,55 @@
         <!-- Used as the 'Vendor' for JNLP generation -->
         <name>University of Liverpool</name>
     </organization>
+    <developers>
+        <developer>
+            <name>Da Qi</name>
+            <id>ddq</id>
+            <email>d.qi@liverpool.ac.uk</email>
+            <organization>University of Liverpool, UK</organization>
+        </developer>
+    </developers>
 
+    <profiles>
+        <profile>
+            <id>javafxpackager</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.6</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeScope>system</excludeScope>
+                                    <excludeGroupIds>junit,org.mockito,org.hamcrest</excludeGroupIds>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                <resources>
+                    <resource>
+                        <directory> src/main/resources/ </directory>                
+                        <excludes>
+                            <exclude>examples/*.*</exclude>
+                            <exclude>*.*</exclude>
+                        </excludes>    
+                        <includes>
+                            <include>fxml/*.*</include>
+                        </includes>                        
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -28,6 +76,7 @@
                 <version>2.6</version>
                 <executions>
                     <execution>
+                        <!--
                         <id>unpack-dependencies</id>
                         <phase>package</phase>
                         <goals>
@@ -38,6 +87,7 @@
                             <excludeGroupIds>junit,org.mockito,org.hamcrest</excludeGroupIds>
                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
                         </configuration>
+                        -->
                     </execution>
                 </executions>
             </plugin>
@@ -54,7 +104,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${java.home}/../bin/javafxpackager</executable>
+                            <executable>${java.home}/../bin/javapackager</executable>
                             <arguments>
                                 <argument>-createjar</argument>
                                 <argument>-nocss2bin</argument>
@@ -104,6 +154,18 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory> src/main/resources/ </directory>                
+                <excludes>
+                    <exclude>examples/*.*</exclude>
+                    <exclude>*.*</exclude>
+                </excludes>    
+                <includes>
+                    <include>fxml/*.*</include>
+                </includes>                        
+            </resource>
+        </resources>
     </build>
     <dependencies>
         <dependency>

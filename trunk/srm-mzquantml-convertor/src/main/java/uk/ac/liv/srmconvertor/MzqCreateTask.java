@@ -1,8 +1,6 @@
 
 package uk.ac.liv.srmconvertor;
 
-import gnu.trove.map.TObjectDoubleMap;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -252,7 +250,7 @@ public class MzqCreateTask extends Task<Void> {
         analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM peptide level quantitation", cv, "MS:1002282", "true", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
-        analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM protein level quantitation", cv, "MS:1002283", "true", "", "", "");
+        analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM protein level quantitation", cv, "MS:1002283", "false", "", "", "");
         analysisSummary.getParamGroup().add(analysisSummaryCv);
 
         analysisSummaryCv = MzQuantMLMarshaller.createCvParam("SRM proteingroup level quantitation", cv, "MS:1002284", "false", "", "", "");
@@ -417,11 +415,22 @@ public class MzqCreateTask extends Task<Void> {
          * create SoftwareList
          */
         SoftwareList softwareList = new SoftwareList();
-        Software software = new Software();
-        softwareList.getSoftware().add(software);
-        software.setId("Skyline");
-        software.setVersion("1.4");
-        software.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
+        // Skyline
+        Software skyline = new Software();
+        softwareList.getSoftware().add(skyline);
+        skyline.setId("Skyline");
+        skyline.setVersion("1.4");
+        skyline.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
+
+        // SRM convertor
+        Software srmConv = new Software();
+        softwareList.getSoftware().add(srmConv);
+        srmConv.setId("Srm_Convertor");
+        srmConv.setVersion("1.0");
+        UserParam srmConvUp = new UserParam();
+        srmConvUp.setName("SRM mzQuantML Convertor");
+        srmConv.getUserParam().add(srmConvUp);
+
         mzq.setSoftwareList(softwareList);
     }
 
@@ -431,6 +440,7 @@ public class MzqCreateTask extends Task<Void> {
          * create DataProcessingList
          */
         DataProcessingList dataProcessingList = new DataProcessingList();
+        // first data processing 
         DataProcessing dataProcessing = new DataProcessing();
         dataProcessing.setId("feature_quantification");
         dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(0));
@@ -439,8 +449,34 @@ public class MzqCreateTask extends Task<Void> {
         processingMethod.setOrder(BigInteger.ONE);
         processingMethod.getParamGroup().add(MzQuantMLMarshaller.createCvParam("quantification data processing", "PSI-MS", "MS:1001861"));
         dataProcessing.getProcessingMethod().add(processingMethod);
-
         dataProcessingList.getDataProcessing().add(dataProcessing);
+
+        // second data processing
+        dataProcessing = new DataProcessing();
+        dataProcessing.setId("conversion");
+        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(1));
+        dataProcessing.setOrder(BigInteger.valueOf(2));
+        processingMethod = new ProcessingMethod();
+        processingMethod.setOrder(BigInteger.ONE);
+        UserParam up = new UserParam();
+        up.setName("Skyline file conversion");
+        processingMethod.getUserParam().add(up);
+        dataProcessing.getProcessingMethod().add(processingMethod);
+        dataProcessingList.getDataProcessing().add(dataProcessing);
+
+        // third data processing
+        dataProcessing = new DataProcessing();
+        dataProcessing.setId("peptide_quantification");
+        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(1));
+        dataProcessing.setOrder(BigInteger.valueOf(2));
+        processingMethod = new ProcessingMethod();
+        processingMethod.setOrder(BigInteger.valueOf(2));
+        up = new UserParam();
+        up.setName("peptide quantification calculation by summing feature quantification");
+        processingMethod.getUserParam().add(up);
+        dataProcessing.getProcessingMethod().add(processingMethod);
+        dataProcessingList.getDataProcessing().add(dataProcessing);
+
         mzq.setDataProcessingList(dataProcessingList);
     }
 
@@ -577,6 +613,10 @@ public class MzqCreateTask extends Task<Void> {
                 featureList.setId(fListId);
                 rgIdFeatureListMap.put(rgId, featureList);
                 featureLists.add(featureList);
+
+                //add this featureList to data processing step 3 as InputObject_refs
+                DataProcessing dp = mzq.getDataProcessingList().getDataProcessing().get(2);
+                dp.getInputObjectRefs().add(featureList.getId());
 
                 /*
                  * add featureQuantLayers
@@ -996,110 +1036,12 @@ public class MzqCreateTask extends Task<Void> {
         assayQLArea.setDataMatrix(DMArea);
         peptideConsensuses.getAssayQuantLayer().add(assayQLArea);
 
-        // Set AssayQuantLayer for reference
-//        if (sRd.isLabelled()) {
-//            // Calculate peptide absolute measurement for light assay
-//            TObjectDoubleMap<String> absoluteMap = new TObjectDoubleHashMap<>();
-//
-//            Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
-//            for (String pepSeq : peptideIdsMap.keySet()) {
-//                List<String> idList = peptideIdsMap.get(pepSeq);
-//                double totalLight = 0;
-//                int counterLight = 0;
-//                double totalHeavy = 0;
-//                int counterHeavy = 0;
-//                for (String id : idList) {
-//                    if (sRd.getIsotopeLabelTypeMap().get(id).equals("light")) {
-//                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
-//                            totalLight = totalLight + Double.parseDouble(sRd.getHeightMap().get(id));
-//                            counterLight++;
-//                        }
-//                    }
-//                    else if (sRd.getIsotopeLabelTypeMap().get(id).equals("heavy")) {
-//                        if (NumberUtils.isNumber(sRd.getHeightMap().get(id))) {
-//                            totalHeavy = totalHeavy + Double.parseDouble(sRd.getHeightMap().get(id));
-//                            counterHeavy++;
-//                        }
-//                    }
-//                }
-//
-//                //heightLightPeptideMap.put(pepSeq, totalLight / counterLight);
-//                //heightHeavyPeptideMap.put(pepSeq, totalHeavy / counterHeavy);
-//                // 1000 molecules per cell pre-defined reference absolute number
-//                //factorMap.put(pepSeq, 1000 * counterHeavy / totalHeavy);
-//                absoluteMap.put(pepSeq, param.getRefQuant() * (totalLight / counterLight) * (counterHeavy / totalHeavy));
-//            }
-//
-//            QuantLayer assayQLRef = new QuantLayer();
-//
-//            assayQLRef.setId("Peptide_AQL_REF");
-//            CvParamRef cvParamRef_ref = new CvParamRef();
-//            CvParam cp_ref = MzQuantMLMarshaller.createCvParam("internal reference abundance", "PSI-MS", "MS:1002517");
-//            cp_ref.setUnitName("molecules per cell");
-//            cp_ref.setUnitAccession("MS:1002513");
-//            cp_ref.setUnitCv(cv);
-//            cvParamRef_ref.setCvParam(cp_ref);
-//            assayQLRef.setDataType(cvParamRef_ref);
-//
-//            // Add heavy assay as spike in to column index
-//            for (String assN : sRd.getAssayList()) {
-//                if (assN.contains("heavy")) {
-//                    assayQLRef.getColumnIndex().add(assayNameIdMap.get(assN));
-//                }
-//            }
-//
-//            if (assayQLRef.getColumnIndex().isEmpty()) {
-//                throw new IllegalStateException("Could't find heavy assay!");
-//            }
-//
-//            DataMatrix DMRef = new DataMatrix();
-//
-//            for (String pepSeq : sRd.getPeptideList()) {
-//                Row row = new Row();
-//                row.setObjectRef("pep_" + pepSeq);
-//                row.getValue().add(Double.toString(param.getRefQuant()));
-//                DMRef.getRow().add(row);
-//            }
-//
-//            assayQLRef.setDataMatrix(DMRef);
-//
-//            QuantLayer assayQLAbs = new QuantLayer();
-//
-//            assayQLAbs.setId("Peptide_AQL_Absolute_Quant");
-//            CvParamRef cvParamRef_abs = new CvParamRef();
-//            CvParam cp_abs = MzQuantMLMarshaller.createCvParam("absolute quantity", "PSI-MS", "MS:1001137");
-//            cp_abs.setUnitName("molecules per cell");
-//            cp_abs.setUnitAccession("MS:1002513");
-//            cp_abs.setUnitCv(cv);
-//            cvParamRef_abs.setCvParam(cp_abs);
-//            assayQLAbs.setDataType(cvParamRef_abs);
-//
-//            // Add light assay to column index
-//            for (String assN : sRd.getAssayList()) {
-//                if (assN.contains("light")) {
-//                    assayQLAbs.getColumnIndex().add(assayNameIdMap.get(assN));
-//                }
-//            }
-//
-//            if (assayQLAbs.getColumnIndex().isEmpty()) {
-//                throw new IllegalStateException("Couldn't find light assay!");
-//            }
-//
-//            DataMatrix DMAbs = new DataMatrix();
-//
-//            for (String pepSeq : absoluteMap.keySet()) {
-//                Row row = new Row();
-//                row.setObjectRef("pep_" + pepSeq);
-//                row.getValue().add(String.valueOf(absoluteMap.get(pepSeq)));
-//                DMAbs.getRow().add(row);
-//            }
-//
-//            assayQLAbs.setDataMatrix(DMAbs);
-//
-//            peptideConsensuses.getAssayQuantLayer().add(assayQLRef);
-//            peptideConsensuses.getAssayQuantLayer().add(assayQLAbs);
-//        }
         peptideConsensuses.setFinalResult(true);
+
+        //add this peptideConsensuses to data processing step 3 as OutputObject_refs
+        DataProcessing dp = mzq.getDataProcessingList().getDataProcessing().get(2);
+        dp.getOutputObjectRefs().add(peptideConsensuses.getId());
+
         peptideConsensusListList.add(peptideConsensuses);
     }
 
