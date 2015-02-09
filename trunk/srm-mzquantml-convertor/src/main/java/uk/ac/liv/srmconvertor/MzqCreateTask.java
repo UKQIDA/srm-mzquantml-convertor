@@ -3,15 +3,12 @@ package uk.ac.liv.srmconvertor;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import org.apache.commons.lang3.math.NumberUtils;
 import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
@@ -98,79 +95,79 @@ public class MzqCreateTask extends Task<Void> {
         updateMessage("Loading file ...");
         updateProgress(-1.0, 1.0);
 
-        try {
-            sRd = new SrmReader(new FileReader(in));
+//        try {
+        sRd = new SrmReader(new FileReader(in));
 
-            updateMessage("Start converting ...");
+        updateMessage("Start converting ...");
 
-            marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
+        marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
 
-            //create MzQuantML instance
-            mzq = new MzQuantML();
+        //create MzQuantML instance
+        mzq = new MzQuantML();
 
-            String version = "1.0.0";
-            mzq.setVersion(version);
+        String version = "1.0.0";
+        mzq.setVersion(version);
 
-            Calendar rightnow = Calendar.getInstance();
-            mzq.setCreationDate(rightnow);
+        Calendar rightnow = Calendar.getInstance();
+        mzq.setCreationDate(rightnow);
 
-            int day = rightnow.get(Calendar.DATE);
-            int month = rightnow.get(Calendar.MONTH) + 1;
-            int year = rightnow.get(Calendar.YEAR);
+        int day = rightnow.get(Calendar.DATE);
+        int month = rightnow.get(Calendar.MONTH) + 1;
+        int year = rightnow.get(Calendar.YEAR);
 
-            /*
-             * set mzQuantML id
-             */
-            mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
+        /*
+         * set mzQuantML id
+         */
+        mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
 
-            createCvList();
+        createCvList();
 
-            createAnalysisSummary();
+        createAnalysisSummary();
 
-            createAuditCollection();
+        createAuditCollection();
 
-            createInputFiles();
+        createInputFiles();
 
-            createAssayList();
+        createAssayList();
 
-            createSoftwareList();
+        createSoftwareList();
 
-            createDataProcessingList();
+        createDataProcessingList();
 
-            createProteinList();
+        createProteinList();
 
-            createFeatureList();
+        createFeatureList();
 
-            if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
-                createRatioList();
-            }
-
-            createPeptideConsensusList();
-
-            /**
-             * *
-             * create a Marshaller and marshal to File
-             */
-            marshaller.marshall(mzq);
-
-            updateProgress(1.0, 1.0);
-            updateMessage("Converting complete.");
+        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
+            createRatioList();
         }
-        catch (IOException ex) {
-            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, ex);
-            updateMessage("File loading failed, please check the input file.");
-            updateProgress(0, 1.0);
-        }
-        catch (NullPointerException nex) {
-            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, nex);
-            updateMessage("No input file is selected.");
-            updateProgress(0, 1.0);
-        }
-        catch (Exception e) {
-            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, e);
-            updateMessage("File loading failed, please check the input file!");
-            updateProgress(0, 1.0);
-        }
+
+        createPeptideConsensusList();
+
+        /**
+         * *
+         * create a Marshaller and marshal to File
+         */
+        marshaller.marshall(mzq);
+
+        updateProgress(1.0, 1.0);
+        updateMessage("Converting complete.");
+//        }
+//        catch (IOException ex) {
+//            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, ex);
+//            //updateMessage("File loading failed, please check the input file.");
+//            updateProgress(0, 1.0);
+//        }
+//        catch (NullPointerException nex) {
+//            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, nex);
+//            //updateMessage("No input file is selected.");
+//            updateProgress(0, 1.0);
+//        }
+//        catch (Exception e) {
+//            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, e);
+//            //updateMessage("File loading failed:\n" + e.getMessage());
+//            updateProgress(0, 1.0);
+//        }
 
         return null;
     }
@@ -427,9 +424,7 @@ public class MzqCreateTask extends Task<Void> {
         softwareList.getSoftware().add(srmConv);
         srmConv.setId("Srm_Convertor");
         srmConv.setVersion("1.0");
-        UserParam srmConvUp = new UserParam();
-        srmConvUp.setName("SRM mzQuantML Convertor");
-        srmConv.getUserParam().add(srmConvUp);
+        srmConv.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline mzQuantML converter", cv, "MS:1002536"));
 
         mzq.setSoftwareList(softwareList);
     }

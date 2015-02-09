@@ -4,8 +4,10 @@ package uk.ac.liv.srmconvertor;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -68,10 +70,10 @@ public class ConvertorViewFXMLController implements Initializable {
     public void selectButtonActionPerformed(ActionEvent event) {
         progressBar.progressProperty().unbind();
         progressBar.setProgress(0);
-        
+
         message.textProperty().unbind();
         message.setText("");
-        
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Skyline CSV file");
         if (currentDirectory == null) {
@@ -140,6 +142,18 @@ public class ConvertorViewFXMLController implements Initializable {
 
                 message.textProperty().unbind();
                 message.textProperty().bind(mzqTask.messageProperty());
+                mzqTask.setOnFailed((WorkerStateEvent t) -> {
+                    Platform.runLater(() -> {
+                        Dialogs.create()
+                                .title("Error")
+                                .message("There are errors during the loading file: " + mzqTask.getException().getMessage())
+                                .showError();
+                        progressBar.progressProperty().unbind();
+                        progressBar.setProgress(0);
+                        message.textProperty().unbind();
+                        message.setText(null);
+                    });
+                });
 
                 Thread mzqTh = new Thread(mzqTask);
                 mzqTh.setDaemon(true);
