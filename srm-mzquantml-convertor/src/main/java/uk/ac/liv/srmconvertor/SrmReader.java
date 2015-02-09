@@ -23,6 +23,52 @@ import java.util.Map;
  */
 public class SrmReader implements Closeable {
 
+    // Skyline version 1.4 title names
+    final String PEPTIDE_SEQUENCE_V14 = "peptidesequence";
+    final String PROTEIN_NAME_V14 = "proteinname";
+    final String REPLICATE_NAME_V14 = "replicatename";
+    final String MODIFICATION_SEQUENCE_V14 = "modificationsequence";
+    final String PRECURSOR_MZ_V14 = "precursormz";
+    final String PRECURSOR_CHARGE_V14 = "precursorcharge";
+    final String PRODUCT_MZ_V14 = "productmz";
+    final String PRODUCT_CHARGE_V14 = "productcharge";
+    final String CLEAVAGE_AA_V14 = "cleavageaa";
+    final String FRAGMENT_ION_V14 = "fragmention";
+    final String PEPTIDE_RETENTION_TIME_V14 = "peptideretentiontime";
+    final String RETENTION_TIME_V14 = "retentiontime";
+    final String AREA_V14 = "area";
+    final String BACKGROUND_V14 = "background";
+    final String FILE_NAME_V14 = "filename";
+    final String PEAK_RANK_V14 = "peakrank";
+    final String ISOTOPE_LABEL_TYPE_V14 = "isotopelabeltype";
+    final String HEIGHT_V14 = "height";
+    final String TOTAL_AREA_RATIO_V14 = "totalarearatio";
+    final String AREA_NORMALIZED_V14 = "areanormalized";
+    final String RATIO_TO_STANDARD_V14 = "ratiotostandard";
+
+    // Skyline version 2 title names
+    final String PEPTIDE_SEQUENCE_V2 = "peptide sequence";
+    final String PROTEIN_NAME_V2 = "protein name";
+    final String REPLICATE_NAME_V2 = "replicate name";
+    final String MODIFICATION_SEQUENCE_V2 = "modification sequence";
+    final String PRECURSOR_MZ_V2 = "precursor mz";
+    final String PRECURSOR_CHARGE_V2 = "precursor charge";
+    final String PRODUCT_MZ_V2 = "product mz";
+    final String PRODUCT_CHARGE_V2 = "product charge";
+    final String CLEAVAGE_AA_V2 = "cleavage aa";
+    final String FRAGMENT_ION_V2 = "fragment ion";
+    final String PEPTIDE_RETENTION_TIME_V2 = "peptide retention time";
+    final String RETENTION_TIME_V2 = "retention time";
+    final String AREA_V2 = "area";
+    final String BACKGROUND_V2 = "background";
+    final String FILE_NAME_V2 = "file name";
+    final String PEAK_RANK_V2 = "peak rank";
+    final String ISOTOPE_LABEL_TYPE_V2 = "isotope label type";
+    final String HEIGHT_V2 = "height";
+    final String TOTAL_AREA_RATIO_V2 = "total area ratio";
+    final String AREA_NORMALIZED_V2 = "area normalized";
+    final String RATIO_TO_STANDARD_V2 = "ratio to standard";
+
     private BufferedReader br;
     /*
      * PeptideSequence (== peptide)
@@ -142,6 +188,7 @@ public class SrmReader implements Closeable {
     //Constrctor
     public SrmReader(Reader rd)
             throws IOException {
+
         br = new BufferedReader(rd);
 
         try (CSVReader reader = new CSVReader(br)) {
@@ -151,88 +198,106 @@ public class SrmReader implements Closeable {
             nextLine = reader.readNext();
 
             for (int i = 0; i < nextLine.length; i++) {
-                switch (nextLine[i]) {
-                    case "PeptideSequence":
+                switch (nextLine[i].toLowerCase()) {
+                    case PEPTIDE_SEQUENCE_V14:
+                    case PEPTIDE_SEQUENCE_V2:
                         posPeptideSequence = i;
                         hasPeptideSequence = true;
                         break;
-                    case "ProteinName":
+                    case PROTEIN_NAME_V14:
+                    case PROTEIN_NAME_V2:
                         posProteinName = i;
                         hasProteinName = true;
                         break;
-                    case "ReplicateName":
+                    case REPLICATE_NAME_V14:
+                    case REPLICATE_NAME_V2:
                         posReplicateName = i;
                         hasReplicateName = true;
                         break;
-                    case "ModificationSequence":
+                    case MODIFICATION_SEQUENCE_V14:
+                    case MODIFICATION_SEQUENCE_V2:
                         posModificationSequence = i;
                         hasModificationSequence = true;
                         break;
-                    case "PrecursorMz":
+                    case PRECURSOR_MZ_V14:
+                    case PRECURSOR_MZ_V2:
                         posPrecursorMz = i;
                         hasPrecursorMz = true;
                         break;
-                    case "PrecursorCharge":
+                    case PRECURSOR_CHARGE_V14:
+                    case PRECURSOR_CHARGE_V2:
                         posPrecursorCharge = i;
                         hasPrecursorCharge = true;
                         break;
-                    case "ProductMz":
+                    case PRODUCT_MZ_V14:
+                    case PRODUCT_MZ_V2:
                         posProductMz = i;
                         hasProductMz = true;
                         break;
-                    case "ProductCharge":
+                    case PRODUCT_CHARGE_V14:
+                    case PRODUCT_CHARGE_V2:
                         posProductCharge = i;
                         hasProductCharge = true;
                         break;
-                    case "CleavageAa":
+                    case CLEAVAGE_AA_V14:
+                    case CLEAVAGE_AA_V2:
                         posCleavageAa = i;
                         hasCleavageAa = true;
                         break;
-                    case "FragmentIon":
+                    case FRAGMENT_ION_V14:
+                    case FRAGMENT_ION_V2:
                         posFragmentIon = i;
                         hasFragmentIon = true;
                         break;
-                    case "PeptideRetentionTime":
+                    case PEPTIDE_RETENTION_TIME_V14:
+                    case PEPTIDE_RETENTION_TIME_V2:
                         posPeptideRetentionTime = i;
                         hasPeptideRetentionTime = true;
                         break;
-                    case "RetentionTime":
+                    case RETENTION_TIME_V14:
+                    case RETENTION_TIME_V2:
                         posRetentionTime = i;
                         hasRetentionTime = true;
                         break;
-                    case "Area":
+                    case AREA_V14:
                         posArea = i;
                         hasArea = true;
                         break;
-                    case "Background":
+                    case BACKGROUND_V14:
                         posBackground = i;
                         hasBackground = true;
                         break;
-                    case "FileName":
+                    case FILE_NAME_V14:
+                    case FILE_NAME_V2:
                         posFileName = i;
                         hasFileName = true;
                         break;
-                    case "PeakRank":
+                    case PEAK_RANK_V14:
+                    case PEAK_RANK_V2:
                         posPeakRank = i;
                         hasPeakRank = true;
                         break;
-                    case "IsotopeLabelType":
+                    case ISOTOPE_LABEL_TYPE_V14:
+                    case ISOTOPE_LABEL_TYPE_V2:
                         posIsotopeLabelType = i;
                         hasIsotopeLabelType = true;
                         break;
-                    case "Height":
+                    case HEIGHT_V14:
                         posHeight = i;
                         hasHeight = true;
                         break;
-                    case "TotalAreaRatio":
+                    case TOTAL_AREA_RATIO_V14:
+                    case TOTAL_AREA_RATIO_V2:
                         posTotalAreaRatio = i;
                         hasTotalAreaRatio = true;
                         break;
-                    case "AreaNormalized":
+                    case AREA_NORMALIZED_V14:
+                    case AREA_NORMALIZED_V2:
                         posAreaNormalized = i;
                         hasAreaNormalized = true;
                         break;
-                    case "RatioToStandard":
+                    case RATIO_TO_STANDARD_V14:
+                    case RATIO_TO_STANDARD_V2:
                         posPeptideRatio = i;
                         hasPeptideRatio = true;
                         break;
@@ -247,62 +312,122 @@ public class SrmReader implements Closeable {
                 if (hasPeptideSequence) {
                     PeptideSequenceMap.put(Integer.toString(index), nextLine[posPeptideSequence]);
                 }
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
+                }
                 if (hasProteinName) {
                     ProteinNameMap.put(Integer.toString(index), nextLine[posProteinName]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PROTEIN_NAME_V14 + "\" or \"" + PROTEIN_NAME_V2 + "\"");
                 }
                 if (hasReplicateName) {
                     ReplicateNameMap.put(Integer.toString(index), nextLine[posReplicateName]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\"");
+                }
                 if (hasModificationSequence) {
                     ModificationSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + MODIFICATION_SEQUENCE_V14 + "\" or \"" + MODIFICATION_SEQUENCE_V2 + "\"");
                 }
                 if (hasPrecursorMz) {
                     PrecursorMzMap.put(Integer.toString(index), nextLine[posPrecursorMz]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_MZ_V14 + "\" or \"" + PRECURSOR_MZ_V2 + "\"");
+                }
                 if (hasPrecursorCharge) {
                     PrecursorChargeMap.put(Integer.toString(index), nextLine[posPrecursorCharge]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_CHARGE_V14 + "\" or \"" + PRECURSOR_CHARGE_V2 + "\"");
                 }
                 if (hasProductMz) {
                     ProductMzMap.put(Integer.toString(index), nextLine[posProductMz]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_MZ_V14 + "\" or \"" + PRODUCT_MZ_V2 + "\"");
+                }
                 if (hasProductCharge) {
                     ProductChargeMap.put(Integer.toString(index), nextLine[posProductCharge]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_CHARGE_V14 + "\" or \"" + PRODUCT_CHARGE_V2 + "\"");
                 }
                 if (hasCleavageAa) {
                     CleavageAaMap.put(Integer.toString(index), nextLine[posCleavageAa]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + CLEAVAGE_AA_V14 + "\" or \"" + CLEAVAGE_AA_V2 + "\"");
+                }
                 if (hasFragmentIon) {
                     FragmentIonMap.put(Integer.toString(index), nextLine[posFragmentIon]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + FRAGMENT_ION_V14 + "\" or \"" + FRAGMENT_ION_V2 + "\"");
                 }
                 if (hasPeptideRetentionTime) {
                     PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_RETENTION_TIME_V14 + "\" or \"" + PEPTIDE_RETENTION_TIME_V2 + "\"");
+                }
                 if (hasRetentionTime) {
                     RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + RETENTION_TIME_V14 + "\" or \"" + RETENTION_TIME_V2 + "\"");
                 }
                 if (hasArea) {
                     AreaMap.put(Integer.toString(index), nextLine[posArea]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + AREA_V14 + "\" or \"" + AREA_V2 + "\"");
+                }
                 if (hasBackground) {
                     BackgroundMap.put(Integer.toString(index), nextLine[posBackground]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + BACKGROUND_V14 + "\" or \"" + BACKGROUND_V2 + "\"");
                 }
                 if (hasFileName) {
                     FileNameMap.put(Integer.toString(index), nextLine[posFileName]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + FILE_NAME_V14 + "\" or \"" + FILE_NAME_V2 + "\"");
+                }
                 if (hasPeakRank) {
                     PeakRankMap.put(Integer.toString(index), nextLine[posPeakRank]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + PEAK_RANK_V14 + "\" or \"" + PEAK_RANK_V2 + "\"");
                 }
                 if (hasIsotopeLabelType) {
                     IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[posIsotopeLabelType]);
                 }
+//                else{
+//                    throw new IllegalStateException("Could not find column with name \"" + ISOTOPE_LABEL_TYPE_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\"");
+//                }
                 if (hasHeight) {
                     HeightMap.put(Integer.toString(index), nextLine[posHeight]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + HEIGHT_V14 + "\" or \"" + HEIGHT_V2 + "\"");
                 }
                 if (hasTotalAreaRatio) {
                     TotalAreaRatioMap.put(Integer.toString(index), nextLine[posTotalAreaRatio]);
                 }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + TOTAL_AREA_RATIO_V14 + "\" or \"" + TOTAL_AREA_RATIO_V2 + "\"");
+                }
                 if (hasAreaNormalized) {
                     AreaNormalizedMap.put(Integer.toString(index), nextLine[posAreaNormalized]);
+                }
+                else{
+                    throw new IllegalStateException("Could not find column with name \"" + AREA_NORMALIZED_V14 + "\" or \"" + AREA_NORMALIZED_V2 + "\"");
                 }
                 if (hasReplicateName && hasIsotopeLabelType) {
                     AssayMap.put(Integer.toString(index), nextLine[posReplicateName] + "_" + nextLine[posIsotopeLabelType]);
@@ -333,9 +458,9 @@ public class SrmReader implements Closeable {
         //create rawFileNameIdMap
         createRawFileNameIdMap();
 
-        if (allFalse()) {
-            throw new IllegalStateException("File is broken.");
-        }
+//        if (allFalse()) {
+//            throw new IllegalStateException("File is broken.");
+//        }
     }
 
     //public methods
@@ -633,9 +758,9 @@ public class SrmReader implements Closeable {
      * @assayIdMap: assay name to id list HashMap
      */
     private void createAssayIdMap() {
-        assayIdMap = new HashMap();
+        assayIdMap = new HashMap<>();
 
-        if (AssayMap.keySet() != null) {
+        if (!AssayMap.keySet().isEmpty()) {
             for (String id : AssayMap.keySet()) {
                 String assay = AssayMap.get(id);
                 List<String> idList = assayIdMap.get(assay);
@@ -646,6 +771,10 @@ public class SrmReader implements Closeable {
                 idList.add(id);
             }
         }
+        else {
+            throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V14
+                    + "\" or \"" + REPLICATE_NAME_V2 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\"");
+        }
     }
 
     /**
@@ -654,7 +783,7 @@ public class SrmReader implements Closeable {
     private void createProteinIdMap() {
         proteinIdMap = new HashMap();
 
-        if (ProteinNameMap.keySet() != null) {
+        if (!ProteinNameMap.keySet().isEmpty()) {
             for (String id : ProteinNameMap.keySet()) {
                 String protein = ProteinNameMap.get(id);
                 List<String> idList = proteinIdMap.get(protein);
@@ -665,6 +794,9 @@ public class SrmReader implements Closeable {
                 idList.add(id);
             }
         }
+        else {
+            throw new IllegalStateException("Could not find column with name \"" + PROTEIN_NAME_V14 + "\" or \"" + PROTEIN_NAME_V2 + "\"");
+        }
     }
 
     /**
@@ -673,7 +805,7 @@ public class SrmReader implements Closeable {
     private void createPeptideIdMap() {
         peptideIdMap = new HashMap<>();
 
-        if (PeptideSequenceMap.keySet() != null) {
+        if (!PeptideSequenceMap.keySet().isEmpty()) {
             for (String id : PeptideSequenceMap.keySet()) {
                 String peptide = PeptideSequenceMap.get(id);
                 List<String> idList = peptideIdMap.get(peptide);
@@ -684,19 +816,27 @@ public class SrmReader implements Closeable {
                 idList.add(id);
             }
         }
+        else {
+            //throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
+        }
     }
 
     private void createReplicateIdMap() {
         replicateIdMap = new HashMap<>();
 
-        for (String id : ReplicateNameMap.keySet()) {
-            String replicate = ReplicateNameMap.get(id);
-            List<String> idList = replicateIdMap.get(replicate);
-            if (idList == null) {
-                idList = new ArrayList();
-                replicateIdMap.put(replicate, idList);
+        if (!ReplicateNameMap.keySet().isEmpty()) {
+            for (String id : ReplicateNameMap.keySet()) {
+                String replicate = ReplicateNameMap.get(id);
+                List<String> idList = replicateIdMap.get(replicate);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    replicateIdMap.put(replicate, idList);
+                }
+                idList.add(id);
             }
-            idList.add(id);
+        }
+        else {
+            throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\"");
         }
     }
 
@@ -705,7 +845,8 @@ public class SrmReader implements Closeable {
      */
     private void createRawFileNameIdMap() {
         rawFileNameIdMap = new HashMap<>();
-        if (FileNameMap.keySet() != null) {
+
+        if (!FileNameMap.keySet().isEmpty()) {
             for (String id : FileNameMap.keySet()) {
                 String rawFileName = FileNameMap.get(id);
                 List<String> idList = rawFileNameIdMap.get(rawFileName);
@@ -716,6 +857,9 @@ public class SrmReader implements Closeable {
                 idList.add(id);
             }
         }
+        else {
+            throw new IllegalStateException("Could not find column with name \"" + FILE_NAME_V14 + "\" or \"" + FILE_NAME_V2 + "\"");
+        }
     }
 
     /**
@@ -725,13 +869,15 @@ public class SrmReader implements Closeable {
      */
     private void createProteinToPeptideMap() {
         proteinToPeptideMap = new HashMap<>();
-        for (String protein : proteinIdMap.keySet()) {
-            List<String> idList = proteinIdMap.get(protein);
 
-            // get peptideList from PeptideSequenceMap based on idList
-            List<String> peptideList = getListFromId(idList, PeptideSequenceMap);
+        if (!proteinIdMap.keySet().isEmpty()) {
+            for (String protein : proteinIdMap.keySet()) {
+                List<String> idList = proteinIdMap.get(protein);
 
-            proteinToPeptideMap.put(protein, peptideList);
+                // get peptideList from PeptideSequenceMap based on idList
+                List<String> peptideList = getListFromIds(idList, PeptideSequenceMap);
+                proteinToPeptideMap.put(protein, peptideList);
+            }
         }
     }
 
@@ -746,7 +892,7 @@ public class SrmReader implements Closeable {
             List<String> idList = peptideIdMap.get(peptide);
 
             // get proteinList from ProteinNameMap based on idList
-            List<String> proteinList = getListFromId(idList, ProteinNameMap);
+            List<String> proteinList = getListFromIds(idList, ProteinNameMap);
 
             peptideToProteinMap.put(peptide, proteinList);
         }
@@ -763,7 +909,7 @@ public class SrmReader implements Closeable {
             List<String> idList = peptideIdMap.get(peptide);
 
             // get assayList from AssayMap based on idList
-            List<String> assayList = getListFromId(idList, AssayMap);
+            List<String> assayList = getListFromIds(idList, AssayMap);
 
             peptideToAssayMap.put(peptide, assayList);
         }
@@ -780,7 +926,7 @@ public class SrmReader implements Closeable {
             List<String> idList = assayIdMap.get(assay);
 
             // get peptideSequenceList from PeptideSequenceMap based on idList
-            List<String> peptideSequenceList = getListFromId(idList, PeptideSequenceMap);
+            List<String> peptideSequenceList = getListFromIds(idList, PeptideSequenceMap);
 
             assayToPeptideMap.put(assay, peptideSequenceList);
         }
@@ -797,7 +943,7 @@ public class SrmReader implements Closeable {
             List<String> idList = proteinIdMap.get(protein);
 
             // get assayList from AssayMap based on idList
-            List<String> assayList = getListFromId(idList, AssayMap);
+            List<String> assayList = getListFromIds(idList, AssayMap);
 
             peptideToAssayMap.put(protein, assayList);
         }
@@ -814,7 +960,7 @@ public class SrmReader implements Closeable {
             List<String> idList = assayIdMap.get(assay);
 
             // get proteinList from ProteinNameMap based on idList
-            List<String> proteinList = getListFromId(idList, ProteinNameMap);
+            List<String> proteinList = getListFromIds(idList, ProteinNameMap);
 
             assayToProteinMap.put(assay, proteinList);
         }
@@ -831,7 +977,7 @@ public class SrmReader implements Closeable {
             List<String> idList = replicateIdMap.get(replicate);
 
             // get assayList from AssayMap based on idList
-            List<String> assayList = getListFromId(idList, AssayMap);
+            List<String> assayList = getListFromIds(idList, AssayMap);
 
             replicateToAssayMap.put(replicate, assayList);
         }
@@ -848,7 +994,7 @@ public class SrmReader implements Closeable {
             List<String> idList = assayIdMap.get(assay);
 
             // get replicateList from ReplicateNameMap based on idList
-            List<String> replicateList = getListFromId(idList, ReplicateNameMap);
+            List<String> replicateList = getListFromIds(idList, ReplicateNameMap);
 
             assayToReplicateMap.put(assay, replicateList);
         }
@@ -865,7 +1011,7 @@ public class SrmReader implements Closeable {
             List<String> idList = rawFileNameIdMap.get(rawFn);
 
             // get assayList from AssayMap based on idList
-            List<String> assayList = getListFromId(idList, AssayMap);
+            List<String> assayList = getListFromIds(idList, AssayMap);
 
             rawFileNameToAssayMap.put(rawFn, assayList);
         }
@@ -877,7 +1023,7 @@ public class SrmReader implements Closeable {
             List<String> idList = assayIdMap.get(assay);
 
             // get rawFileNameList from rawFileNameMap based on idList
-            List<String> rawFileNameList = getListFromId(idList, FileNameMap);
+            List<String> rawFileNameList = getListFromIds(idList, FileNameMap);
 
             assayToRawFileNameMap.put(assay, rawFileNameList);
         }
@@ -913,9 +1059,17 @@ public class SrmReader implements Closeable {
         }
     }
 
-    private List<String> getListFromId(List<String> idList,
-                                       Map<String, String> aMap) {
-        List<String> retList = new ArrayList();
+    /**
+     * Get list of value from given map and list of id
+     *
+     * @param idList a given id list
+     * @param aMap   a map with id as key
+     *
+     * @return list of value from aMap
+     */
+    private List<String> getListFromIds(List<String> idList,
+                                        Map<String, String> aMap) {
+        List<String> retList = new ArrayList<>();
         for (String id : idList) {
             if (!retList.contains(aMap.get(id))) {
                 retList.add(aMap.get(id));
