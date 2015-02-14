@@ -3,12 +3,15 @@ package uk.ac.liv.srmconvertor;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import org.apache.commons.lang3.math.NumberUtils;
 import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
@@ -138,7 +141,7 @@ public class MzqCreateTask extends Task<Void> {
 
         createFeatureList();
 
-        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
+        if (sRd.isLabelled() && sRd.hasTotalAreaRatio()) {
             createRatioList();
         }
 
@@ -863,7 +866,7 @@ public class MzqCreateTask extends Task<Void> {
          * set RatioQuantLayer
          */
         DataMatrix pepRatioDM = new DataMatrix();
-        if (sRd.isLabelled() && (sRd.hasPeptideRatio() || sRd.hasTotalAreaRatio())) {
+        if (sRd.isLabelled() && sRd.hasTotalAreaRatio()) {
 
             RatioQuantLayer pepRQL = new RatioQuantLayer();
             pepRQL.setId("PepRQL_1");
@@ -925,20 +928,20 @@ public class MzqCreateTask extends Task<Void> {
             /*
              * add DataMatrix for RatioQuantLayer
              */
-            if (sRd.hasPeptideRatio()) {
-                Row row = new Row();
-                row.setObject(pepCon);
-                String ratio = sRd.getPeptideToRatioMap().get(pepSeq);
-                row.getValue().add(ratio);
-                pepRatioDM.getRow().add(row);
-            }
-            else if (sRd.hasTotalAreaRatio()) {
-                Row row = new Row();
-                row.setObject(pepCon);
-                String ratio = sRd.getPeptideToTotalAreaRatioMap().get(pepSeq);
-                row.getValue().add(ratio);
-                pepRatioDM.getRow().add(row);
-            }
+//            if (sRd.hasPeptideRatio()) {
+//                Row row = new Row();
+//                row.setObject(pepCon);
+//                String ratio = sRd.getPeptideToRatioMap().get(pepSeq);
+//                row.getValue().add(ratio);
+//                pepRatioDM.getRow().add(row);
+//            }
+//            else if (sRd.hasTotalAreaRatio()) {
+            Row row = new Row();
+            row.setObject(pepCon);
+            String ratio = sRd.getPeptideToTotalAreaRatioMap().get(pepSeq);
+            row.getValue().add(ratio);
+            pepRatioDM.getRow().add(row);
+//            }
         }
 
         // Calculate peptide level quant (area value)
