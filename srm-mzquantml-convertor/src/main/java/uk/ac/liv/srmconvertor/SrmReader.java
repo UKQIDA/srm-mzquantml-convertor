@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package uk.ac.liv.srmconvertor;
 
@@ -27,7 +23,7 @@ public class SrmReader implements Closeable {
     final String PEPTIDE_SEQUENCE_V14 = "peptidesequence";
     final String PROTEIN_NAME_V14 = "proteinname";
     final String REPLICATE_NAME_V14 = "replicatename";
-    final String MODIFICATION_SEQUENCE_V14 = "modificationsequence";
+    final String MODIFIED_SEQUENCE_V14 = "modifiedsequence";
     final String PRECURSOR_MZ_V14 = "precursormz";
     final String PRECURSOR_CHARGE_V14 = "precursorcharge";
     final String PRODUCT_MZ_V14 = "productmz";
@@ -44,13 +40,13 @@ public class SrmReader implements Closeable {
     final String HEIGHT_V14 = "height";
     final String TOTAL_AREA_RATIO_V14 = "totalarearatio";
     final String AREA_NORMALIZED_V14 = "areanormalized";
-    final String RATIO_TO_STANDARD_V14 = "ratiotostandard";
+    //final String RATIO_TO_STANDARD_V14 = "ratiotostandard";
 
     // Skyline version 2 title names
     final String PEPTIDE_SEQUENCE_V2 = "peptide sequence";
     final String PROTEIN_NAME_V2 = "protein name";
     final String REPLICATE_NAME_V2 = "replicate name";
-    final String MODIFICATION_SEQUENCE_V2 = "modification sequence";
+    final String MODIFIED_SEQUENCE_V2 = "modified sequence";
     final String PRECURSOR_MZ_V2 = "precursor mz";
     final String PRECURSOR_CHARGE_V2 = "precursor charge";
     final String PRODUCT_MZ_V2 = "product mz";
@@ -67,7 +63,7 @@ public class SrmReader implements Closeable {
     final String HEIGHT_V2 = "height";
     final String TOTAL_AREA_RATIO_V2 = "total area ratio";
     final String AREA_NORMALIZED_V2 = "area normalized";
-    final String RATIO_TO_STANDARD_V2 = "ratio to standard";
+    //final String RATIO_TO_STANDARD_V2 = "ratio to standard";
 
     private BufferedReader br;
     /*
@@ -113,7 +109,8 @@ public class SrmReader implements Closeable {
     private boolean hasHeight = false;
     private boolean hasTotalAreaRatio = false;
     private boolean hasAreaNormalized = false;
-    private boolean hasPeptideRatio = false;
+    //private boolean hasPeptideRatio = false;
+
     //position variables
     private int posPeptideSequence = 0;
     private int posProteinName = 0;
@@ -137,7 +134,7 @@ public class SrmReader implements Closeable {
     private int posAreaNormalized = 0;
     // PeptideRatio is not in the mzQuantML report
     // this is just to show how to deal with non exist column
-    private int posPeptideRatio = 0;
+    //private int posPeptideRatio = 0;
     /*
      * HashMap one to one variables
      */
@@ -163,7 +160,7 @@ public class SrmReader implements Closeable {
     private Map<String, String> AreaNormalizedMap = new HashMap<>();
     private Map<String, String> AssayMap = new HashMap<>();
     //the orginal data from csv file, index-->ratio
-    private Map<String, String> PeptideRatioMap = new HashMap<>();
+    //private Map<String, String> PeptideRatioMap = new HashMap<>();
     //derived hashmap one to many variables
     private Map<String, List<String>> proteinIdMap;
     private Map<String, List<String>> peptideIdMap;
@@ -181,7 +178,7 @@ public class SrmReader implements Closeable {
     private Map<String, List<String>> assayToReplicateMap;
     private Map<String, List<String>> rawFileNameToAssayMap;
     private Map<String, List<String>> assayToRawFileNameMap;
-    private Map<String, String> peptideToRatioMap = new HashMap<>();
+    //private Map<String, String> peptideToRatioMap = new HashMap<>();
     private Map<String, String> peptideToTotalAreaRatioMap = new HashMap<>();
 
     ////////// ////////// ////////// ////////// //////////
@@ -214,8 +211,8 @@ public class SrmReader implements Closeable {
                         posReplicateName = i;
                         hasReplicateName = true;
                         break;
-                    case MODIFICATION_SEQUENCE_V14:
-                    case MODIFICATION_SEQUENCE_V2:
+                    case MODIFIED_SEQUENCE_V14:
+                    case MODIFIED_SEQUENCE_V2:
                         posModificationSequence = i;
                         hasModificationSequence = true;
                         break;
@@ -296,11 +293,11 @@ public class SrmReader implements Closeable {
                         posAreaNormalized = i;
                         hasAreaNormalized = true;
                         break;
-                    case RATIO_TO_STANDARD_V14:
-                    case RATIO_TO_STANDARD_V2:
-                        posPeptideRatio = i;
-                        hasPeptideRatio = true;
-                        break;
+//                    case RATIO_TO_STANDARD_V14:
+//                    case RATIO_TO_STANDARD_V2:
+//                        posPeptideRatio = i;
+//                        hasPeptideRatio = true;
+//                        break;
                 }
             }
 
@@ -318,91 +315,91 @@ public class SrmReader implements Closeable {
                 if (hasProteinName) {
                     ProteinNameMap.put(Integer.toString(index), nextLine[posProteinName]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PROTEIN_NAME_V14 + "\" or \"" + PROTEIN_NAME_V2 + "\"");
                 }
                 if (hasReplicateName) {
                     ReplicateNameMap.put(Integer.toString(index), nextLine[posReplicateName]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\"");
                 }
                 if (hasModificationSequence) {
                     ModificationSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
                 }
-                else{
-                    throw new IllegalStateException("Could not find column with name \"" + MODIFICATION_SEQUENCE_V14 + "\" or \"" + MODIFICATION_SEQUENCE_V2 + "\"");
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + MODIFIED_SEQUENCE_V14 + "\" or \"" + MODIFIED_SEQUENCE_V2 + "\"");
                 }
                 if (hasPrecursorMz) {
                     PrecursorMzMap.put(Integer.toString(index), nextLine[posPrecursorMz]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_MZ_V14 + "\" or \"" + PRECURSOR_MZ_V2 + "\"");
                 }
                 if (hasPrecursorCharge) {
                     PrecursorChargeMap.put(Integer.toString(index), nextLine[posPrecursorCharge]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_CHARGE_V14 + "\" or \"" + PRECURSOR_CHARGE_V2 + "\"");
                 }
                 if (hasProductMz) {
                     ProductMzMap.put(Integer.toString(index), nextLine[posProductMz]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PRODUCT_MZ_V14 + "\" or \"" + PRODUCT_MZ_V2 + "\"");
                 }
                 if (hasProductCharge) {
                     ProductChargeMap.put(Integer.toString(index), nextLine[posProductCharge]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PRODUCT_CHARGE_V14 + "\" or \"" + PRODUCT_CHARGE_V2 + "\"");
                 }
                 if (hasCleavageAa) {
                     CleavageAaMap.put(Integer.toString(index), nextLine[posCleavageAa]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + CLEAVAGE_AA_V14 + "\" or \"" + CLEAVAGE_AA_V2 + "\"");
                 }
                 if (hasFragmentIon) {
                     FragmentIonMap.put(Integer.toString(index), nextLine[posFragmentIon]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + FRAGMENT_ION_V14 + "\" or \"" + FRAGMENT_ION_V2 + "\"");
                 }
                 if (hasPeptideRetentionTime) {
                     PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_RETENTION_TIME_V14 + "\" or \"" + PEPTIDE_RETENTION_TIME_V2 + "\"");
                 }
                 if (hasRetentionTime) {
                     RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + RETENTION_TIME_V14 + "\" or \"" + RETENTION_TIME_V2 + "\"");
                 }
                 if (hasArea) {
                     AreaMap.put(Integer.toString(index), nextLine[posArea]);
                 }
-                else{
-                    throw new IllegalStateException("Could not find column with name \"" + AREA_V14 + "\" or \"" + AREA_V2 + "\"");
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + AREA_V14 + "\"");
                 }
                 if (hasBackground) {
                     BackgroundMap.put(Integer.toString(index), nextLine[posBackground]);
                 }
-                else{
-                    throw new IllegalStateException("Could not find column with name \"" + BACKGROUND_V14 + "\" or \"" + BACKGROUND_V2 + "\"");
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + BACKGROUND_V14 + "\"");
                 }
                 if (hasFileName) {
                     FileNameMap.put(Integer.toString(index), nextLine[posFileName]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + FILE_NAME_V14 + "\" or \"" + FILE_NAME_V2 + "\"");
                 }
                 if (hasPeakRank) {
                     PeakRankMap.put(Integer.toString(index), nextLine[posPeakRank]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + PEAK_RANK_V14 + "\" or \"" + PEAK_RANK_V2 + "\"");
                 }
                 if (hasIsotopeLabelType) {
@@ -414,19 +411,19 @@ public class SrmReader implements Closeable {
                 if (hasHeight) {
                     HeightMap.put(Integer.toString(index), nextLine[posHeight]);
                 }
-                else{
-                    throw new IllegalStateException("Could not find column with name \"" + HEIGHT_V14 + "\" or \"" + HEIGHT_V2 + "\"");
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + HEIGHT_V14 + "\"");
                 }
                 if (hasTotalAreaRatio) {
                     TotalAreaRatioMap.put(Integer.toString(index), nextLine[posTotalAreaRatio]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + TOTAL_AREA_RATIO_V14 + "\" or \"" + TOTAL_AREA_RATIO_V2 + "\"");
                 }
                 if (hasAreaNormalized) {
                     AreaNormalizedMap.put(Integer.toString(index), nextLine[posAreaNormalized]);
                 }
-                else{
+                else {
                     throw new IllegalStateException("Could not find column with name \"" + AREA_NORMALIZED_V14 + "\" or \"" + AREA_NORMALIZED_V2 + "\"");
                 }
                 if (hasReplicateName && hasIsotopeLabelType) {
@@ -435,9 +432,12 @@ public class SrmReader implements Closeable {
                 else if (hasReplicateName && !hasIsotopeLabelType) {
                     AssayMap.put(Integer.toString(index), nextLine[posReplicateName]);
                 }
-                if (hasPeptideRatio) {
-                    PeptideRatioMap.put(Integer.toString(index), nextLine[posPeptideRatio]);
-                }
+//                if (hasPeptideRatio) {
+//                    PeptideRatioMap.put(Integer.toString(index), nextLine[posPeptideRatio]);
+//                }
+//                else{
+//                    throw new IllegalStateException("Could not find column with name \"" + RATIO_TO_STANDARD_V14 + "\" or \"" + RATIO_TO_STANDARD_V2 + "\"");
+//                }
 
                 index++;
             }
@@ -544,10 +544,9 @@ public class SrmReader implements Closeable {
         return hasAreaNormalized;
     }
 
-    public boolean hasPeptideRatio() {
-        return hasPeptideRatio;
-    }
-
+//    public boolean hasPeptideRatio() {
+//        return hasPeptideRatio;
+//    }
     public List<String> getAssayList() {
         return new ArrayList(assayIdMap.keySet());
     }
@@ -651,9 +650,9 @@ public class SrmReader implements Closeable {
         return AssayMap;
     }
 
-    public Map<String, String> getPeptideRatioMap() {
-        return PeptideRatioMap;
-    }
+//    public Map<String, String> getPeptideRatioMap() {
+//        return PeptideRatioMap;
+//    }
 
     /*
      * return private one to many id list HashMaps
@@ -732,11 +731,10 @@ public class SrmReader implements Closeable {
         return peptideToTotalAreaRatioMap;
     }
 
-    public Map<String, String> getPeptideToRatioMap() {
-        createPeptideToRatioMap();
-        return peptideToRatioMap;
-    }
-
+//    public Map<String, String> getPeptideToRatioMap() {
+//        createPeptideToRatioMap();
+//        return peptideToRatioMap;
+//    }
     public boolean isLabelled() {
         boolean ret = false;
         for (String assN : AssayMap.keySet()) {
@@ -1049,16 +1047,15 @@ public class SrmReader implements Closeable {
      * @key = peptide sequence
      * @value = peptide ratio
      */
-    private void createPeptideToRatioMap() {
-        for (String id : PeptideRatioMap.keySet()) {
-            String pepSeq = PeptideSequenceMap.get(id);
-            String ratio = peptideToRatioMap.get(pepSeq);
-            if (ratio == null && PeptideRatioMap.get(id) != null && !PeptideRatioMap.get(id).equals("#N/A")) {
-                peptideToRatioMap.put(pepSeq, PeptideRatioMap.get(id));
-            }
-        }
-    }
-
+//    private void createPeptideToRatioMap() {
+//        for (String id : PeptideRatioMap.keySet()) {
+//            String pepSeq = PeptideSequenceMap.get(id);
+//            String ratio = peptideToRatioMap.get(pepSeq);
+//            if (ratio == null && PeptideRatioMap.get(id) != null && !PeptideRatioMap.get(id).equals("#N/A")) {
+//                peptideToRatioMap.put(pepSeq, PeptideRatioMap.get(id));
+//            }
+//        }
+//    }
     /**
      * Get list of value from given map and list of id
      *
@@ -1105,8 +1102,8 @@ public class SrmReader implements Closeable {
                 || hasIsotopeLabelType
                 || hasHeight
                 || hasTotalAreaRatio
-                || hasAreaNormalized
-                || hasPeptideRatio);
+                || hasAreaNormalized //                || hasPeptideRatio
+                );
     }
 
 }
