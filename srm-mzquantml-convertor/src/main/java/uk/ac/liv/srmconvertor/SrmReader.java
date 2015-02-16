@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import uk.ac.liv.jmzqml.model.mzqml.Modification;
 
 /**
  *
@@ -180,6 +183,7 @@ public class SrmReader implements Closeable {
     private Map<String, List<String>> assayToRawFileNameMap;
     //private Map<String, String> peptideToRatioMap = new HashMap<>();
     private Map<String, String> peptideToTotalAreaRatioMap = new HashMap<>();
+    private Map<String, List<Modification>> modificationMap;
 
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
@@ -461,6 +465,8 @@ public class SrmReader implements Closeable {
 //        if (allFalse()) {
 //            throw new IllegalStateException("File is broken.");
 //        }
+        //create modification map
+        createModificationMap();
     }
 
     //public methods
@@ -802,7 +808,7 @@ public class SrmReader implements Closeable {
      */
     private void createPeptideIdMap() {
         peptideIdMap = new HashMap<>();
-
+        
         if (!PeptideSequenceMap.keySet().isEmpty()) {
             for (String id : PeptideSequenceMap.keySet()) {
                 String peptide = PeptideSequenceMap.get(id);
@@ -810,9 +816,9 @@ public class SrmReader implements Closeable {
                 if (idList == null) {
                     idList = new ArrayList();
                     peptideIdMap.put(peptide, idList);
-                }
+        }
                 idList.add(id);
-            }
+    }
         }
         else {
             //throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
@@ -1038,6 +1044,43 @@ public class SrmReader implements Closeable {
             String ratio = peptideToTotalAreaRatioMap.get(pepSeq);
             if (ratio == null && TotalAreaRatioMap.get(id) != null && !TotalAreaRatioMap.get(id).equals("#N/A")) {
                 peptideToTotalAreaRatioMap.put(pepSeq, TotalAreaRatioMap.get(id));
+            }
+        }
+    }
+
+    private void createModificationMap() {
+        modificationMap = new HashMap<>();
+
+        Pattern modPattern = Pattern.compile("\\[[-+]?[0-9]*\\.?[0-9]+\\]", Pattern.CASE_INSENSITIVE);
+
+        for (String id : ModificationSequenceMap.keySet()) {
+            String modSeq = ModificationSequenceMap.get(id);
+            String label = IsotopeLabelTypeMap.get(id);
+            if (label.equalsIgnoreCase("light")) {
+                Matcher matcher = modPattern.matcher(modSeq);
+
+                int length = 0; //store the modification mass string legth so far. It will be removed when calculating mod location
+
+                while (matcher.find()) {
+                    Modification mod = new Modification();
+                    List<Modification> modList = modificationMap.get(id);
+
+                    if (modList == null) {
+                        modList = new ArrayList<>();
+                        modificationMap.put(id, modList);
+                    }
+
+                    String mass = matcher.group().replaceAll("[", "").replaceAll("]", "").replace("+", "").trim();
+                    char residue = modSeq.charAt(matcher.start() - 1);
+                    int location = matcher.start() - length;
+                    length = length + (matcher.end() - matcher.start());
+
+                    mod.setAvgMassDelta(Double.valueOf(mass));
+                    mod.getResidues().add(String.valueOf(residue));
+                    mod.setLocation(location);
+
+                    modList.add(mod);
+                }
             }
         }
     }
