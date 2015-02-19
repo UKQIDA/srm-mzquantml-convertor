@@ -3,15 +3,12 @@ package uk.ac.liv.srmconvertor;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import org.apache.commons.lang3.math.NumberUtils;
 import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
@@ -35,6 +32,7 @@ import uk.ac.liv.jmzqml.model.mzqml.GlobalQuantLayer;
 import uk.ac.liv.jmzqml.model.mzqml.InputFiles;
 import uk.ac.liv.jmzqml.model.mzqml.Label;
 import uk.ac.liv.jmzqml.model.mzqml.ModParam;
+import uk.ac.liv.jmzqml.model.mzqml.Modification;
 import uk.ac.liv.jmzqml.model.mzqml.MzQuantML;
 import uk.ac.liv.jmzqml.model.mzqml.Organization;
 import uk.ac.liv.jmzqml.model.mzqml.Param;
@@ -881,14 +879,40 @@ public class MzqCreateTask extends Task<Void> {
 
         // PeptideConsensusList
         List<PeptideConsensus> peptideList = peptideConsensuses.getPeptideConsensus();
-        for (String pepSeq : sRd.getPeptideList()) {
+        Map<String, String> lhSeqMap = sRd.getLightHeavySequenceMap();
+        //for (String pepSeq : sRd.getPeptideList()) {
+        for (String lpepSeq : sRd.getLightPeptideIdMap().keySet()) {
+
+            //get heavy label sequence
+            String hpepSeq = "";
+            if (!lhSeqMap.isEmpty()) {
+                hpepSeq = lhSeqMap.get(lpepSeq);
+            }
+
             PeptideConsensus pepCon = new PeptideConsensus();
-            pepCon.setId("pep_" + pepSeq);
-            pepCon.setPeptideSequence(pepSeq);
+            pepCon.setId("pep_" + lpepSeq);
+            //pepCon.setPeptideSequence(pepSeq);
             pepCon.setSearchDatabase(db);
 
+            List<String> lids = sRd.getLightPeptideIdMap().get(lpepSeq);
+            pepCon.setPeptideSequence(sRd.getPeptideSequenceMap().get(lids.get(0)));
+
+            // add modifications if there is any
+            List<Modification> modList = sRd.getModificationMap().get(lids.get(0));
+            if (!modList.isEmpty()) {
+                pepCon.getModification().addAll(modList);
+            }
+
+            List<String> hids = new ArrayList<>();
+            if (!sRd.getHeavyPeptideIdMap().isEmpty()) {
+                hids.addAll(sRd.getHeavyPeptideIdMap().get(hpepSeq));
+            }
+
+            List<String> ids = new ArrayList<>();
+            ids.addAll(lids);
+            ids.addAll(hids);
+
             //add peptide charge list
-            List<String> ids = sRd.getPeptideIdMap().get(pepSeq);
             List<String> charges = new ArrayList<>();
             for (String id : ids) {
                 String charge = sRd.getPrecursorChargeMap().get(id);
@@ -899,7 +923,7 @@ public class MzqCreateTask extends Task<Void> {
             pepCon.getCharge().addAll(charges);
 
             // Set EvidenceRef for each PeptideConsensus
-            for (String id : sRd.getPeptideIdMap().get(pepSeq)) {
+            for (String id : ids) {
                 // set List<EvidenceRef> to pepCon
                 EvidenceRef evidenceRef = new EvidenceRef();
                 pepCon.getEvidenceRef().add(evidenceRef);
@@ -938,7 +962,7 @@ public class MzqCreateTask extends Task<Void> {
 //            else if (sRd.hasTotalAreaRatio()) {
             Row row = new Row();
             row.setObject(pepCon);
-            String ratio = sRd.getPeptideToTotalAreaRatioMap().get(pepSeq);
+            String ratio = sRd.getPeptideToTotalAreaRatioMap().get(lpepSeq);
             row.getValue().add(ratio);
             pepRatioDM.getRow().add(row);
 //            }
@@ -947,25 +971,41 @@ public class MzqCreateTask extends Task<Void> {
         // Calculate peptide level quant (area value)
         Map<String, List<String>> peptideIdsMap = sRd.getPeptideIdMap();
 
-        // Store calculated peptide area values for each peptide of each assay
+        // Store calculated peptide area values for each modified peptide of each assay
         Map<String, List<String>> peptideAreaMap = new HashMap<>();
 
-        for (String pepSeq : peptideIdsMap.keySet()) {
-            List<String> idList = peptideIdsMap.get(pepSeq);
+        for (String lpepSeq : sRd.getLightPeptideIdMap().keySet()) {
+            //get heavy label sequence
+            String hpepSeq = "";
+            if (!lhSeqMap.isEmpty()) {
+                hpepSeq = lhSeqMap.get(lpepSeq);
+            }
+
+            List<String> lids = sRd.getLightPeptideIdMap().get(lpepSeq);
+
+            List<String> hids = new ArrayList<>();
+            if (!sRd.getHeavyPeptideIdMap().isEmpty()) {
+                hids.addAll(sRd.getHeavyPeptideIdMap().get(hpepSeq));
+            }
+
+            List<String> ids = new ArrayList<>();
+            ids.addAll(lids);
+            ids.addAll(hids);
+
             double totalLight = 0;
             double totalHeavy = 0;
 
             // Add calculate peptide area value to peptideAreaMap
-            List<String> peptideAreaList = peptideAreaMap.get(pepSeq);
+            List<String> peptideAreaList = peptideAreaMap.get(lpepSeq);
             if (peptideAreaList == null) {
                 peptideAreaList = new ArrayList<>();
-                peptideAreaMap.put(pepSeq, peptideAreaList);
+                peptideAreaMap.put(lpepSeq, peptideAreaList);
             }
 
             // Store the fragment type of those missing value in either pairing (light or heavy) assays
             List<String> unpairedFragmentList = new ArrayList<>();
 
-            for (String id : idList) {
+            for (String id : ids) {
                 if (sRd.getIsotopeLabelTypeMap().get(id).equalsIgnoreCase("light")) {
                     // if unpairedFragmentList doesn't contain this fragment ion type and the value is a number, then add to totalLight
                     if (!unpairedFragmentList.contains(sRd.getFragmentIonMap().get(id)) && NumberUtils.isNumber(sRd.getAreaMap().get(id))) {
@@ -1024,10 +1064,10 @@ public class MzqCreateTask extends Task<Void> {
 
         DataMatrix DMArea = new DataMatrix();
 
-        for (String pepSeq : sRd.getPeptideList()) {
+        for (String lpepSeq : sRd.getLightPeptideIdMap().keySet()) {
             Row row = new Row();
-            row.setObjectRef("pep_" + pepSeq);
-            row.getValue().addAll(peptideAreaMap.get(pepSeq));
+            row.setObjectRef("pep_" + lpepSeq);
+            row.getValue().addAll(peptideAreaMap.get(lpepSeq));
             DMArea.getRow().add(row);
         }
 
