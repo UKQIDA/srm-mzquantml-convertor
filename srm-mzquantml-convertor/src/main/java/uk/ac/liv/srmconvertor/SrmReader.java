@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import uk.ac.liv.jmzqml.model.mzqml.Modification;
@@ -142,9 +144,11 @@ public class SrmReader implements Closeable {
      * HashMap one to one variables
      */
     private Map<String, String> PeptideSequenceMap = new HashMap<>();
+    private Map<String, String> lightModifiedSequenceMap = new HashMap<>();
+    private Map<String, String> heavyModifiedSequenceMap = new HashMap<>();
     private Map<String, String> ProteinNameMap = new HashMap<>();
     private Map<String, String> ReplicateNameMap = new HashMap<>();
-    private Map<String, String> ModificationSequenceMap = new HashMap<>();
+    private Map<String, String> ModifiedSequenceMap = new HashMap<>();
     private Map<String, String> PrecursorMzMap = new HashMap<>();
     private Map<String, String> PrecursorChargeMap = new HashMap<>();
     private Map<String, String> ProductMzMap = new HashMap<>();
@@ -167,6 +171,9 @@ public class SrmReader implements Closeable {
     //derived hashmap one to many variables
     private Map<String, List<String>> proteinIdMap;
     private Map<String, List<String>> peptideIdMap;
+    private Map<String, List<String>> lightPeptideIdMap;
+    private Map<String, List<String>> heavyPeptideIdMap;
+    private Map<String, List<String>> modifiedSequenceIdMap;
     private Map<String, List<String>> assayIdMap;
     private Map<String, List<String>> replicateIdMap;
     private Map<String, List<String>> rawFileNameIdMap;
@@ -310,6 +317,12 @@ public class SrmReader implements Closeable {
             int index = 0;
             while ((nextLine = reader.readNext()) != null) {
 
+                if (hasIsotopeLabelType) {
+                    IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[posIsotopeLabelType]);
+                }
+                else {
+                    throw new IllegalStateException("Could not find column with name \"" + ISOTOPE_LABEL_TYPE_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\"");
+                }
                 if (hasPeptideSequence) {
                     PeptideSequenceMap.put(Integer.toString(index), nextLine[posPeptideSequence]);
                 }
@@ -329,7 +342,13 @@ public class SrmReader implements Closeable {
                     throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\"");
                 }
                 if (hasModificationSequence) {
-                    ModificationSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                    ModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                    if (nextLine[posIsotopeLabelType].equalsIgnoreCase("light")) {
+                        lightModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                    }
+                    else if (nextLine[posIsotopeLabelType].equalsIgnoreCase("heavy")) {
+                        heavyModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                    }
                 }
                 else {
                     throw new IllegalStateException("Could not find column with name \"" + MODIFIED_SEQUENCE_V14 + "\" or \"" + MODIFIED_SEQUENCE_V2 + "\"");
@@ -406,12 +425,6 @@ public class SrmReader implements Closeable {
                 else {
                     throw new IllegalStateException("Could not find column with name \"" + PEAK_RANK_V14 + "\" or \"" + PEAK_RANK_V2 + "\"");
                 }
-                if (hasIsotopeLabelType) {
-                    IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[posIsotopeLabelType]);
-                }
-//                else{
-//                    throw new IllegalStateException("Could not find column with name \"" + ISOTOPE_LABEL_TYPE_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\"");
-//                }
                 if (hasHeight) {
                     HeightMap.put(Integer.toString(index), nextLine[posHeight]);
                 }
@@ -456,6 +469,10 @@ public class SrmReader implements Closeable {
         //create peptideIdMap
         createPeptideIdMap();
 
+        createLightHeavyPeptideIdMap();
+
+        createModifiedSequenceIdMap();
+
         //create replicateIdMap, replicate name represents raw file name
         createReplicateIdMap();
 
@@ -465,8 +482,6 @@ public class SrmReader implements Closeable {
 //        if (allFalse()) {
 //            throw new IllegalStateException("File is broken.");
 //        }
-        //create modification map
-        createModificationMap();
     }
 
     //public methods
@@ -562,7 +577,7 @@ public class SrmReader implements Closeable {
     }
 
     public List<String> getPeptideList() {
-        return new ArrayList(peptideIdMap.keySet());
+        return new ArrayList(lightPeptideIdMap.keySet());
     }
 
     public List<String> getReplicateList() {
@@ -589,7 +604,7 @@ public class SrmReader implements Closeable {
     }
 
     public Map<String, String> getModificationSequenceMap() {
-        return ModificationSequenceMap;
+        return ModifiedSequenceMap;
     }
 
     public Map<String, String> getPrecursorMzMap() {
@@ -675,6 +690,18 @@ public class SrmReader implements Closeable {
         return peptideIdMap;
     }
 
+    public Map<String, List<String>> getLightPeptideIdMap() {
+        return lightPeptideIdMap;
+    }
+
+    public Map<String, List<String>> getHeavyPeptideIdMap() {
+        return heavyPeptideIdMap;
+    }
+
+    public Map<String, List<String>> getModifiedSequenceIdMap() {
+        return modifiedSequenceIdMap;
+    }
+
     public Map<String, List<String>> getRawFileNameIdMap() {
         return rawFileNameIdMap;
     }
@@ -682,16 +709,6 @@ public class SrmReader implements Closeable {
     /*
      * cross reference HashMap (one to many)
      */
-    public Map<String, List<String>> getAssayToPeptideMap() {
-        createAssayToPeptideMap();
-        return assayToPeptideMap;
-    }
-
-    public Map<String, List<String>> getPeptideToAssayMap() {
-        createPeptideToAssayMap();
-        return peptideToAssayMap;
-    }
-
     public Map<String, List<String>> getAssayToProteinMap() {
         createAssayToProteinMap();
         return assayToProteinMap;
@@ -735,6 +752,11 @@ public class SrmReader implements Closeable {
     public Map<String, String> getPeptideToTotalAreaRatioMap() {
         createPeptideToTotalAreaRatioMap();
         return peptideToTotalAreaRatioMap;
+    }
+
+    public Map<String, List<Modification>> getModificationMap() {
+        createModificationMap();
+        return modificationMap;
     }
 
 //    public Map<String, String> getPeptideToRatioMap() {
@@ -808,7 +830,7 @@ public class SrmReader implements Closeable {
      */
     private void createPeptideIdMap() {
         peptideIdMap = new HashMap<>();
-        
+
         if (!PeptideSequenceMap.keySet().isEmpty()) {
             for (String id : PeptideSequenceMap.keySet()) {
                 String peptide = PeptideSequenceMap.get(id);
@@ -816,12 +838,131 @@ public class SrmReader implements Closeable {
                 if (idList == null) {
                     idList = new ArrayList();
                     peptideIdMap.put(peptide, idList);
-        }
+                }
                 idList.add(id);
-    }
+            }
         }
         else {
             //throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
+        }
+    }
+
+    private int getLengthOfLabels() {
+        int modLength = 0;
+        int lightSeqLength = 0;
+        int heavySeqLength = 0;
+        Set<String> lightModSeqSet = new HashSet<>();
+        Set<String> heavyModSeqSet = new HashSet<>();
+
+        // decide the length difference between light and heavy sequence
+        for (String pepSeq : peptideIdMap.keySet()) {
+            List<String> idList = peptideIdMap.get(pepSeq);
+            if (idList != null) {
+                for (String id : idList) {
+                    if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("light")) {
+                        lightModSeqSet.add(ModifiedSequenceMap.get(id));
+                        lightSeqLength = ModifiedSequenceMap.get(id).length();
+                    }
+                    else if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("heavy")) {
+                        heavyModSeqSet.add(ModifiedSequenceMap.get(id));
+                        heavySeqLength = ModifiedSequenceMap.get(id).length();
+                    }
+                }
+
+                // there is only one form of light and heavy sequence
+                if (lightModSeqSet.size() == 1 && heavyModSeqSet.size() == 1) {
+                    modLength = Math.abs(heavySeqLength - lightSeqLength);
+                    break;
+                }
+            }
+        }
+        return modLength;
+    }
+
+    /**
+     * Find the pairing light and heavy modified sequence and store them in a hash map
+     *
+     * @return HashMap of light and heavy paired sequence. Empty map if label free
+     */
+    public Map<String, String> getLightHeavySequenceMap() {
+        Map<String, String> lhSeqMap = new HashMap<>();
+        int modLength = getLengthOfLabels();
+
+        // loop through light sequence
+        for (String lightSeq : lightPeptideIdMap.keySet()) {
+            List<String> idlightList = lightPeptideIdMap.get(lightSeq);
+            if (idlightList != null) {
+                // get the peptide sequence of the light sequence
+                // most of time the sequence are the same unless there is modification
+                String pepSeq = PeptideSequenceMap.get(idlightList.get(0));
+
+                List<String> idAllList = peptideIdMap.get(pepSeq);
+                // loop through all IDs of the peptide sequence and try to find the heavy sequence
+                for (String id : idAllList) {
+                    if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("heavy")) {
+                        String heavySeq = ModifiedSequenceMap.get(id);
+
+                        // compare the lenght of heavy sequence and light sequence
+                        // if they have the specified length difference, they are pairs
+                        // TODO: HOWEVER, two different light modified sequences of same peptide could have same length
+                        // TODO: for example EAVS[+79.9]GILGK and EAVSGI[+79.9]LGK
+                        // TODO: this is a potential bug to be fixed
+                        if (heavySeq.length() == lightSeq.length() + modLength) {
+                            lhSeqMap.put(lightSeq, heavySeq);
+                        }
+                    }
+                }
+            }
+        }
+
+        return lhSeqMap;
+    }
+
+    private void createLightHeavyPeptideIdMap() {
+        lightPeptideIdMap = new HashMap<>();
+        heavyPeptideIdMap = new HashMap<>();
+
+        if (!ModifiedSequenceMap.keySet().isEmpty()) {
+            for (String id : ModifiedSequenceMap.keySet()) {
+                if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("light")) {
+                    String modSeq = ModifiedSequenceMap.get(id);
+                    List<String> idList = lightPeptideIdMap.get(modSeq);
+                    if (idList == null) {
+                        idList = new ArrayList();
+                        lightPeptideIdMap.put(modSeq, idList);
+                    }
+                    idList.add(id);
+                }
+                //label free example, heavyPeptideIdMap will be an empty map
+                else if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("heavy")) {
+                    String modSeq = ModifiedSequenceMap.get(id);
+                    List<String> idList = heavyPeptideIdMap.get(modSeq);
+                    if (idList == null) {
+                        idList = new ArrayList();
+                        heavyPeptideIdMap.put(modSeq, idList);
+                    }
+                    idList.add(id);
+                }
+            }
+        }
+        else {
+            //throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
+        }
+    }
+
+    private void createModifiedSequenceIdMap() {
+        modifiedSequenceIdMap = new HashMap<>();
+
+        if (!ModifiedSequenceMap.keySet().isEmpty()) {
+            for (String id : ModifiedSequenceMap.keySet()) {
+                String modSeq = ModifiedSequenceMap.get(id);
+                List<String> idList = modifiedSequenceIdMap.get(modSeq);
+                if (idList == null) {
+                    idList = new ArrayList();
+                    modifiedSequenceIdMap.put(modSeq, idList);
+                }
+                idList.add(id);
+            }
         }
     }
 
@@ -879,7 +1020,7 @@ public class SrmReader implements Closeable {
                 List<String> idList = proteinIdMap.get(protein);
 
                 // get peptideList from PeptideSequenceMap based on idList
-                List<String> peptideList = getListFromIds(idList, PeptideSequenceMap);
+                List<String> peptideList = getListFromIds(idList, lightModifiedSequenceMap);
                 proteinToPeptideMap.put(protein, peptideList);
             }
         }
@@ -899,40 +1040,6 @@ public class SrmReader implements Closeable {
             List<String> proteinList = getListFromIds(idList, ProteinNameMap);
 
             peptideToProteinMap.put(peptide, proteinList);
-        }
-    }
-
-    /**
-     * @Map<String, List<String>> peptideToAssayMap
-     * @key = peptide sequence
-     * @value = list of assay name
-     */
-    private void createPeptideToAssayMap() {
-        peptideToAssayMap = new HashMap<>();
-        for (String peptide : peptideIdMap.keySet()) {
-            List<String> idList = peptideIdMap.get(peptide);
-
-            // get assayList from AssayMap based on idList
-            List<String> assayList = getListFromIds(idList, AssayMap);
-
-            peptideToAssayMap.put(peptide, assayList);
-        }
-    }
-
-    /**
-     * @Map<String, List<String>> assayToPeptideMap
-     * @key = assay name
-     * @value = list of peptide sequence
-     */
-    private void createAssayToPeptideMap() {
-        assayToPeptideMap = new HashMap<>();
-        for (String assay : assayIdMap.keySet()) {
-            List<String> idList = assayIdMap.get(assay);
-
-            // get peptideSequenceList from PeptideSequenceMap based on idList
-            List<String> peptideSequenceList = getListFromIds(idList, PeptideSequenceMap);
-
-            assayToPeptideMap.put(assay, peptideSequenceList);
         }
     }
 
@@ -1035,12 +1142,12 @@ public class SrmReader implements Closeable {
 
     /**
      * @Map<String,String> peptideToTotalAreaRatioMap
-     * @key = peptide sequence
+     * @key = modified peptide sequence
      * @value = total area ratio
      */
     private void createPeptideToTotalAreaRatioMap() {
         for (String id : TotalAreaRatioMap.keySet()) {
-            String pepSeq = PeptideSequenceMap.get(id);
+            String pepSeq = ModifiedSequenceMap.get(id);
             String ratio = peptideToTotalAreaRatioMap.get(pepSeq);
             if (ratio == null && TotalAreaRatioMap.get(id) != null && !TotalAreaRatioMap.get(id).equals("#N/A")) {
                 peptideToTotalAreaRatioMap.put(pepSeq, TotalAreaRatioMap.get(id));
@@ -1053,34 +1160,32 @@ public class SrmReader implements Closeable {
 
         Pattern modPattern = Pattern.compile("\\[[-+]?[0-9]*\\.?[0-9]+\\]", Pattern.CASE_INSENSITIVE);
 
-        for (String id : ModificationSequenceMap.keySet()) {
-            String modSeq = ModificationSequenceMap.get(id);
-            String label = IsotopeLabelTypeMap.get(id);
-            if (label.equalsIgnoreCase("light")) {
-                Matcher matcher = modPattern.matcher(modSeq);
+        for (String id : ModifiedSequenceMap.keySet()) {
+            String modSeq = ModifiedSequenceMap.get(id);
+            Matcher matcher = modPattern.matcher(modSeq);
 
-                int length = 0; //store the modification mass string legth so far. It will be removed when calculating mod location
+            int length = 0; //store the modification mass string legth so far. It will be removed when calculating mod location
 
-                while (matcher.find()) {
-                    Modification mod = new Modification();
-                    List<Modification> modList = modificationMap.get(id);
+            List<Modification> modList = modificationMap.get(id);
 
-                    if (modList == null) {
-                        modList = new ArrayList<>();
-                        modificationMap.put(id, modList);
-                    }
+            if (modList == null) {
+                modList = new ArrayList<>();
+                modificationMap.put(id, modList);
+            }
 
-                    String mass = matcher.group().replaceAll("[", "").replaceAll("]", "").replace("+", "").trim();
-                    char residue = modSeq.charAt(matcher.start() - 1);
-                    int location = matcher.start() - length;
-                    length = length + (matcher.end() - matcher.start());
+            while (matcher.find()) {
+                Modification mod = new Modification();
 
-                    mod.setAvgMassDelta(Double.valueOf(mass));
-                    mod.getResidues().add(String.valueOf(residue));
-                    mod.setLocation(location);
+                String mass = matcher.group().replaceAll("]", "").replace("+", "").trim().substring(1);
+                char residue = modSeq.charAt(matcher.start() - 1);
+                int location = matcher.start() - length;
+                length = length + (matcher.end() - matcher.start());
 
-                    modList.add(mod);
-                }
+                mod.setAvgMassDelta(Double.valueOf(mass));
+                mod.getResidues().add(String.valueOf(residue));
+                mod.setLocation(location);
+
+                modList.add(mod);
             }
         }
     }
@@ -1111,7 +1216,7 @@ public class SrmReader implements Closeable {
                                         Map<String, String> aMap) {
         List<String> retList = new ArrayList<>();
         for (String id : idList) {
-            if (!retList.contains(aMap.get(id))) {
+            if (aMap.get(id) != null && !retList.contains(aMap.get(id))) {
                 retList.add(aMap.get(id));
             }
         }
