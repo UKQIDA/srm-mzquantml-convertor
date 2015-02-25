@@ -321,25 +321,29 @@ public class SrmReader implements Closeable {
                     IsotopeLabelTypeMap.put(Integer.toString(index), nextLine[posIsotopeLabelType]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + ISOTOPE_LABEL_TYPE_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + ISOTOPE_LABEL_TYPE_V14 + "\" or \"" + ISOTOPE_LABEL_TYPE_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasPeptideSequence) {
                     PeptideSequenceMap.put(Integer.toString(index), nextLine[posPeptideSequence]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_SEQUENCE_V14 + "\" or \"" + PEPTIDE_SEQUENCE_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasProteinName) {
                     ProteinNameMap.put(Integer.toString(index), nextLine[posProteinName]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PROTEIN_NAME_V14 + "\" or \"" + PROTEIN_NAME_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PROTEIN_NAME_V14 + "\" or \"" + PROTEIN_NAME_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasReplicateName) {
                     ReplicateNameMap.put(Integer.toString(index), nextLine[posReplicateName]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + REPLICATE_NAME_V14 + "\" or \"" + REPLICATE_NAME_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasModificationSequence) {
                     ModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
@@ -351,97 +355,113 @@ public class SrmReader implements Closeable {
                     }
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + MODIFIED_SEQUENCE_V14 + "\" or \"" + MODIFIED_SEQUENCE_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + MODIFIED_SEQUENCE_V14 + "\" or \"" + MODIFIED_SEQUENCE_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasPrecursorMz) {
                     PrecursorMzMap.put(Integer.toString(index), nextLine[posPrecursorMz]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_MZ_V14 + "\" or \"" + PRECURSOR_MZ_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_MZ_V14 + "\" or \"" + PRECURSOR_MZ_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasPrecursorCharge) {
                     PrecursorChargeMap.put(Integer.toString(index), nextLine[posPrecursorCharge]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_CHARGE_V14 + "\" or \"" + PRECURSOR_CHARGE_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PRECURSOR_CHARGE_V14 + "\" or \"" + PRECURSOR_CHARGE_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasProductMz) {
                     ProductMzMap.put(Integer.toString(index), nextLine[posProductMz]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_MZ_V14 + "\" or \"" + PRODUCT_MZ_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_MZ_V14 + "\" or \"" + PRODUCT_MZ_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasProductCharge) {
                     ProductChargeMap.put(Integer.toString(index), nextLine[posProductCharge]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_CHARGE_V14 + "\" or \"" + PRODUCT_CHARGE_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PRODUCT_CHARGE_V14 + "\" or \"" + PRODUCT_CHARGE_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasCleavageAa) {
                     CleavageAaMap.put(Integer.toString(index), nextLine[posCleavageAa]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + CLEAVAGE_AA_V14 + "\" or \"" + CLEAVAGE_AA_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + CLEAVAGE_AA_V14 + "\" or \"" + CLEAVAGE_AA_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasFragmentIon) {
                     FragmentIonMap.put(Integer.toString(index), nextLine[posFragmentIon]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + FRAGMENT_ION_V14 + "\" or \"" + FRAGMENT_ION_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + FRAGMENT_ION_V14 + "\" or \"" + FRAGMENT_ION_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasPeptideRetentionTime) {
                     PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_RETENTION_TIME_V14 + "\" or \"" + PEPTIDE_RETENTION_TIME_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_RETENTION_TIME_V14 + "\" or \"" + PEPTIDE_RETENTION_TIME_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasRetentionTime) {
                     RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + RETENTION_TIME_V14 + "\" or \"" + RETENTION_TIME_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + RETENTION_TIME_V14 + "\" or \"" + RETENTION_TIME_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasArea) {
                     AreaMap.put(Integer.toString(index), nextLine[posArea]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + AREA_V14 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + AREA_V14 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasBackground) {
                     BackgroundMap.put(Integer.toString(index), nextLine[posBackground]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + BACKGROUND_V14 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + BACKGROUND_V14 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasFileName) {
                     FileNameMap.put(Integer.toString(index), nextLine[posFileName]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + FILE_NAME_V14 + "\" or \"" + FILE_NAME_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + FILE_NAME_V14 + "\" or \"" + FILE_NAME_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasPeakRank) {
                     PeakRankMap.put(Integer.toString(index), nextLine[posPeakRank]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + PEAK_RANK_V14 + "\" or \"" + PEAK_RANK_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + PEAK_RANK_V14 + "\" or \"" + PEAK_RANK_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasHeight) {
                     HeightMap.put(Integer.toString(index), nextLine[posHeight]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + HEIGHT_V14 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + HEIGHT_V14 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasTotalAreaRatio) {
                     TotalAreaRatioMap.put(Integer.toString(index), nextLine[posTotalAreaRatio]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + TOTAL_AREA_RATIO_V14 + "\" or \"" + TOTAL_AREA_RATIO_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + TOTAL_AREA_RATIO_V14 + "\" or \"" + TOTAL_AREA_RATIO_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasAreaNormalized) {
                     AreaNormalizedMap.put(Integer.toString(index), nextLine[posAreaNormalized]);
                 }
                 else {
-                    throw new IllegalStateException("Could not find column with name \"" + AREA_NORMALIZED_V14 + "\" or \"" + AREA_NORMALIZED_V2 + "\"");
+                    throw new IllegalStateException("Could not find column with name \"" + AREA_NORMALIZED_V14 + "\" or \"" + AREA_NORMALIZED_V2 + "\". "
+                            + "Please check the input file.");
                 }
                 if (hasReplicateName && hasIsotopeLabelType) {
                     AssayMap.put(Integer.toString(index), nextLine[posReplicateName] + "_" + nextLine[posIsotopeLabelType]);
@@ -886,28 +906,24 @@ public class SrmReader implements Closeable {
      */
     public Map<String, String> getLightHeavySequenceMap() {
         Map<String, String> lhSeqMap = new HashMap<>();
-        int modLength = getLengthOfLabels();
 
         // loop through light sequence
         for (String lightSeq : lightPeptideIdMap.keySet()) {
             List<String> idlightList = lightPeptideIdMap.get(lightSeq);
             if (idlightList != null) {
-                // get the peptide sequence of the light sequence
-                // most of time the sequence are the same unless there is modification
                 String pepSeq = PeptideSequenceMap.get(idlightList.get(0));
 
                 List<String> idAllList = peptideIdMap.get(pepSeq);
                 // loop through all IDs of the peptide sequence and try to find the heavy sequence
                 for (String id : idAllList) {
-                    if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("heavy")) {
+                    if (IsotopeLabelTypeMap.get(id).equals("heavy")) {
                         String heavySeq = ModifiedSequenceMap.get(id);
-
-                        // compare the lenght of heavy sequence and light sequence
-                        // if they have the specified length difference, they are pairs
-                        // TODO: HOWEVER, two different light modified sequences of same peptide could have same length
-                        // TODO: for example EAVS[+79.9]GILGK and EAVSGI[+79.9]LGK
-                        // TODO: this is a potential bug to be fixed
-                        if (heavySeq.length() == lightSeq.length() + modLength) {
+                        int cutPos = heavySeq.length();
+                        if (heavySeq.contains("[")) {
+                            cutPos = heavySeq.lastIndexOf("[");
+                        }
+                        String heavySeqCut = heavySeq.substring(0, cutPos);
+                        if (heavySeqCut.equalsIgnoreCase(lightSeq)) {
                             lhSeqMap.put(lightSeq, heavySeq);
                         }
                     }
@@ -915,6 +931,37 @@ public class SrmReader implements Closeable {
             }
         }
 
+        /*
+         * This method was considering the case where label doesn't locate at C terminus
+         */
+//        int modLength = getLengthOfLabels();
+//
+//        // loop through light sequence
+//        for (String lightSeq : lightPeptideIdMap.keySet()) {
+//            List<String> idlightList = lightPeptideIdMap.get(lightSeq);
+//            if (idlightList != null) {
+//                // get the peptide sequence of the light sequence
+//                // most of time the sequence are the same unless there is modification
+//                String pepSeq = PeptideSequenceMap.get(idlightList.get(0));
+//
+//                List<String> idAllList = peptideIdMap.get(pepSeq);
+//                // loop through all IDs of the peptide sequence and try to find the heavy sequence
+//                for (String id : idAllList) {
+//                    if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("heavy")) {
+//                        String heavySeq = ModifiedSequenceMap.get(id);
+//
+//                        // compare the lenght of heavy sequence and light sequence
+//                        // if they have the specified length difference, they are pairs
+//                        // TODO: HOWEVER, two different light modified sequences of same peptide could have same length
+//                        // TODO: for example EAVS[+79.9]GILGK and EAVSGI[+79.9]LGK
+//                        // TODO: this is a potential bug to be fixed
+//                        if (heavySeq.length() == lightSeq.length() + modLength) {
+//                            lhSeqMap.put(lightSeq, heavySeq);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return lhSeqMap;
     }
 
