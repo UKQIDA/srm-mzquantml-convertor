@@ -899,6 +899,14 @@ public class MzqCreateTask extends Task<Void> {
 
             // add modifications if there is any
             List<Modification> modList = sRd.getModificationMap().get(lids.get(0));
+
+            // set CV (Unimod) for each Modification as they are not set when reading from csv file
+            for (Modification mod : modList) {
+                for (CvParam cp : mod.getCvParam()) {
+                    cp.setCv(cv_unimod);
+                }
+            }
+
             if (!modList.isEmpty()) {
                 pepCon.getModification().addAll(modList);
             }

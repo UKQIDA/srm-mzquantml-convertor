@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import uk.ac.liv.jmzqml.model.mzqml.CvParam;
 import uk.ac.liv.jmzqml.model.mzqml.Modification;
 
 /**
@@ -183,7 +184,7 @@ public class SrmReader implements Closeable {
     private Map<String, List<String>> proteinToAssayMap;
     private Map<String, List<String>> assayToProteinMap;
     private Map<String, List<String>> peptideToAssayMap;
-    private Map<String, List<String>> assayToPeptideMap;
+    //private Map<String, List<String>> assayToPeptideMap;
     private Map<String, List<String>> replicateToAssayMap;
     private Map<String, List<String>> assayToReplicateMap;
     private Map<String, List<String>> rawFileNameToAssayMap;
@@ -192,10 +193,15 @@ public class SrmReader implements Closeable {
     private Map<String, String> peptideToTotalAreaRatioMap = new HashMap<>();
     private Map<String, List<Modification>> modificationMap;
 
+    private Map<Double, String> commonPTMNameMap;
+    private Map<Double, String> commonPTMAccMap;
+
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
     public SrmReader(Reader rd)
             throws IOException {
+
+        initCommonPTMMaps();
 
         br = new BufferedReader(rd);
 
@@ -1227,8 +1233,18 @@ public class SrmReader implements Closeable {
                 char residue = modSeq.charAt(matcher.start() - 1);
                 int location = matcher.start() - length;
                 length = length + (matcher.end() - matcher.start());
-
-                mod.setAvgMassDelta(Double.valueOf(mass));
+                Double massD = Double.valueOf(mass);
+                CvParam modCP = new CvParam();
+                String modName = commonPTMNameMap.get(massD);
+                if (modName != null) {
+                    modCP.setName(modName);
+                }
+                String modAcc = commonPTMAccMap.get(massD);
+                if (modAcc != null) {
+                    modCP.setAccession(modAcc);
+                }
+                mod.getCvParam().add(modCP);
+                mod.setMonoisotopicMassDelta(massD);
                 mod.getResidues().add(String.valueOf(residue));
                 mod.setLocation(location);
 
@@ -1299,6 +1315,18 @@ public class SrmReader implements Closeable {
                 || hasTotalAreaRatio
                 || hasAreaNormalized //                || hasPeptideRatio
                 );
+    }
+
+    private void initCommonPTMMaps() {
+        commonPTMNameMap = new HashMap<>();
+        commonPTMNameMap.put(57.0, "Carbamidomethyl");
+        commonPTMNameMap.put(80.0, "Phospho");
+        commonPTMNameMap.put(16.0, "Oxidation");
+
+        commonPTMAccMap = new HashMap<>();
+        commonPTMAccMap.put(57.0, "4");
+        commonPTMAccMap.put(80.0, "21");
+        commonPTMAccMap.put(16.0, "35");
     }
 
 }
