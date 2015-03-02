@@ -361,7 +361,7 @@ public class SrmReader implements Closeable {
                 if (hasModificationSequence) {
                     ModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
                     if (nextLine[posIsotopeLabelType].equalsIgnoreCase("light")) {
-                        lightModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
+                        lightModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence].replace("[", "").replace("]", "").replace("+", ""));
                     }
                     else if (nextLine[posIsotopeLabelType].equalsIgnoreCase("heavy")) {
                         heavyModifiedSequenceMap.put(Integer.toString(index), nextLine[posModificationSequence]);
@@ -936,7 +936,7 @@ public class SrmReader implements Closeable {
                         if (heavySeq.contains("[")) {
                             cutPos = heavySeq.lastIndexOf("[");
                         }
-                        String heavySeqCut = heavySeq.substring(0, cutPos);
+                        String heavySeqCut = heavySeq.substring(0, cutPos).replace("[", "").replace("]", "").replace("+", "");
                         if (heavySeqCut.equalsIgnoreCase(lightSeq)) {
                             lhSeqMap.put(lightSeq, heavySeq);
                         }
@@ -986,7 +986,7 @@ public class SrmReader implements Closeable {
         if (!ModifiedSequenceMap.keySet().isEmpty()) {
             for (String id : ModifiedSequenceMap.keySet()) {
                 if (IsotopeLabelTypeMap.get(id).equalsIgnoreCase("light")) {
-                    String modSeq = ModifiedSequenceMap.get(id);
+                    String modSeq = ModifiedSequenceMap.get(id).replace("[", "").replace("]", "").replace("+", ""); //make valid NCName
                     List<String> idList = lightPeptideIdMap.get(modSeq);
                     if (idList == null) {
                         idList = new ArrayList();
@@ -1016,7 +1016,7 @@ public class SrmReader implements Closeable {
 
         if (!ModifiedSequenceMap.keySet().isEmpty()) {
             for (String id : ModifiedSequenceMap.keySet()) {
-                String modSeq = ModifiedSequenceMap.get(id);
+                String modSeq = ModifiedSequenceMap.get(id).replace("[", "").replace("]", "").replace("+", "");
                 List<String> idList = modifiedSequenceIdMap.get(modSeq);
                 if (idList == null) {
                     idList = new ArrayList();
@@ -1208,7 +1208,7 @@ public class SrmReader implements Closeable {
      */
     private void createPeptideToTotalAreaRatioMap() {
         for (String id : TotalAreaRatioMap.keySet()) {
-            String pepSeq = ModifiedSequenceMap.get(id);
+            String pepSeq = ModifiedSequenceMap.get(id).replace("[", "").replace("]", "").replace("+", "");
             String ratio = peptideToTotalAreaRatioMap.get(pepSeq);
             if (ratio == null && TotalAreaRatioMap.get(id) != null && !TotalAreaRatioMap.get(id).equals("#N/A")) {
                 peptideToTotalAreaRatioMap.put(pepSeq, TotalAreaRatioMap.get(id));
@@ -1237,7 +1237,7 @@ public class SrmReader implements Closeable {
             while (matcher.find()) {
                 Modification mod = new Modification();
 
-                String mass = matcher.group().replaceAll("]", "").replace("+", "").trim().substring(1);
+                String mass = matcher.group().replace("[", "").replace("]", "").replace("+", "").trim();
                 char residue = modSeq.charAt(matcher.start() - 1);
                 int location = matcher.start() - length;
                 length = length + (matcher.end() - matcher.start());
