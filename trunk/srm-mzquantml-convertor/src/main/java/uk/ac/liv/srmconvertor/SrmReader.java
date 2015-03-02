@@ -196,6 +196,8 @@ public class SrmReader implements Closeable {
     private Map<Double, String> commonPTMNameMap;
     private Map<Double, String> commonPTMAccMap;
 
+    private String version;
+
     ////////// ////////// ////////// ////////// //////////
     //Constrctor
     public SrmReader(Reader rd)
@@ -214,9 +216,14 @@ public class SrmReader implements Closeable {
             for (int i = 0; i < nextLine.length; i++) {
                 switch (nextLine[i].toLowerCase()) {
                     case PEPTIDE_SEQUENCE_V14:
+                        posPeptideSequence = i;
+                        hasPeptideSequence = true;
+                        version = "1.4";
+                        break;
                     case PEPTIDE_SEQUENCE_V2:
                         posPeptideSequence = i;
                         hasPeptideSequence = true;
+                        version = "2.X";
                         break;
                     case PROTEIN_NAME_V14:
                     case PROTEIN_NAME_V2:
@@ -406,20 +413,11 @@ public class SrmReader implements Closeable {
                     throw new IllegalStateException("Could not find column with name \"" + FRAGMENT_ION_V14 + "\" or \"" + FRAGMENT_ION_V2 + "\". "
                             + "Please check the input file.");
                 }
-                if (hasPeptideRetentionTime) {
-                    PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
-                }
-                else {
-                    throw new IllegalStateException("Could not find column with name \"" + PEPTIDE_RETENTION_TIME_V14 + "\" or \"" + PEPTIDE_RETENTION_TIME_V2 + "\". "
-                            + "Please check the input file.");
-                }
-                if (hasRetentionTime) {
-                    RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
-                }
-                else {
-                    throw new IllegalStateException("Could not find column with name \"" + RETENTION_TIME_V14 + "\" or \"" + RETENTION_TIME_V2 + "\". "
-                            + "Please check the input file.");
-                }
+
+                PeptideRetentionTimeMap.put(Integer.toString(index), nextLine[posPeptideRetentionTime]);
+
+                RetentionTimeMap.put(Integer.toString(index), nextLine[posRetentionTime]);
+
                 if (hasArea) {
                     AreaMap.put(Integer.toString(index), nextLine[posArea]);
                 }
@@ -798,6 +796,16 @@ public class SrmReader implements Closeable {
         }
         return ret;
     }
+
+    public String getVersion() {
+        if (version == null) {
+            return "1.4";
+        }
+        else {
+            return version;
+        }
+    }
+
 
     /*
      * ******************
