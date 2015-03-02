@@ -417,7 +417,7 @@ public class MzqCreateTask extends Task<Void> {
         Software skyline = new Software();
         softwareList.getSoftware().add(skyline);
         skyline.setId("Skyline");
-        skyline.setVersion("1.4");
+        skyline.setVersion(sRd.getVersion());
         skyline.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline", "PSI-MS", "MS:1000922"));
 
         // SRM convertor
