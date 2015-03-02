@@ -3,56 +3,19 @@ package uk.ac.liv.srmconvertor;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.concurrent.Task;
 import org.apache.commons.lang3.math.NumberUtils;
-import uk.ac.liv.jmzqml.model.mzqml.Affiliation;
-import uk.ac.liv.jmzqml.model.mzqml.AnalysisSummary;
-import uk.ac.liv.jmzqml.model.mzqml.Assay;
-import uk.ac.liv.jmzqml.model.mzqml.AssayList;
-import uk.ac.liv.jmzqml.model.mzqml.AuditCollection;
-import uk.ac.liv.jmzqml.model.mzqml.Column;
-import uk.ac.liv.jmzqml.model.mzqml.ColumnDefinition;
-import uk.ac.liv.jmzqml.model.mzqml.Cv;
-import uk.ac.liv.jmzqml.model.mzqml.CvList;
-import uk.ac.liv.jmzqml.model.mzqml.CvParam;
-import uk.ac.liv.jmzqml.model.mzqml.CvParamRef;
-import uk.ac.liv.jmzqml.model.mzqml.DataMatrix;
-import uk.ac.liv.jmzqml.model.mzqml.DataProcessing;
-import uk.ac.liv.jmzqml.model.mzqml.DataProcessingList;
-import uk.ac.liv.jmzqml.model.mzqml.EvidenceRef;
-import uk.ac.liv.jmzqml.model.mzqml.Feature;
-import uk.ac.liv.jmzqml.model.mzqml.FeatureList;
-import uk.ac.liv.jmzqml.model.mzqml.GlobalQuantLayer;
-import uk.ac.liv.jmzqml.model.mzqml.InputFiles;
-import uk.ac.liv.jmzqml.model.mzqml.Label;
-import uk.ac.liv.jmzqml.model.mzqml.ModParam;
-import uk.ac.liv.jmzqml.model.mzqml.Modification;
-import uk.ac.liv.jmzqml.model.mzqml.MzQuantML;
-import uk.ac.liv.jmzqml.model.mzqml.Organization;
-import uk.ac.liv.jmzqml.model.mzqml.Param;
-import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensus;
-import uk.ac.liv.jmzqml.model.mzqml.PeptideConsensusList;
-import uk.ac.liv.jmzqml.model.mzqml.Person;
-import uk.ac.liv.jmzqml.model.mzqml.ProcessingMethod;
-import uk.ac.liv.jmzqml.model.mzqml.Protein;
-import uk.ac.liv.jmzqml.model.mzqml.ProteinList;
-import uk.ac.liv.jmzqml.model.mzqml.QuantLayer;
-import uk.ac.liv.jmzqml.model.mzqml.Ratio;
-import uk.ac.liv.jmzqml.model.mzqml.RatioList;
-import uk.ac.liv.jmzqml.model.mzqml.RatioQuantLayer;
-import uk.ac.liv.jmzqml.model.mzqml.RawFile;
-import uk.ac.liv.jmzqml.model.mzqml.RawFilesGroup;
-import uk.ac.liv.jmzqml.model.mzqml.Row;
-import uk.ac.liv.jmzqml.model.mzqml.SearchDatabase;
-import uk.ac.liv.jmzqml.model.mzqml.Software;
-import uk.ac.liv.jmzqml.model.mzqml.SoftwareList;
-import uk.ac.liv.jmzqml.model.mzqml.UserParam;
+import uk.ac.liv.jmzqml.model.mzqml.*;
 import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
 
 /**
@@ -63,13 +26,26 @@ import uk.ac.liv.jmzqml.xml.io.MzQuantMLMarshaller;
  */
 public class MzqCreateTask extends Task<Void> {
 
+    // MzQuantML elements
+    private CvList cvs = null;
+    private AuditCollection auditCollection = null;
+    private AnalysisSummary analysisSummary = null;
+    private InputFiles inputFiles = null;
+    private SoftwareList softwareList = null;
+    private DataProcessingList dataProcessingList = null;
+    private AssayList assays = null;
+    private RatioList ratioList = null;
+    private ProteinList proteins = null;
+    private List<PeptideConsensusList> peptideConsensusListList = null;
+    private List<FeatureList> featureLists = null;
+
     private final String in;
     private final File out;
     private final Parameter param;
 
     private SrmReader sRd;
-    private MzQuantMLMarshaller marshaller;
-    private MzQuantML mzq;
+    //private MzQuantMLMarshaller marshaller;
+    //private MzQuantML mzq;
     private Cv cv;
     private Cv cv_mod;
     private Cv cv_unimod;
@@ -101,26 +77,25 @@ public class MzqCreateTask extends Task<Void> {
 
         updateMessage("Start converting ...");
 
-        marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
-
-        //create MzQuantML instance
-        mzq = new MzQuantML();
-
-        String version = "1.0.0";
-        mzq.setVersion(version);
-
-        Calendar rightnow = Calendar.getInstance();
-        mzq.setCreationDate(rightnow);
-
-        int day = rightnow.get(Calendar.DATE);
-        int month = rightnow.get(Calendar.MONTH) + 1;
-        int year = rightnow.get(Calendar.YEAR);
-
-        /*
-         * set mzQuantML id
-         */
-        mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
-
+//        marshaller = new MzQuantMLMarshaller(out.getAbsolutePath());
+//
+//        //create MzQuantML instance
+//        mzq = new MzQuantML();
+//
+//        String version = "1.0.0";
+//        mzq.setVersion(version);
+//
+//        Calendar rightnow = Calendar.getInstance();
+//        mzq.setCreationDate(rightnow);
+//
+//        int day = rightnow.get(Calendar.DATE);
+//        int month = rightnow.get(Calendar.MONTH) + 1;
+//        int year = rightnow.get(Calendar.YEAR);
+//
+//        /*
+//         * set mzQuantML id
+//         */
+//        mzq.setId("SRM-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year));
         createCvList();
 
         createAnalysisSummary();
@@ -149,7 +124,8 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create a Marshaller and marshal to File
          */
-        marshaller.marshall(mzq);
+        //marshaller.marshall(mzq);
+        writeMzqFile(out);
 
         updateProgress(1.0, 1.0);
         updateMessage("Converting complete.");
@@ -178,7 +154,7 @@ public class MzqCreateTask extends Task<Void> {
         /**
          * create CvListType
          */
-        CvList cvs = new CvList();
+        cvs = new CvList();
         List<Cv> cvList = cvs.getCv();
         // psi-ms
 
@@ -203,8 +179,7 @@ public class MzqCreateTask extends Task<Void> {
         cv_uo = MzQuantMLMarshaller.createCv("UO", "Units Ontology", "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/phenotype/unit.obo", null);
         cvList.add(cv_uo);
 
-        mzq.setCvList(cvs);
-
+        //mzq.setCvList(cvs);
         //light label
         label = new Label();
         CvParam labelCvParam = MzQuantMLMarshaller.createCvParam("unlabeled sample", cv, "MS:1002038");
@@ -226,7 +201,7 @@ public class MzqCreateTask extends Task<Void> {
          * create AnalysisSummary
          */
 
-        AnalysisSummary analysisSummary = new AnalysisSummary();
+        analysisSummary = new AnalysisSummary();
         analysisSummary.getParamGroup().add(MzQuantMLMarshaller.createCvParam("SRM quantitation analysis", cv, "MS:1001838"));
 
         if (sRd.isLabelled()) {
@@ -264,14 +239,14 @@ public class MzqCreateTask extends Task<Void> {
 //            analysisSummaryCv.setValue("false");
 //            analysisSummary.getParamGroup().add(analysisSummaryCv);
 //        }
-        mzq.setAnalysisSummary(analysisSummary);
+        //mzq.setAnalysisSummary(analysisSummary);
     }
 
     private void createAuditCollection() {
         /**
          * create AuditCollection
          */
-        AuditCollection auditCollection = new AuditCollection();
+        auditCollection = new AuditCollection();
 
         Organization org = new Organization();
         org.setId("ORG1");
@@ -290,7 +265,7 @@ public class MzqCreateTask extends Task<Void> {
         // the schema require person before organization
         auditCollection.getOrganization().add(org);
 
-        mzq.setAuditCollection(auditCollection);
+        //mzq.setAuditCollection(auditCollection);
     }
 
     private void createInputFiles() {
@@ -298,7 +273,7 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create InputFiles
          */
-        InputFiles inputFiles = new InputFiles();
+        inputFiles = new InputFiles();
         List<RawFilesGroup> rawFilesGroupList = inputFiles.getRawFilesGroup();
 
         /*
@@ -365,14 +340,14 @@ public class MzqCreateTask extends Task<Void> {
         dbNameParam.setName("sgd_orfs_plus_ups_prots.fasta");
         dbName.setParam(dbNameParam);
 
-        mzq.setInputFiles(inputFiles);
+        //mzq.setInputFiles(inputFiles);
     }
 
     private void createAssayList() {
         /**
          * create AssayList
          */
-        AssayList assays = new AssayList();
+        assays = new AssayList();
         assays.setId("AssayList_1");
         List<Assay> assayList = assays.getAssay();
         int assayCounter = 0;
@@ -404,7 +379,7 @@ public class MzqCreateTask extends Task<Void> {
 
             assay.setRawFilesGroup(rawFilesGroup);
         }
-        mzq.setAssayList(assays);
+        //mzq.setAssayList(assays);
     }
 
     private void createSoftwareList() {
@@ -412,7 +387,7 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create SoftwareList
          */
-        SoftwareList softwareList = new SoftwareList();
+        softwareList = new SoftwareList();
         // Skyline
         Software skyline = new Software();
         softwareList.getSoftware().add(skyline);
@@ -427,7 +402,7 @@ public class MzqCreateTask extends Task<Void> {
         srmConv.setVersion("1.0");
         srmConv.getCvParam().add(MzQuantMLMarshaller.createCvParam("Skyline mzQuantML converter", cv, "MS:1002536"));
 
-        mzq.setSoftwareList(softwareList);
+        //mzq.setSoftwareList(softwareList);
     }
 
     private void createDataProcessingList() {
@@ -435,11 +410,11 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create DataProcessingList
          */
-        DataProcessingList dataProcessingList = new DataProcessingList();
+        dataProcessingList = new DataProcessingList();
         // first data processing 
         DataProcessing dataProcessing = new DataProcessing();
         dataProcessing.setId("feature_quantification");
-        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(0));
+        dataProcessing.setSoftware(softwareList.getSoftware().get(0));
         dataProcessing.setOrder(BigInteger.ONE);
         ProcessingMethod processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.ONE);
@@ -450,7 +425,7 @@ public class MzqCreateTask extends Task<Void> {
         // second data processing
         dataProcessing = new DataProcessing();
         dataProcessing.setId("conversion");
-        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(1));
+        dataProcessing.setSoftware(softwareList.getSoftware().get(1));
         dataProcessing.setOrder(BigInteger.valueOf(2));
         processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.ONE);
@@ -463,7 +438,7 @@ public class MzqCreateTask extends Task<Void> {
         // third data processing
         dataProcessing = new DataProcessing();
         dataProcessing.setId("peptide_quantification");
-        dataProcessing.setSoftware(mzq.getSoftwareList().getSoftware().get(1));
+        dataProcessing.setSoftware(softwareList.getSoftware().get(1));
         dataProcessing.setOrder(BigInteger.valueOf(2));
         processingMethod = new ProcessingMethod();
         processingMethod.setOrder(BigInteger.valueOf(2));
@@ -473,7 +448,7 @@ public class MzqCreateTask extends Task<Void> {
         dataProcessing.getProcessingMethod().add(processingMethod);
         dataProcessingList.getDataProcessing().add(dataProcessing);
 
-        mzq.setDataProcessingList(dataProcessingList);
+        //mzq.setDataProcessingList(dataProcessingList);
     }
 
     private void createProteinList() {
@@ -484,7 +459,7 @@ public class MzqCreateTask extends Task<Void> {
         // get protein to peptide map from SRMReader
         Map<String, List<String>> protToPepMap = sRd.getProteinToPeptideMap();
 
-        ProteinList proteins = new ProteinList();
+        proteins = new ProteinList();
         proteins.setId("ProtList1");
         List<Protein> proteinList = proteins.getProtein();
         int protCounter = 0;
@@ -526,7 +501,7 @@ public class MzqCreateTask extends Task<Void> {
 
             proteinList.add(protein);
         }
-        mzq.setProteinList(proteins);
+        //mzq.setProteinList(proteins);
     }
 
     private void createFeatureList() {
@@ -534,7 +509,7 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create FeatureList
          */
-        List<FeatureList> featureLists = mzq.getFeatureList();
+        featureLists = new ArrayList<>();
         Map<String, FeatureList> rgIdFeatureListMap = new HashMap<>();
 
         // for each feature
@@ -611,7 +586,7 @@ public class MzqCreateTask extends Task<Void> {
                 featureLists.add(featureList);
 
                 //add this featureList to data processing step 3 as InputObject_refs
-                DataProcessing dp = mzq.getDataProcessingList().getDataProcessing().get(2);
+                DataProcessing dp = dataProcessingList.getDataProcessing().get(2);
                 dp.getInputObjectRefs().add(featureList.getId());
 
                 /*
@@ -812,7 +787,7 @@ public class MzqCreateTask extends Task<Void> {
          * *
          * create RatioList
          */
-        RatioList ratioList = new RatioList();
+        ratioList = new RatioList();
         Ratio pepRatio = new Ratio();
         pepRatio.setId("ratio1");
         pepRatio.setName("Ratio for peptide");
@@ -848,14 +823,14 @@ public class MzqCreateTask extends Task<Void> {
         //add to RatioList
         ratioList.getRatio().add(pepRatio);
 
-        mzq.setRatioList(ratioList);
+        //mzq.setRatioList(ratioList);
     }
 
     private void createPeptideConsensusList() {
         /*
          * create PeptideConsensusList
          */
-        List<PeptideConsensusList> peptideConsensusListList = mzq.getPeptideConsensusList();
+        peptideConsensusListList = new ArrayList<>();
 
         PeptideConsensusList peptideConsensuses = new PeptideConsensusList();
         peptideConsensuses.setId("PepList1");
@@ -868,7 +843,7 @@ public class MzqCreateTask extends Task<Void> {
 
             RatioQuantLayer pepRQL = new RatioQuantLayer();
             pepRQL.setId("PepRQL_1");
-            for (Ratio rat : mzq.getRatioList().getRatio()) {
+            for (Ratio rat : ratioList.getRatio()) {
                 pepRQL.getColumnIndex().add(rat.getId());
             }
             //pepRQL.getColumns().add(mzq.getRatioList().getRatio().get(0));
@@ -898,6 +873,7 @@ public class MzqCreateTask extends Task<Void> {
             pepCon.setPeptideSequence(sRd.getPeptideSequenceMap().get(lids.get(0)));
 
             // add modifications if there is any
+            
             List<Modification> modList = sRd.getModificationMap().get(lids.get(0));
 
             // set CV (Unimod) for each Modification as they are not set when reading from csv file
@@ -1085,7 +1061,7 @@ public class MzqCreateTask extends Task<Void> {
         peptideConsensuses.setFinalResult(true);
 
         //add this peptideConsensuses to data processing step 3 as OutputObject_refs
-        DataProcessing dp = mzq.getDataProcessingList().getDataProcessing().get(2);
+        DataProcessing dp = dataProcessingList.getDataProcessing().get(2);
         dp.getOutputObjectRefs().add(peptideConsensuses.getId());
 
         peptideConsensusListList.add(peptideConsensuses);
@@ -1106,6 +1082,93 @@ public class MzqCreateTask extends Task<Void> {
         String rgId = rawIdrgIdMap.get(rawId);
 
         return rgId;
+    }
+
+    private void writeMzqFile(File out) {
+        FileWriter writer = null;
+
+        try {
+            MzQuantMLMarshaller mzqMsh = new MzQuantMLMarshaller();
+            writer = new FileWriter(out);
+
+            // XML header
+            writer.write("<?xml version=\"1.0\" encoding=\"" + "UTF-8" + "\"?>" + "\n");
+
+            // mzQuantML start tag
+            Calendar rightnow = Calendar.getInstance();
+            int day = rightnow.get(Calendar.DATE);
+            int month = rightnow.get(Calendar.MONTH) + 1;
+            int year = rightnow.get(Calendar.YEAR);
+
+            /*
+             * set mzQuantML id
+             */
+            String mzqId = "Skyline-" + String.valueOf(day) + String.valueOf(month) + String.valueOf(year);
+
+            writer.write(MzQuantMLMarshaller.createMzQuantMLStartTag(mzqId) + "\n");
+
+            if (cvs != null) {
+                mzqMsh.marshall(cvs, writer);
+                writer.write("\n");
+            }
+            if (auditCollection != null) {
+                mzqMsh.marshall(auditCollection, writer);
+                writer.write("\n");
+            }
+            if (analysisSummary != null) {
+                mzqMsh.marshall(analysisSummary, writer);
+                writer.write("\n");
+            }
+            if (inputFiles != null) {
+                mzqMsh.marshall(inputFiles, writer);
+                writer.write("\n");
+            }
+            if (softwareList != null) {
+                mzqMsh.marshall(softwareList, writer);
+                writer.write("\n");
+            }
+            if (dataProcessingList != null) {
+                mzqMsh.marshall(dataProcessingList, writer);
+                writer.write("\n");
+            }
+            if (assays != null) {
+                mzqMsh.marshall(assays, writer);
+                writer.write("\n");
+            }
+            if (ratioList != null) {
+                mzqMsh.marshall(ratioList, writer);
+                writer.write("\n");
+            }
+            if (proteins != null) {
+                mzqMsh.marshall(proteins, writer);
+                writer.write("\n");
+            }
+            if (peptideConsensusListList != null) {
+                for (PeptideConsensusList pepConList : peptideConsensusListList) {
+                    mzqMsh.marshall(pepConList, writer);
+                    writer.write("\n");
+                }
+            }
+            if (featureLists != null) {
+                for (FeatureList ftList : featureLists) {
+                    mzqMsh.marshall(ftList, writer);
+                    writer.write("\n");
+                }
+            }
+
+            writer.write(MzQuantMLMarshaller.createMzQuantMLClosingTag());
+        }
+        catch (IOException ex) {
+            Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally {
+            try {
+                writer.close();
+            }
+            catch (IOException ex) {
+                Logger.getLogger(MzqCreateTask.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
 }
